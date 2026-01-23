@@ -1,0 +1,51 @@
+<p>
+  Given a string <code>s</code> containing just the characters <code>'('</code>, <code>')'</code>, <code>'['</code>, <code>']'</code>, <code>'{'</code>, and <code>'}'</code>, determine if the input string is valid.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean isValid(String s)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>An input string is valid if:
+    <ul>
+      <li>Open brackets must be closed by the same type of brackets</li>
+      <li>Open brackets must be closed in the correct order</li>
+      <li>Every close bracket has a corresponding open bracket of the same type</li>
+    </ul>
+  </li>
+  <li>Return <code>true</code> if the string is valid, <code>false</code> otherwise</li>
+  <li>The string may be empty (empty string is considered valid)</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>s = "()"</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: s = "()[]{}"
+Output: true</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: s = "(]"
+Output: false</code></pre>
+
+<p><strong>Example 4:</strong></p>
+<pre><code>Input: s = "([)]"
+Output: false</code></pre>
+
+<p><strong>Example 5:</strong></p>
+<pre><code>Input: s = "{[]}"
+Output: true</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The string contains only parentheses characters: <code>()[]{}</code></li>
+  <li>An empty string is considered valid</li>
+  <li>Brackets must be closed in the correct order (e.g., <code>"([)]"</code> is invalid)</li>
+  <li>Nested brackets are valid (e.g., <code>"{[]}"</code> is valid)</li>
+</ul>

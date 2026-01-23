@@ -1,0 +1,37 @@
+<p>
+  Given an integer array <code>arr</code>, return <code>true</code> if it is a valid mountain array.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean validMountainArray(int[] arr)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>The array length must be at least 3</li>
+  <li>There is an index <code>i</code> with <code>0 &lt; i &lt; arr.length - 1</code> such that:</li>
+  <li><code>arr[0] &lt; arr[1] &lt; ... &lt; arr[i]</code> (strictly increasing)</li>
+  <li><code>arr[i] &gt; arr[i + 1] &gt; ... &gt; arr[arr.length - 1]</code> (strictly decreasing)</li>
+  <li>No plateaus are allowed (adjacent elements cannot be equal)</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>arr = [0, 3, 2, 1]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: arr = [3, 5, 5]
+Output: false</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: arr = [1, 2, 3, 4, 5]
+Output: false</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The peak cannot be the first or last element</li>
+  <li>Both sides of the peak must be strictly monotonic</li>
+</ul>

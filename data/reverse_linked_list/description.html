@@ -1,0 +1,55 @@
+<p>
+  Implement a function <code>reverseList</code> that reverses a singly linked list 
+  and returns the new head of the reversed list.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public ListNode reverseList(ListNode head)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Given the head of a singly linked list, reverse the list and return the reversed list's head</li>
+  <li>The ListNode class is provided as a utility class (see ListNode.java)</li>
+  <li>You should reverse the list in-place if possible, or create a new reversed list</li>
+  <li>If the input list is empty (null), return null</li>
+  <li>If the input list has a single node, return that node</li>
+</ul>
+
+<h3>ListNode Structure</h3>
+<pre><code>class ListNode {
+    int val;
+    ListNode next;
+    
+    ListNode(int val) { this.val = val; }
+    ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+}</code></pre>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>head = [1, 2, 3, 4, 5]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[5, 4, 3, 2, 1]</code></pre>
+
+<p><strong>Explanation:</strong> The original list <code>1 -> 2 -> 3 -> 4 -> 5</code> is reversed to <code>5 -> 4 -> 3 -> 2 -> 1</code>.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: head = [1, 2]
+Output: [2, 1]</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: head = []
+Output: []</code></pre>
+
+<p><strong>Example 4:</strong></p>
+<pre><code>Input: head = [1]
+Output: [1]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The number of nodes in the list is the range [0, 5000]</li>
+  <li>Node values are in the range [-5000, 5000]</li>
+  <li>You can use either an iterative or recursive approach</li>
+  <li>Try to solve it in O(n) time and O(1) extra space if possible</li>
+</ul>

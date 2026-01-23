@@ -1,0 +1,38 @@
+<p>
+  Given an integer array <code>nums</code> and an integer <code>k</code>, return an array of the maximum value in each contiguous subarray (sliding window) of size <code>k</code>.
+</p>
+
+<p>
+  The result should contain <code>nums.length - k + 1</code> values, one per window.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[] maxSlidingWindow(int[] nums, int k)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li><code>1 &lt;= k &lt;= nums.length</code></li>
+  <li><code>nums</code> contains integers (positive, negative, or zero)</li>
+  <li>Return the maximum for each window in order from left to right</li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [1, 3, -1, -3, 5, 3, 6, 7], k = 3</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[3, 3, 5, 5, 6, 7]</code></pre>
+
+<p><strong>Explanation:</strong> The window maximums are 3, 3, 5, 5, 6, 7.</p>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [4, 2, 12], k = 1</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[4, 2, 12]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>Use a sliding window with a monotonic deque for an O(n) solution</li>
+</ul>

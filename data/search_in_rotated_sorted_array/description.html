@@ -1,0 +1,42 @@
+<p>
+  Given a rotated sorted array of distinct integers <code>nums</code> and an integer <code>target</code>, return the index of
+  <code>target</code> in <code>nums</code>. If the target is not present, return <code>-1</code>.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int search(int[] nums, int target)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li><code>nums</code> is sorted in ascending order and then rotated at an unknown pivot</li>
+  <li>All values in <code>nums</code> are distinct</li>
+  <li>Return the index of the target, or <code>-1</code> if not found</li>
+  <li>Use a logarithmic-time search if possible</li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [4, 5, 6, 7, 0, 1, 2], target = 0</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>4</code></pre>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [4, 5, 6, 7, 0, 1, 2], target = 3</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>-1</code></pre>
+
+<h3>Example 3</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [1, 2, 3, 4, 5], target = 2</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>1</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The array may be empty</li>
+  <li>All values fit in 32-bit signed integers</li>
+</ul>

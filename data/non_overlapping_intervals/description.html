@@ -1,0 +1,48 @@
+<p>
+  You are given an array of intervals where <code>intervals[i] = [start, end]</code>.
+  Return the minimum number of intervals you must remove so the remaining intervals are non-overlapping.
+</p>
+
+<p>
+  Two intervals <code>[a, b]</code> and <code>[c, d]</code> do not overlap if <code>b &lt;= c</code> or <code>d &lt;= a</code>.
+  Intervals that only touch at an endpoint are considered non-overlapping.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int eraseOverlapIntervals(int[][] intervals)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return the minimum number of intervals to remove</li>
+  <li>Intervals may be unsorted</li>
+  <li>If there are 0 or 1 intervals, return 0</li>
+  <li>Intervals that share an endpoint are allowed</li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>intervals = [[1,2],[2,3],[3,4],[1,3]]</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code>1</code></pre>
+<p><strong>Explanation:</strong> Remove <code>[1,3]</code> to keep the others non-overlapping.</p>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>intervals = [[1,2],[1,2],[1,2]]</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code>2</code></pre>
+<p><strong>Explanation:</strong> Only one interval can remain.</p>
+
+<h3>Example 3</h3>
+<p><strong>Input:</strong></p>
+<pre><code>intervals = [[1,2],[2,3],[3,4]]</code></pre>
+<p><strong>Output:</strong></p>
+<pre><code>0</code></pre>
+<p><strong>Explanation:</strong> The intervals already do not overlap.</p>
+
+<h3>Notes</h3>
+<ul>
+  <li>1 &lt;= intervals.length &lt;= 10<sup>5</sup></li>
+  <li>Each interval has exactly two integers: <code>start</code> and <code>end</code></li>
+  <li><code>-10<sup>5</sup> &lt;= start &lt; end &lt;= 10<sup>5</sup></code></li>
+</ul>

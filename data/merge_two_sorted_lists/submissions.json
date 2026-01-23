@@ -1,0 +1,79 @@
+[
+  {
+    "id": "cbb83ac0-4dd5-465a-be75-e8bad233c31d",
+    "challenge": "merge_two_sorted_lists",
+    "avgTime": 1,
+    "timerTime": 1119249,
+    "date": "2026-01-15T18:19:37.274Z",
+    "solution": "/*\n * ListNode class is provided as a utility class (see ListNode.java).\n * Structure:\n *   class ListNode {\n *       int val;\n *       ListNode next;\n *       \n *       ListNode(int val) { this.val = val; }\n *       ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n *   }\n */\nclass MergeTwoSortedLists {\n    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {\n        if (list1 != null && list2 == null) return list1;\n        if (list1 == null && list2 != null) return list2;\n        if (list1 == null && list2 == null) return null;\n\n        ListNode l1 = list1;\n        ListNode l2 = list2;\n        ListNode result = new ListNode();\n        ListNode r = result;\n        while (l1 != null && l2 != null) {\n            if (l1.val <= l2.val) {\n                r.val = l1.val;\n                l1 = l1.next;\n            } else if (l2.val < l1.val) {\n                r.val = l2.val;\n                l2 = l2.next;\n            }\n            if (l1 != null || l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l1 != null) {\n            r.val = l1.val;\n            l1 = l1.next;\n            if (l1 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l2 != null) {\n            r.val = l2.val;\n            l2 = l2.next;\n            if (l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        return result;\n    }\n}\n",
+    "techBarStatus": "pending",
+    "techBarLabel": null,
+    "guidanceLevel": "Minor"
+  },
+  {
+    "id": "c64d27c6-21a6-4ebd-bbd2-7d423c60621f",
+    "challenge": "merge_two_sorted_lists",
+    "avgTime": 1,
+    "timerTime": 1119249,
+    "date": "2026-01-15T18:18:26.193Z",
+    "solution": "/*\n * ListNode class is provided as a utility class (see ListNode.java).\n * Structure:\n *   class ListNode {\n *       int val;\n *       ListNode next;\n *       \n *       ListNode(int val) { this.val = val; }\n *       ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n *   }\n */\nclass MergeTwoSortedLists {\n    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {\n        if (list1 != null && list2 == null) return list1;\n        if (list1 == null && list2 != null) return list2;\n        if (list1 == null && list2 == null) return null;\n\n        ListNode l1 = list1;\n        ListNode l2 = list2;\n        ListNode result = new ListNode();\n        ListNode r = result;\n        while (l1 != null && l2 != null) {\n            if (l1.val <= l2.val) {\n                r.val = l1.val;\n                l1 = l1.next;\n            } else if (l2.val < l1.val) {\n                r.val = l2.val;\n                l2 = l2.next;\n            }\n            if (l1 != null || l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l1 != null) {\n            r.val = l1.val;\n            l1 = l1.next;\n            if (l1 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l2 != null) {\n            r.val = l2.val;\n            l2 = l2.next;\n            if (l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        return result;\n    }\n}\n",
+    "techBarStatus": "pending",
+    "techBarLabel": null,
+    "guidanceLevel": "Minor"
+  },
+  {
+    "id": "0ac49b36-22f9-4952-9929-7aa090b1021a",
+    "challenge": "merge_two_sorted_lists",
+    "avgTime": 1,
+    "timerTime": 1119249,
+    "date": "2026-01-15T18:17:31.510Z",
+    "solution": "/*\n * ListNode class is provided as a utility class (see ListNode.java).\n * Structure:\n *   class ListNode {\n *       int val;\n *       ListNode next;\n *       \n *       ListNode(int val) { this.val = val; }\n *       ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n *   }\n */\nclass MergeTwoSortedLists {\n    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {\n        if (list1 != null && list2 == null) return list1;\n        if (list1 == null && list2 != null) return list2;\n        if (list1 == null && list2 == null) return null;\n\n        ListNode l1 = list1;\n        ListNode l2 = list2;\n        ListNode result = new ListNode();\n        ListNode r = result;\n        while (l1 != null && l2 != null) {\n            if (l1.val <= l2.val) {\n                r.val = l1.val;\n                l1 = l1.next;\n            } else if (l2.val < l1.val) {\n                r.val = l2.val;\n                l2 = l2.next;\n            }\n            if (l1 != null || l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l1 != null) {\n            r.val = l1.val;\n            l1 = l1.next;\n            if (l1 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l2 != null) {\n            r.val = l2.val;\n            l2 = l2.next;\n            if (l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        return result;\n    }\n}\n",
+    "techBarStatus": "pending",
+    "techBarLabel": null,
+    "guidanceLevel": "Minor"
+  },
+  {
+    "id": "0680689e-79b0-4768-b2f5-a6f48b383f4c",
+    "challenge": "merge_two_sorted_lists",
+    "avgTime": 1,
+    "timerTime": 1119249,
+    "date": "2026-01-15T18:14:54.074Z",
+    "solution": "/*\n * ListNode class is provided as a utility class (see ListNode.java).\n * Structure:\n *   class ListNode {\n *       int val;\n *       ListNode next;\n *       \n *       ListNode(int val) { this.val = val; }\n *       ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n *   }\n */\nclass MergeTwoSortedLists {\n    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {\n        if (list1 != null && list2 == null) return list1;\n        if (list1 == null && list2 != null) return list2;\n        if (list1 == null && list2 == null) return null;\n\n        ListNode l1 = list1;\n        ListNode l2 = list2;\n        ListNode result = new ListNode();\n        ListNode r = result;\n        while (l1 != null && l2 != null) {\n            if (l1.val <= l2.val) {\n                r.val = l1.val;\n                l1 = l1.next;\n            } else if (l2.val < l1.val) {\n                r.val = l2.val;\n                l2 = l2.next;\n            }\n            if (l1 != null || l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l1 != null) {\n            r.val = l1.val;\n            l1 = l1.next;\n            if (l1 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l2 != null) {\n            r.val = l2.val;\n            l2 = l2.next;\n            if (l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        return result;\n    }\n}\n",
+    "techBarStatus": "pending",
+    "techBarLabel": null,
+    "guidanceLevel": "Independent"
+  },
+  {
+    "id": "ba444120-16a4-43b9-97b2-8944cb94f707",
+    "challenge": "merge_two_sorted_lists",
+    "avgTime": 1,
+    "timerTime": 1119249,
+    "date": "2026-01-15T18:14:28.041Z",
+    "solution": "/*\n * ListNode class is provided as a utility class (see ListNode.java).\n * Structure:\n *   class ListNode {\n *       int val;\n *       ListNode next;\n *       \n *       ListNode(int val) { this.val = val; }\n *       ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n *   }\n */\nclass MergeTwoSortedLists {\n    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {\n        if (list1 != null && list2 == null) return list1;\n        if (list1 == null && list2 != null) return list2;\n        if (list1 == null && list2 == null) return null;\n\n        ListNode l1 = list1;\n        ListNode l2 = list2;\n        ListNode result = new ListNode();\n        ListNode r = result;\n        while (l1 != null && l2 != null) {\n            if (l1.val <= l2.val) {\n                r.val = l1.val;\n                l1 = l1.next;\n            } else if (l2.val < l1.val) {\n                r.val = l2.val;\n                l2 = l2.next;\n            }\n            if (l1 != null || l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l1 != null) {\n            r.val = l1.val;\n            l1 = l1.next;\n            if (l1 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l2 != null) {\n            r.val = l2.val;\n            l2 = l2.next;\n            if (l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        return result;\n    }\n}\n",
+    "techBarStatus": "pending",
+    "techBarLabel": null,
+    "guidanceLevel": "Minor"
+  },
+  {
+    "id": "ad836555-6d8d-4047-b497-a63190b13bf0",
+    "challenge": "merge_two_sorted_lists",
+    "avgTime": 1,
+    "timerTime": 1119249,
+    "date": "2026-01-15T18:14:19.657Z",
+    "solution": "/*\n * ListNode class is provided as a utility class (see ListNode.java).\n * Structure:\n *   class ListNode {\n *       int val;\n *       ListNode next;\n *       \n *       ListNode(int val) { this.val = val; }\n *       ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n *   }\n */\nclass MergeTwoSortedLists {\n    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {\n        if (list1 != null && list2 == null) return list1;\n        if (list1 == null && list2 != null) return list2;\n        if (list1 == null && list2 == null) return null;\n\n        ListNode l1 = list1;\n        ListNode l2 = list2;\n        ListNode result = new ListNode();\n        ListNode r = result;\n        while (l1 != null && l2 != null) {\n            if (l1.val <= l2.val) {\n                r.val = l1.val;\n                l1 = l1.next;\n            } else if (l2.val < l1.val) {\n                r.val = l2.val;\n                l2 = l2.next;\n            }\n            if (l1 != null || l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l1 != null) {\n            r.val = l1.val;\n            l1 = l1.next;\n            if (l1 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l2 != null) {\n            r.val = l2.val;\n            l2 = l2.next;\n            if (l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        return result;\n    }\n}\n",
+    "techBarStatus": "pending",
+    "techBarLabel": null,
+    "guidanceLevel": "Independent"
+  },
+  {
+    "id": "2540384a-bd2c-485a-a1eb-0e26a3c0be09",
+    "challenge": "merge_two_sorted_lists",
+    "avgTime": 1,
+    "timerTime": 1119249,
+    "date": "2026-01-15T17:28:22.863Z",
+    "solution": "/*\n * ListNode class is provided as a utility class (see ListNode.java).\n * Structure:\n *   class ListNode {\n *       int val;\n *       ListNode next;\n *       \n *       ListNode(int val) { this.val = val; }\n *       ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n *   }\n */\nclass MergeTwoSortedLists {\n    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {\n        if (list1 != null && list2 == null) return list1;\n        if (list1 == null && list2 != null) return list2;\n        if (list1 == null && list2 == null) return null;\n\n        ListNode l1 = list1;\n        ListNode l2 = list2;\n        ListNode result = new ListNode();\n        ListNode r = result;\n        while (l1 != null && l2 != null) {\n            if (l1.val <= l2.val) {\n                r.val = l1.val;\n                l1 = l1.next;\n            } else if (l2.val < l1.val) {\n                r.val = l2.val;\n                l2 = l2.next;\n            }\n            if (l1 != null || l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l1 != null) {\n            r.val = l1.val;\n            l1 = l1.next;\n            if (l1 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        while (l2 != null) {\n            r.val = l2.val;\n            l2 = l2.next;\n            if (l2 != null) {\n                r.next = new ListNode();\n                r = r.next;\n            }\n        }\n\n        return result;\n    }\n}\n",
+    "techBarStatus": "pending",
+    "techBarLabel": null,
+    "guidanceLevel": "Minor"
+  }
+]

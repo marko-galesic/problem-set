@@ -1,0 +1,30 @@
+<p>
+  Implement a function <code>permute</code> that returns all permutations of a list of distinct integers.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[][] permute(int[] nums)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>The input contains distinct integers</li>
+  <li>Return all permutations of <code>nums</code></li>
+  <li>The output must be ordered lexicographically based on the sorted input</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [1, 2, 3]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]</code></pre>
+
+<h3>Additional Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [3, 1, 2]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]</code></pre>
+
+<p><strong>Explanation:</strong> The input is sorted before generating permutations, so the result is
+lexicographic order based on <code>[1, 2, 3]</code>.</p>

@@ -1,0 +1,60 @@
+<p>
+  Implement an <code>LRUCache</code> class with Time-To-Live (TTL) support. The cache should 
+  implement a Least Recently Used (LRU) eviction policy, where entries expire after a specified 
+  time period.
+</p>
+
+<h3>Class Signature</h3>
+<pre><code>class LRUCache {
+    public LRUCache(int capacity)
+    public int get(int key)
+    public void put(int key, int value)
+}</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li><strong>LRU Eviction:</strong> When the cache reaches capacity, evict the least recently used entry</li>
+  <li><strong>TTL Expiration:</strong> Each entry has a time-to-live. Expired entries return -1 and are removed lazily</li>
+  <li><strong>Refresh-on-Write:</strong> When updating an existing key with <code>put()</code>, the TTL is refreshed</li>
+  <li><strong>No Refresh-on-Read:</strong> Calling <code>get()</code> does NOT refresh the TTL (entries expire based on when they were last written)</li>
+  <li><strong>Return Values:</strong> <code>get()</code> returns the value if found and not expired, otherwise returns -1</li>
+  <li><strong>Capacity Handling:</strong> If capacity is 0, the cache should not store any entries</li>
+</ul>
+
+<h3>TTL Behavior</h3>
+<ul>
+  <li>TTL is applied as "expireAt = now + ttlMillis" on every <code>put()</code> operation</li>
+  <li>Expired entries are removed lazily (when accessed via <code>get()</code> or during <code>put()</code> operations)</li>
+  <li>Eviction policy considers only currently stored (non-expired) entries</li>
+  <li>You may hardcode a TTL value (e.g., 5 minutes) or make it configurable via constructor</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Basic Usage:</strong></p>
+<pre><code>LRUCache cache = new LRUCache(2);
+cache.put(1, 1);  // cache = {1: 1}
+cache.put(2, 2);  // cache = {1: 1, 2: 2}
+cache.get(1);     // returns 1, cache = {2: 2, 1: 1} (1 moved to MRU)
+cache.put(3, 3);  // evicts 2 (LRU), cache = {1: 1, 3: 3}
+cache.get(2);     // returns -1 (not found)
+cache.get(1);     // returns 1
+cache.get(3);     // returns 3</code></pre>
+
+<p><strong>TTL Example:</strong></p>
+<pre><code>LRUCache cache = new LRUCache(2);
+// Assuming TTL is 50ms
+cache.put(1, 1);  // at t=0, entry expires at t=50
+cache.get(1);     // at t=49, returns 1 (not expired)
+cache.get(1);     // at t=50, returns -1 (expired)
+cache.put(1, 9);  // at t=40, refresh TTL, expires at t=90
+cache.get(1);     // at t=80, returns 9 (not expired)
+cache.get(1);     // at t=90, returns -1 (expired)</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>You can use <code>System.currentTimeMillis()</code> to get the current time</li>
+  <li>Use a doubly-linked list and HashMap for O(1) operations</li>
+  <li>Handle edge cases: capacity=0, negative keys/values, expired entries during eviction</li>
+  <li>For TTL, you may hardcode a value or accept it as a constructor parameter</li>
+</ul>
+

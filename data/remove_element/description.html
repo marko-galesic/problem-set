@@ -1,0 +1,42 @@
+<p>
+  Given an integer array <code>nums</code> and an integer value <code>val</code>, remove all instances of <code>val</code>
+  in-place and return the number of elements not equal to <code>val</code>.
+</p>
+
+<p>
+  The relative order of the remaining elements may change. It does not matter what values are left beyond the returned count.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int removeElement(int[] nums, int val)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Modify the input array in-place</li>
+  <li>Return the count of elements not equal to <code>val</code></li>
+  <li>Array order does not need to be preserved</li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [3, 2, 2, 3], val = 3</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>2</code></pre>
+
+<p><strong>Explanation:</strong> The remaining elements can be <code>[2, 2]</code> in any order.</p>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [0, 1, 2, 2, 3, 0, 4, 2], val = 2</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>5</code></pre>
+
+<p><strong>Explanation:</strong> The remaining elements can be <code>[0, 1, 3, 0, 4]</code> in any order.</p>
+
+<h3>Notes</h3>
+<ul>
+  <li>The array may be empty</li>
+  <li>Values can be negative or repeated</li>
+</ul>

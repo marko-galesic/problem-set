@@ -1,0 +1,41 @@
+<p>
+  You are given an array <code>height</code> where <code>height[i]</code> represents the height of a vertical line at position <code>i</code>.
+</p>
+
+<p>
+  Choose two lines that together with the x-axis form a container. Return the maximum amount of water the container can store.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int maxArea(int[] height)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Choose two indices <code>i &lt; j</code> to form the container</li>
+  <li>The area is <code>min(height[i], height[j]) * (j - i)</code></li>
+  <li>Return the maximum possible area</li>
+  <li>If the array has fewer than two elements, return <code>0</code></li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>height = [1, 8, 6, 2, 5, 4, 8, 3, 7]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>49</code></pre>
+
+<p><strong>Explanation:</strong> The container formed by lines at indices 1 and 8 has width 7 and height 7, so area = 49.</p>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>height = [1, 1]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>1</code></pre>
+
+<h3>Example 3</h3>
+<p><strong>Input:</strong></p>
+<pre><code>height = [4, 3, 2, 1, 4]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>16</code></pre>

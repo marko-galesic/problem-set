@@ -1,0 +1,55 @@
+<p>
+  Given a string <code>s</code>, find the length of the longest substring without repeating characters.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int lengthOfLongestSubstring(String s)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Given a string <code>s</code>, find the length of the longest substring without repeating characters</li>
+  <li>A substring is a contiguous sequence of characters within a string</li>
+  <li>Return the length of the longest substring that does not contain any repeating characters</li>
+  <li>If the string is empty, return <code>0</code></li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>s = "abcabcbb"</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>3</code></pre>
+
+<p><strong>Explanation:</strong> The answer is <code>"abc"</code>, with the length of 3.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: s = "bbbbb"
+Output: 1</code></pre>
+
+<p><strong>Explanation:</strong> The answer is <code>"b"</code>, with the length of 1.</p>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: s = "pwwkew"
+Output: 3</code></pre>
+
+<p><strong>Explanation:</strong> The answer is <code>"wke"</code>, with the length of 3. Notice that the answer must be a substring, <code>"pwke"</code> is a subsequence and not a substring.</p>
+
+<p><strong>Example 4:</strong></p>
+<pre><code>Input: s = ""
+Output: 0</code></pre>
+
+<p><strong>Example 5:</strong></p>
+<pre><code>Input: s = "dvdf"
+Output: 3</code></pre>
+
+<p><strong>Explanation:</strong> The answer is <code>"vdf"</code>, with the length of 3.</p>
+
+<h3>Notes</h3>
+<ul>
+  <li>The string may contain any characters (letters, digits, symbols, spaces, etc.)</li>
+  <li>The string may be empty</li>
+  <li>The string length can be from 0 to 50,000 characters</li>
+  <li>Character comparison is case-sensitive (e.g., <code>'a'</code> and <code>'A'</code> are different)</li>
+  <li>You need to find a substring (contiguous characters), not a subsequence</li>
+</ul>

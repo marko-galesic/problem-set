@@ -1,0 +1,52 @@
+<p>
+  Implement a function <code>middleNode</code> that returns the middle node of a singly linked list.
+  If the list has an even number of nodes, return the <em>second</em> middle node.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public ListNode middleNode(ListNode head)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return the middle node of the list (second middle when length is even)</li>
+  <li>The ListNode class is provided as a utility class (see ListNode.java)</li>
+  <li>If the input list is empty (null), return null</li>
+</ul>
+
+<h3>ListNode Structure</h3>
+<pre><code>class ListNode {
+    int val;
+    ListNode next;
+    
+    ListNode(int val) { this.val = val; }
+    ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+}</code></pre>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>head = [1, 2, 3, 4, 5]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[3, 4, 5]</code></pre>
+
+<p><strong>Explanation:</strong> The middle node is <code>3</code>, so the returned list is <code>3 -> 4 -> 5</code>.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: head = [1, 2, 3, 4, 5, 6]
+Output: [4, 5, 6]</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: head = [1]
+Output: [1]</code></pre>
+
+<p><strong>Example 4:</strong></p>
+<pre><code>Input: head = []
+Output: []</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The number of nodes is in the range [0, 100]</li>
+  <li>Node values are in the range [-10^4, 10^4]</li>
+  <li>Try to solve it in O(n) time and O(1) extra space</li>
+</ul>

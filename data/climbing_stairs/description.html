@@ -1,0 +1,43 @@
+<p>
+  You are climbing a staircase with <code>n</code> steps. Each time you can climb either 1 or 2 steps.
+  Return the number of distinct ways to reach the top.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int climbStairs(int n)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Given <code>n</code>, return the number of distinct sequences of 1-step and 2-step moves</li>
+  <li>Order matters: <code>1 + 2</code> and <code>2 + 1</code> are different</li>
+  <li><code>n</code> is a positive integer</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>n = 4
+</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>5
+</code></pre>
+
+<p><strong>Explanation:</strong> The five ways are <code>1+1+1+1</code>, <code>1+1+2</code>,
+  <code>1+2+1</code>, <code>2+1+1</code>, and <code>2+2</code>.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: n = 1
+Output: 1
+</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: n = 2
+Output: 2
+</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>This is the classic Fibonacci-style counting problem</li>
+  <li>An iterative solution with constant extra space is sufficient</li>
+</ul>

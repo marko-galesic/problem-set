@@ -1,0 +1,70 @@
+<p>
+  You are given access to a paginated articles API. Each page contains a list of articles
+  with an author, title, and comment count. Your task is to compute two statistics across
+  <strong>all pages</strong> by fetching every page from the API.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public Map&lt;String, Integer&gt; analyzeArticles(String author, String title)</code></pre>
+
+<h3>Input</h3>
+<ul>
+  <li>Each article contains:</li>
+  <ul>
+    <li><code>id</code>: integer ID</li>
+    <li><code>title</code>: article title</li>
+    <li><code>author</code>: author name</li>
+    <li><code>num_comments</code>: number of comments</li>
+  </ul>
+  <li><code>author</code>: author name to match (case-sensitive)</li>
+  <li><code>title</code>: title to match (case-sensitive)</li>
+</ul>
+
+<h3>API</h3>
+<ul>
+  <li>Base URL: <code>https://example.com/articles</code></li>
+  <li>Query param: <code>page</code> (1-indexed)</li>
+  <li>Response JSON shape:</li>
+</ul>
+<pre><code>{
+  "page": 1,
+  "total_pages": 2,
+  "data": [
+    { "id": 1, "title": "Intro to HTTP", "author": "alice", "num_comments": 5 }
+  ]
+}</code></pre>
+<p>
+  Use <code>requests.get</code> with a <code>params</code> dict (for example,
+  <code>requests.get(BASE_URL, params={"page": 1})</code>) and keep requesting pages
+  until you have processed <code>total_pages</code>.
+</p>
+
+<h3>Output</h3>
+<p>
+  Return an object/map with exactly two keys:
+</p>
+<ul>
+  <li><code>sumByAuthor</code>: the sum of <code>num_comments</code> for all articles by <code>author</code></li>
+  <li><code>countTitleMatches</code>: the number of articles with <code>title</code></li>
+</ul>
+
+<h3>Example</h3>
+<pre><code># Example responses for pages 1..2 fetched from the API:
+page1 = { page: 1, total_pages: 2, data: [
+    { id: 1, title: "Intro to HTTP", author: "alice", num_comments: 5 },
+    { id: 2, title: "Pagination Tips", author: "bob", num_comments: 3 }
+]}
+page2 = { page: 2, total_pages: 2, data: [
+    { id: 3, title: "Intro to HTTP", author: "alice", num_comments: 2 }
+]}
+author = "alice"
+title = "Intro to HTTP"
+
+Output: { sumByAuthor: 7, countTitleMatches: 2 }</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>Match <code>author</code> and <code>title</code> using exact, case-sensitive comparison.</li>
+  <li>If there are no matches, the corresponding value should be <code>0</code>.</li>
+  <li>Use <code>requests.get</code> directly (do not use <code>from requests import get</code>).</li>
+</ul>

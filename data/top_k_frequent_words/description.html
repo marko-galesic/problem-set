@@ -1,0 +1,36 @@
+<p>
+  Implement a function <code>topKFrequent</code> that returns the <code>k</code> most frequent words in a list.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public String[] topKFrequent(String[] words, int k)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return the <code>k</code> most frequent words from <code>words</code></li>
+  <li>Order results by <strong>descending frequency</strong></li>
+  <li>Break ties by <strong>lexicographic order ascending</strong></li>
+  <li>All returned words must be distinct</li>
+</ul>
+
+<h3>Constraints</h3>
+<ul>
+  <li><code>1 &lt;= words.length &lt;= 100000</code></li>
+  <li><code>1 &lt;= words[i].length &lt;= 30</code></li>
+  <li>Each word contains lowercase English letters</li>
+  <li><code>1 &lt;= k &lt;=</code> number of unique words in <code>words</code></li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>words = ["i", "love", "leetcode", "i", "love", "coding"]
+k = 2</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>["i", "love"]</code></pre>
+
+<p><strong>Explanation:</strong> Both <code>i</code> and <code>love</code> appear twice, and <code>i</code> comes first lexicographically.</p>
+
+<h3>Additional Example</h3>
+<pre><code>Input: words = ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
+Output: ["the", "is", "sunny", "day"]</code></pre>

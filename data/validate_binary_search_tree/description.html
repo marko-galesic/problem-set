@@ -1,0 +1,57 @@
+<p>
+  Implement a function <code>isValidBST</code> that determines whether a binary tree
+  is a valid binary search tree (BST).
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean isValidBST(TreeNode root)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>A valid BST satisfies: all values in the left subtree are strictly less than the node's value</li>
+  <li>All values in the right subtree are strictly greater than the node's value</li>
+  <li>Both left and right subtrees must also be valid BSTs</li>
+  <li>Duplicate values are not allowed in a valid BST</li>
+  <li>The TreeNode class is provided as a utility class (see TreeNode.java)</li>
+  <li>If the input tree is empty (null), return true</li>
+</ul>
+
+<h3>TreeNode Structure</h3>
+<pre><code>class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+
+    TreeNode() {}
+    TreeNode(int val) { this.val = val; }
+    TreeNode(int val, TreeNode left, TreeNode right) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}</code></pre>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>root = [2, 1, 3]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<p><strong>Explanation:</strong> The left value (1) is less than 2 and the right value (3) is greater than 2.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: root = [5, 1, 4, null, null, 3, 6]
+Output: false</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: root = []
+Output: true</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The number of nodes is in the range [0, 10^4]</li>
+  <li>Node values are in the range [-2^31, 2^31 - 1]</li>
+  <li>Use strict inequalities for BST validation</li>
+</ul>

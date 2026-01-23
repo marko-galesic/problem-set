@@ -1,0 +1,49 @@
+<p>
+  Implement a function <code>getIntersectionNode</code> that returns the node at which two singly linked lists intersect.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public ListNode getIntersectionNode(ListNode headA, ListNode headB)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return the node where the two lists intersect, or <code>null</code> if they do not intersect</li>
+  <li>Intersection is based on reference, not value</li>
+  <li>The ListNode class is provided as a utility class (see ListNode.java)</li>
+  <li>If either input list is empty (null), return null</li>
+</ul>
+
+<h3>ListNode Structure</h3>
+<pre><code>class ListNode {
+    int val;
+    ListNode next;
+
+    ListNode(int val) { this.val = val; }
+    ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+}</code></pre>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>headA = [4, 1, 8, 4, 5]
+headB = [5, 6, 1, 8, 4, 5]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[8, 4, 5]</code></pre>
+
+<p><strong>Explanation:</strong> The two lists share the tail starting at the node with value 8.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: headA = [1, 9, 1, 2, 4], headB = [3, 2, 4]
+Output: [2, 4]</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: headA = [2, 6, 4], headB = [1, 5]
+Output: null</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The number of nodes in each list is in the range [0, 3 * 10^4]</li>
+  <li>Node values are in the range [-10^5, 10^5]</li>
+  <li>Try to solve it in O(n + m) time and O(1) extra space</li>
+</ul>

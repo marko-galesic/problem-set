@@ -1,0 +1,28 @@
+<p>
+  Given strings <code>s</code> and <code>t</code>, return the shortest substring of <code>s</code> that contains every
+  character from <code>t</code> (including multiplicity). If there is no such substring, return an empty string.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public String minWindow(String s, String t)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return the smallest window in <code>s</code> that contains all characters from <code>t</code></li>
+  <li>Character counts matter (if <code>t</code> has two of a character, the window must have two)</li>
+  <li>Return <code>""</code> if no window exists or if <code>t</code> is empty</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>s = "ADOBECODEBANC", t = "ABC"</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>"BANC"</code></pre>
+
+<p><strong>Explanation:</strong> The substring <code>"BANC"</code> is the shortest window containing <code>A</code>, <code>B</code>, and <code>C</code>.</p>
+
+<h3>Additional Example</h3>
+<pre><code>Input: s = "a", t = "aa"
+Output: ""
+</code></pre>

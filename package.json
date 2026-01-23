@@ -1,0 +1,19 @@
+{
+  "name": "ssml-parser-test",
+  "version": "1.0.0",
+  "description": "ProblemSet coding challenges",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "test": "cd backend && npm test",
+    "test:coverage": "cd backend && npm run test:coverage"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "react-markdown": "^10.1.0"
+  }
+}

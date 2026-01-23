@@ -1,0 +1,32 @@
+<p>
+  Given two strings <code>s</code> and <code>t</code>, return <code>true</code> if
+  <code>s</code> is a subsequence of <code>t</code>, or <code>false</code> otherwise.
+  A subsequence preserves order but does not need to be contiguous.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean isSubsequence(String s, String t)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return <code>true</code> if you can delete some characters from <code>t</code> to get <code>s</code></li>
+  <li>Return <code>false</code> otherwise</li>
+  <li>The comparison is case-sensitive</li>
+  <li>An empty <code>s</code> is always a subsequence of <code>t</code></li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>s = "abc", t = "ahbgdc"</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: s = "axc", t = "ahbgdc"
+Output: false</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: s = "", t = "anything"
+Output: true</code></pre>

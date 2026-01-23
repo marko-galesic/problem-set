@@ -1,0 +1,44 @@
+<p>
+  Given an <code>m x n</code> grid of characters <code>board</code> and a string <code>word</code>,
+  return <code>true</code> if <code>word</code> exists in the grid.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean exist(char[][] board, String word)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>The word is formed by sequentially adjacent cells (up, down, left, right)</li>
+  <li>Each cell may be used at most once in the path</li>
+  <li>Return <code>true</code> if the word can be formed, otherwise <code>false</code></li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>board = [
+  ['A','B','C','E'],
+  ['S','F','C','S'],
+  ['A','D','E','E']
+]
+word = "ABCCED"</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<p><strong>Explanation:</strong> The path A -> B -> C -> C -> E -> D is adjacent and uses each cell once.</p>
+
+<h3>Additional Example</h3>
+<pre><code>Input: board = [
+  ['A','B','C','E'],
+  ['S','F','C','S'],
+  ['A','D','E','E']
+]
+word = "ABCB"
+Output: false</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li><code>m == board.length</code></li>
+  <li><code>n == board[i].length</code></li>
+  <li>Characters can repeat, but a single cell cannot be reused in a path</li>
+</ul>

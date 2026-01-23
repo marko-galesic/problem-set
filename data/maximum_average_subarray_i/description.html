@@ -1,0 +1,39 @@
+<p>
+  Given an integer array <code>nums</code> and an integer <code>k</code>, find the maximum average value of any contiguous subarray of length <code>k</code>.
+</p>
+
+<p>
+  Return the maximum average.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public double findMaxAverage(int[] nums, int k)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li><code>1 &lt;= k &lt;= nums.length</code></li>
+  <li><code>nums</code> contains integers (positive, negative, or zero)</li>
+  <li>Return a floating-point value representing the maximum average</li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [1, 12, -5, -6, 50, 3], k = 4</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>12.75</code></pre>
+
+<p><strong>Explanation:</strong> The subarray [12, -5, -6, 50] has the maximum average of 12.75.</p>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [5], k = 1</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>5.0</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The array length can be as small as 1</li>
+  <li>Use a sliding window to compute averages efficiently</li>
+</ul>

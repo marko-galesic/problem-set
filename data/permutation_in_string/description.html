@@ -1,0 +1,29 @@
+<p>
+  Given two strings <code>s1</code> and <code>s2</code>, return <code>true</code> if
+  <code>s2</code> contains a permutation of <code>s1</code>, or <code>false</code> otherwise.
+  A permutation of a string is a rearrangement of its characters.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean checkInclusion(String s1, String s2)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return <code>true</code> if some substring of <code>s2</code> is a permutation of <code>s1</code></li>
+  <li>Return <code>false</code> otherwise</li>
+  <li>If <code>s1</code> is longer than <code>s2</code>, the result is <code>false</code></li>
+  <li>You may assume <code>s1</code> and <code>s2</code> contain only lowercase English letters</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>s1 = "ab", s2 = "eidbaooo"</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<p><strong>Explanation:</strong> <code>"ba"</code> is a permutation of <code>"ab"</code> and is a substring of <code>s2</code>.</p>
+
+<h3>Additional Example</h3>
+<pre><code>Input: s1 = "ab", s2 = "eidboaoo"
+Output: false</code></pre>

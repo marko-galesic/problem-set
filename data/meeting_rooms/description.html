@@ -1,0 +1,37 @@
+<p>
+  Implement <code>canAttendMeetings</code> to determine if a person can attend all meetings given a list of time intervals.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean canAttendMeetings(int[][] intervals)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Each interval is <code>[start, end]</code> with <code>start &lt; end</code></li>
+  <li>Return <code>true</code> if no meetings overlap</li>
+  <li>Return <code>false</code> if any meetings overlap</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>intervals = [[0, 30], [5, 10], [15, 20]]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>false</code></pre>
+
+<p><strong>Explanation:</strong> The meeting <code>[0, 30]</code> overlaps <code>[5, 10]</code> and <code>[15, 20]</code>.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: intervals = [[5, 8], [9, 15]]
+Output: true</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: intervals = []
+Output: true</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>Intervals may be unsorted</li>
+  <li>Touching endpoints (e.g., <code>[1, 2]</code> and <code>[2, 3]</code>) do not overlap</li>
+</ul>

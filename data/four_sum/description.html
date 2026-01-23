@@ -1,0 +1,32 @@
+<p>
+  Given an integer array <code>nums</code> and an integer <code>target</code>, return all unique quadruplets
+  <code>[a, b, c, d]</code> such that <code>a + b + c + d == target</code>.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[][] fourSum(int[] nums, int target)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Each quadruplet must contain four numbers from <code>nums</code></li>
+  <li>Each quadruplet must be sorted in non-decreasing order</li>
+  <li>The list of quadruplets must be sorted lexicographically (by first, then second, then third, then fourth)</li>
+  <li>No duplicate quadruplets are allowed</li>
+  <li>If there are fewer than four numbers or no valid quadruplets, return an empty list</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [1, 0, -1, 0, -2, 2]
+target = 0</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[-2, -1, 1, 2], [-2, 0, 0, 2], [-1, 0, 0, 1]]</code></pre>
+
+<p><strong>Explanation:</strong> The quadruplets are unique, sorted internally, and ordered lexicographically.</p>
+
+<h3>Notes</h3>
+<ul>
+  <li>The array may contain negative numbers and duplicates</li>
+  <li>Return an empty list when no quadruplets match the target</li>
+</ul>

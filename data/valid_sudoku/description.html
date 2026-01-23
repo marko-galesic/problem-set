@@ -1,0 +1,52 @@
+<p>
+  Given a 9x9 Sudoku board filled with digits <code>'1'</code>-<code>'9'</code> and <code>'.'</code> for empty cells,
+  return <code>true</code> if the board is valid.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean isValidSudoku(char[][] board)</code></pre>
+
+<h3>Rules</h3>
+<ul>
+  <li>Each row must contain the digits 1-9 without repetition</li>
+  <li>Each column must contain the digits 1-9 without repetition</li>
+  <li>Each 3x3 sub-box must contain the digits 1-9 without repetition</li>
+  <li>Empty cells are represented by <code>'.'</code> and should be ignored</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>board = [
+  ['5','3','.','.','7','.','.','.','.'],
+  ['6','.','.','1','9','5','.','.','.'],
+  ['.','9','8','.','.','.','.','6','.'],
+  ['8','.','.','.','6','.','.','.','3'],
+  ['4','.','.','8','.','3','.','.','1'],
+  ['7','.','.','.','2','.','.','.','6'],
+  ['.','6','.','.','.','.','2','8','.'],
+  ['.','.','.','4','1','9','.','.','5'],
+  ['.','.','.','.','8','.','.','7','9']
+]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<h3>Additional Example</h3>
+<pre><code>Input: board = [
+  ['8','3','.','.','7','.','.','.','.'],
+  ['6','.','.','1','9','5','.','.','.'],
+  ['.','9','8','.','.','.','.','6','.'],
+  ['8','.','.','.','6','.','.','.','3'],
+  ['4','.','.','8','.','3','.','.','1'],
+  ['7','.','.','.','2','.','.','.','6'],
+  ['.','6','.','.','.','.','2','8','.'],
+  ['.','.','.','4','1','9','.','.','5'],
+  ['.','.','.','.','8','.','.','7','9']
+]
+Output: false</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The board is 9x9</li>
+  <li>A valid board may be incomplete</li>
+</ul>

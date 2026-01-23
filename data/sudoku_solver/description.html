@@ -1,0 +1,43 @@
+<p>
+  Given a <code>9 x 9</code> Sudoku board, fill the empty cells so that each row, column,
+  and <code>3 x 3</code> subgrid contains the digits <code>'1'</code> through <code>'9'</code> exactly once.
+  Empty cells are marked with <code>'.'</code>.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public char[][] solveSudoku(char[][] board)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Replace every <code>'.'</code> with a digit <code>'1'</code> to <code>'9'</code></li>
+  <li>Each row, column, and <code>3 x 3</code> subgrid must contain every digit exactly once</li>
+  <li>Return the completed board</li>
+  <li>You may assume the input has at least one valid solution</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>board = [
+  ['5','3','.','.','7','.','.','.','.'],
+  ['6','.','.','1','9','5','.','.','.'],
+  ['.','9','8','.','.','.','.','6','.'],
+  ['8','.','.','.','6','.','.','.','3'],
+  ['4','.','.','8','.','3','.','.','1'],
+  ['7','.','.','.','2','.','.','.','6'],
+  ['.','6','.','.','.','.','2','8','.'],
+  ['.','.','.','4','1','9','.','.','5'],
+  ['.','.','.','.','8','.','.','7','9']
+]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[
+  ['5','3','4','6','7','8','9','1','2'],
+  ['6','7','2','1','9','5','3','4','8'],
+  ['1','9','8','3','4','2','5','6','7'],
+  ['8','5','9','7','6','1','4','2','3'],
+  ['4','2','6','8','5','3','7','9','1'],
+  ['7','1','3','9','2','4','8','5','6'],
+  ['9','6','1','5','3','7','2','8','4'],
+  ['2','8','7','4','1','9','6','3','5'],
+  ['3','4','5','2','8','6','1','7','9']
+]</code></pre>

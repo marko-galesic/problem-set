@@ -1,0 +1,42 @@
+<p>
+  Given an integer array <code>nums</code> and an integer <code>k</code>, return the <code>k</code>th largest element in the array.
+</p>
+
+<p>
+  Note that it is the <strong>k</strong>th largest element in the sorted order, not the <strong>k</strong>th distinct element.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int findKthLargest(int[] nums, int k)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return the <code>k</code>th largest element</li>
+  <li>Duplicates are counted as separate elements</li>
+  <li>The array may contain negative values</li>
+</ul>
+
+<h3>Constraints</h3>
+<ul>
+  <li><code>1 &lt;= nums.length &lt;= 100000</code></li>
+  <li><code>-10000 &lt;= nums[i] &lt;= 10000</code></li>
+  <li><code>1 &lt;= k &lt;= nums.length</code></li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [3, 2, 1, 5, 6, 4]
+k = 2</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>5</code></pre>
+
+<p><strong>Explanation:</strong> Sorting in descending order gives <code>[6, 5, 4, 3, 2, 1]</code>; the 2nd largest is <code>5</code>.</p>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [3, 2, 3, 1, 2, 4, 5, 5, 6]
+k = 4</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>4</code></pre>

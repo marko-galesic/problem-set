@@ -1,0 +1,33 @@
+<p>
+  Given an <code>m x n</code> integer matrix <code>matrix</code>, if an element is <code>0</code>, set its entire row and column to <code>0</code>.
+  Return the resulting matrix.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[][] setZeroes(int[][] matrix)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Use the original matrix values to decide which rows and columns become zero</li>
+  <li>Return the updated matrix</li>
+  <li>Handle empty matrices</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>matrix = [[1,1,1],[1,0,1],[1,1,1]]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[1,0,1],[0,0,0],[1,0,1]]</code></pre>
+
+<h3>Additional Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[0,0,0,0],[0,4,5,0],[0,3,1,0]]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>You may modify the input matrix in place as long as you return it</li>
+</ul>

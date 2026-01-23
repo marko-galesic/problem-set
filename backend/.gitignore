@@ -1,0 +1,8 @@
+node_modules/
+*.class
+*.jar
+temp/
+*.log
+data/
+*.db
+

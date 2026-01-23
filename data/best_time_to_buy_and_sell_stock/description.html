@@ -1,0 +1,59 @@
+<p>
+  You are given an array <code>prices</code> where <code>prices[i]</code> is the price of a given stock on the <code>i</code><sup>th</sup> day.
+</p>
+
+<p>
+  You want to maximize your profit by choosing a <strong>single day</strong> to buy one stock and choosing a <strong>different day in the future</strong> to sell that stock.
+</p>
+
+<p>
+  Return <em>the maximum profit you can achieve from this transaction</em>. If you cannot achieve any profit, return <code>0</code>.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int maxProfit(int[] prices)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>You must buy the stock before you can sell it</li>
+  <li>You can only make <strong>one transaction</strong> (buy once and sell once)</li>
+  <li>If you cannot achieve any profit, return <code>0</code></li>
+  <li>The array may contain any number of elements (including 0 or 1)</li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>prices = [7, 1, 5, 3, 6, 4]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>5</code></pre>
+
+<p><strong>Explanation:</strong> Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6 - 1 = 5. Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.</p>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>prices = [7, 6, 4, 3, 1]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>0</code></pre>
+
+<p><strong>Explanation:</strong> In this case, no transactions are done and the max profit = 0. The prices are decreasing, so there's no way to make a profit.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: prices = [1, 2]
+Output: 1
+Explanation: Buy on day 1 (price = 1) and sell on day 2 (price = 2), profit = 2 - 1 = 1.</code></pre>
+
+<p><strong>Example 4:</strong></p>
+<pre><code>Input: prices = [2, 4, 1]
+Output: 2
+Explanation: Buy on day 1 (price = 2) and sell on day 2 (price = 4), profit = 4 - 2 = 2.</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>All prices are non-negative integers</li>
+  <li>The array length can be 0 or 1 (in which case return 0)</li>
+  <li>You need to find the maximum profit from a single buy-sell transaction</li>
+  <li>If prices are all the same, the profit is 0</li>
+</ul>

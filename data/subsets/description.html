@@ -1,0 +1,35 @@
+<p>
+  Implement a function <code>subsets</code> that returns all subsets (the power set)
+  of a set of distinct integers.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[][] subsets(int[] nums)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Each subset must list its elements in ascending order</li>
+  <li>The list of subsets must be sorted lexicographically by their elements</li>
+  <li>If one subset is a prefix of another, the shorter subset comes first</li>
+  <li>Include the empty subset</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [1, 2, 3]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]]</code></pre>
+
+<p><strong>Explanation:</strong> Each subset is sorted, and the list of subsets is
+lexicographically ordered.</p>
+
+<h3>Additional Example</h3>
+<pre><code>Input: nums = [3, 1, 2]
+Output: [[], [1], [1, 2], [1, 2, 3], [1, 3], [2], [2, 3], [3]]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The input array contains distinct integers</li>
+  <li>There are <code>2^n</code> subsets for an input of length <code>n</code></li>
+</ul>

@@ -1,0 +1,50 @@
+<p>
+  Implement a function <code>hasCycle</code> that determines whether a singly linked list
+  contains a cycle.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean hasCycle(ListNode head)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return <code>true</code> if the linked list has a cycle, otherwise return <code>false</code></li>
+  <li>A cycle exists if a node can be reached again by continuously following <code>next</code></li>
+  <li>The ListNode class is provided as a utility class (see ListNode.java)</li>
+  <li>If the input list is empty (null), return false</li>
+</ul>
+
+<h3>ListNode Structure</h3>
+<pre><code>class ListNode {
+    int val;
+    ListNode next;
+
+    ListNode(int val) { this.val = val; }
+    ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+}</code></pre>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>head = [3, 2, 0, -4], pos = 1</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<p><strong>Explanation:</strong> The tail connects to the node at index 1, forming a cycle.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: head = [1, 2], pos = 0
+Output: true</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: head = [1], pos = -1
+Output: false</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The number of nodes is in the range [0, 10^4]</li>
+  <li>Node values are in the range [-10^5, 10^5]</li>
+  <li>The <code>pos</code> value indicates the zero-based index that the tail connects to; <code>-1</code> means no cycle</li>
+  <li>Try to solve it in O(n) time and O(1) extra space</li>
+</ul>

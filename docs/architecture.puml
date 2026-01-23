@@ -1,0 +1,33 @@
+@startuml
+title ProblemSet Architecture
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+actor User
+
+rectangle "Browser" as Browser {
+  component "Frontend (React + Vite)\nfrontend/" as FE
+  component "Local Storage\n(code + submissions)" as LS
+}
+
+component "Backend API (Express)\nbackend/src/server.js" as BE
+database "SQLite\nbackend/data/challenges.db" as DB
+folder "Challenge Data\n/data/<id>/*" as Data
+component "Adapters\nbackend/src/adapters/*" as Adapters
+component "Test Cases\nbackend/src/testCases/*" as Tests
+component "Executors\nbackend/src/executors/*" as Exec
+component "Runtimes\nJDK / Python / Node" as Runtimes
+cloud "OpenAI API\n(optional)" as OpenAI
+
+User --> FE : uses UI
+FE --> BE : /api/* requests
+FE --> LS : save/load drafts
+BE --> DB : metadata + submissions
+BE --> Data : templates + descriptions
+BE --> Tests : run/submit suites
+BE --> Adapters : input/output normalization
+BE --> Exec : compile/run code
+Exec --> Runtimes : process execution
+BE --> OpenAI : bug-hunt + recommendations
+@enduml

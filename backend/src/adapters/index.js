@@ -1,0 +1,58 @@
+/**
+ * Adapter registry - loads and provides adapters for challenges
+ */
+
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const adapterCache = new Map();
+
+/**
+ * Load an adapter for a challenge
+ * @param {string} adapterPath - Path to the adapter module (relative to server.js)
+ * @returns {Promise<Object>} The adapter object
+ */
+export async function loadAdapter(adapterPath) {
+  if (adapterCache.has(adapterPath)) {
+    return adapterCache.get(adapterPath);
+  }
+
+  try {
+    // Resolve the adapter path relative to the server.js file location
+    // adapterPath is like './adapters/ssmlAdapter.js' relative to server.js (in src/)
+    // We're in adapters/index.js, so we need to go up to src/ and then use the path
+    const srcDir = dirname(__dirname); // Go up from adapters/ to src/
+    let resolvedPath;
+    
+    if (adapterPath.startsWith('./')) {
+      // Remove './' and resolve from src dir
+      resolvedPath = join(srcDir, adapterPath.substring(2));
+    } else {
+      resolvedPath = adapterPath;
+    }
+    
+    // For ES modules, we can use the resolved path directly
+    // Convert to file:// URL format for cross-platform compatibility
+    const adapterUrl = resolvedPath.startsWith('file://') 
+      ? resolvedPath 
+      : `file://${resolvedPath}`;
+    
+    const adapterModule = await import(adapterUrl);
+    const adapter = adapterModule.default || adapterModule;
+    adapterCache.set(adapterPath, adapter);
+    return adapter;
+  } catch (error) {
+    throw new Error(`Failed to load adapter from ${adapterPath}: ${error.message}`);
+  }
+}
+
+/**
+ * Clear the adapter cache (useful for testing)
+ */
+export function clearCache() {
+  adapterCache.clear();
+}
+

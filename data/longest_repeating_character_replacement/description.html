@@ -1,0 +1,31 @@
+<p>
+  Given a string <code>s</code> consisting of uppercase English letters and an integer <code>k</code>,
+  you can replace at most <code>k</code> characters in the string so that all characters in a
+  substring are the same. Return the length of the longest substring that can be obtained.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int characterReplacement(String s, int k)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Given a string <code>s</code> and integer <code>k</code>, return the maximum length of a substring
+  that can be made of the same letter after at most <code>k</code> replacements</li>
+  <li>A substring is a contiguous sequence of characters within the string</li>
+  <li>If the string is empty, return <code>0</code></li>
+  <li>You may assume <code>s</code> contains only uppercase English letters</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>s = "ABAB", k = 2</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>4</code></pre>
+
+<p><strong>Explanation:</strong> Replace the two <code>'B'</code> characters with <code>'A'</code> to get
+<code>"AAAA"</code>.</p>
+
+<h3>Additional Example</h3>
+<pre><code>Input: s = "AABABBA", k = 1
+Output: 4</code></pre>

@@ -1,0 +1,32 @@
+<p>
+  Implement a function <code>letterCombinations</code> that returns all possible letter combinations
+  a phone number could represent.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public String[] letterCombinations(String digits)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Use the digit mapping: 2: abc, 3: def, 4: ghi, 5: jkl, 6: mno, 7: pqrs, 8: tuv, 9: wxyz</li>
+  <li>Return combinations in lexicographic order based on the mapping and digit order</li>
+  <li>If <code>digits</code> is empty, return an empty list</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>digits = "23"</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]</code></pre>
+
+<p><strong>Explanation:</strong> Combine each letter for 2 (abc) with each letter for 3 (def).</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: digits = ""
+Output: []</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: digits = "7"
+Output: ["p", "q", "r", "s"]</code></pre>

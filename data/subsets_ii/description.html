@@ -1,0 +1,35 @@
+<p>
+  Implement a function <code>subsetsWithDup</code> that returns all unique subsets of an integer array
+  that may contain duplicates.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[][] subsetsWithDup(int[] nums)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return all distinct subsets (the power set) of <code>nums</code></li>
+  <li>Each subset must be in nondecreasing order</li>
+  <li>The list of subsets must be sorted lexicographically by elements</li>
+  <li>If one subset is a prefix of another, the shorter subset comes first</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [1, 2, 2]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[], [1], [1, 2], [1, 2, 2], [2], [2, 2]]</code></pre>
+
+<h3>Additional Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = []</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[]]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The input array may contain duplicates</li>
+  <li>The empty subset must be included</li>
+</ul>

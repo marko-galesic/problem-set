@@ -1,0 +1,1615 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`adapter outputs (characterization) java adapters binarySearch 1`] = `
+{
+  "adapterPath": "./adapters/binarySearchAdapter.js",
+  "defaultClassName": "BinarySearch",
+  "expectedCode": "        int expected = 2;
+",
+  "extractInput": {
+    "nums": [
+      1,
+      3,
+      5,
+      7,
+      9,
+    ],
+    "target": 5,
+  },
+  "inputHelpers": "    private static int[] getTestNums(int index) {
+        int[][] inputs = {
+            new int[] { 1, 3, 5, 7, 9 },
+            new int[] { 2, 4, 6, 8 }
+        };
+        return inputs[index];
+    }
+
+    private static int getTestTarget(int index) {
+        int[] targets = {
+            5,
+            2
+        };
+        return targets[index];
+    }",
+  "invocation": "                    int[] nums = getTestNums(i);
+                    int target = getTestTarget(i);
+                    actual = solver.binarySearch(nums, target);",
+  "name": "binarySearch",
+  "returnType": "int",
+  "serializer": "    // Serialize an int to a canonical string representation
+    private static String serializeInt(int value) {
+        return String.valueOf(value);
+    }",
+  "serializerMethod": "serializeInt",
+  "testCaseFile": "binarySearchTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) java adapters groupAnagrams 1`] = `
+{
+  "adapterPath": "./adapters/groupAnagramsAdapter.js",
+  "defaultClassName": "GroupAnagrams",
+  "expectedCode": "        String[][] expected = new String[][] { new String[] { "ate", "eat", "tea" }, new String[] { "bat" }, new String[] { "nat", "tan" } };
+",
+  "extractInput": {
+    "strs": [
+      "eat",
+      "tea",
+      "tan",
+      "ate",
+      "nat",
+      "bat",
+    ],
+  },
+  "inputHelpers": "    private static String[] getTestStrs(int index) {
+        String[][] inputs = {
+            new String[] { "eat", "tea", "tan", "ate", "nat", "bat" }
+        };
+        return inputs[index];
+    }",
+  "invocation": "                    String[] strs = getTestStrs(i);
+                    actual = solver.groupAnagrams(strs);",
+  "name": "groupAnagrams",
+  "returnType": "String[][]",
+  "serializer": "    // Serialize a String[][] to a JSON-like representation
+    private static String serializeStringMatrix(String[][] matrix) {
+        if (matrix == null) return "null";
+        if (matrix.length == 0) return "[]";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < matrix.length; i++) {
+            if (i > 0) sb.append(", ");
+            String[] row = matrix[i];
+            if (row == null) {
+                sb.append("null");
+                continue;
+            }
+            sb.append("[");
+            for (int j = 0; j < row.length; j++) {
+                if (j > 0) sb.append(", ");
+                String value = row[j];
+                if (value == null) {
+                    sb.append("null");
+                } else {
+                    sb.append("\\"");
+                    sb.append(value
+                        .replace("\\\\", "\\\\\\\\")
+                        .replace("\\n", "\\\\n")
+                        .replace("\\r", "\\\\r")
+                        .replace("\\t", "\\\\t")
+                        .replace("\\"", "\\\\\\""));
+                    sb.append("\\"");
+                }
+            }
+            sb.append("]");
+        }
+        sb.append("]");
+        return sb.toString();
+    }",
+  "serializerMethod": "serializeStringMatrix",
+  "testCaseFile": "groupAnagramsTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) java adapters letterCombinationsOfAPhoneNumber 1`] = `
+{
+  "adapterPath": "./adapters/letterCombinationsOfAPhoneNumberAdapter.js",
+  "defaultClassName": "LetterCombinationsOfAPhoneNumber",
+  "expectedCode": "        String[] expected = new String[] { "ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf" };
+",
+  "extractInput": {
+    "digits": "23",
+  },
+  "inputHelpers": "    private static String getTestDigits(int index) {
+        String[] inputs = {
+            "23",
+            "7"
+        };
+        return inputs[index];
+    }",
+  "invocation": "                    String digits = getTestDigits(i);
+                    actual = solver.letterCombinations(digits);",
+  "name": "letterCombinationsOfAPhoneNumber",
+  "returnType": "String[]",
+  "serializer": "    // Serialize a String[] to a JSON-like string representation
+    private static String serializeStringArray(String[] arr) {
+        if (arr == null) return "null";
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < arr.length; i++) {
+            if (i > 0) sb.append(", ");
+            sb.append("\\"").append(escapeJsonString(arr[i])).append("\\"");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private static String escapeJsonString(String value) {
+        if (value == null) return "";
+        return value
+            .replace("\\\\", "\\\\\\\\")
+            .replace("\\n", "\\\\n")
+            .replace("\\r", "\\\\r")
+            .replace("\\t", "\\\\t")
+            .replace("\\"", "\\\\\\"");
+    }",
+  "serializerMethod": "serializeStringArray",
+  "testCaseFile": "letterCombinationsOfAPhoneNumberTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) java adapters maximumAverageSubarrayI 1`] = `
+{
+  "adapterPath": "./adapters/maximumAverageSubarrayIAdapter.js",
+  "defaultClassName": "MaximumAverageSubarrayI",
+  "expectedCode": "        double expected = 12.75;
+",
+  "extractInput": {
+    "k": 4,
+    "nums": [
+      1,
+      12,
+      -5,
+      -6,
+      50,
+      3,
+    ],
+  },
+  "inputHelpers": "    private static int[] getTestNums(int index) {
+        int[][] inputs = {
+            new int[] { 1, 12, -5, -6, 50, 3 },
+            new int[] { 5 }
+        };
+        return inputs[index];
+    }
+
+    private static int getTestK(int index) {
+        int[] inputs = {
+            4,
+            1
+        };
+        return inputs[index];
+    }",
+  "invocation": "                    int[] nums = getTestNums(i);
+                    int k = getTestK(i);
+                    actual = solver.findMaxAverage(nums, k);",
+  "name": "maximumAverageSubarrayI",
+  "returnType": "double",
+  "serializer": "    // Serialize a double to a canonical string representation
+    private static String serializeDouble(double value) {
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            return String.valueOf(value);
+        }
+        double rounded = Math.round(value * 100000.0) / 100000.0;
+        return String.format(java.util.Locale.US, "%.5f", rounded);
+    }",
+  "serializerMethod": "serializeDouble",
+  "testCaseFile": "maximumAverageSubarrayITests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) java adapters minimumWindowSubstring 1`] = `
+{
+  "adapterPath": "./adapters/minimumWindowSubstringAdapter.js",
+  "defaultClassName": "MinimumWindowSubstring",
+  "expectedCode": "        String expected = "BANC";
+",
+  "extractInput": {
+    "s": "ADOBECODEBANC",
+    "t": "ABC",
+  },
+  "inputHelpers": "    private static String getTestS(int index) {
+        String[] inputs = {
+            "ADOBECODEBANC",
+            "a"
+        };
+        return inputs[index];
+    }
+
+    private static String getTestT(int index) {
+        String[] inputs = {
+            "ABC",
+            "a"
+        };
+        return inputs[index];
+    }",
+  "invocation": "                    String s = getTestS(i);
+                    String t = getTestT(i);
+                    actual = solver.minWindow(s, t);",
+  "name": "minimumWindowSubstring",
+  "returnType": "String",
+  "serializer": "    // Serialize a String to a canonical representation
+    private static String serializeString(String value) {
+        if (value == null) return "null";
+        return value
+            .replace("\\\\", "\\\\\\\\")
+            .replace("\\n", "\\\\n")
+            .replace("\\r", "\\\\r")
+            .replace("\\t", "\\\\t");
+    }",
+  "serializerMethod": "serializeString",
+  "testCaseFile": "minimumWindowSubstringTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) java adapters setMatrixZeroes 1`] = `
+{
+  "adapterPath": "./adapters/setMatrixZeroesAdapter.js",
+  "defaultClassName": "SetMatrixZeroes",
+  "expectedCode": "        int[][] expected = new int[][] { new int[] { 1, 0, 1 }, new int[] { 0, 0, 0 }, new int[] { 1, 0, 1 } };
+",
+  "extractInput": {
+    "matrix": [
+      [
+        1,
+        1,
+        1,
+      ],
+      [
+        1,
+        0,
+        1,
+      ],
+      [
+        1,
+        1,
+        1,
+      ],
+    ],
+  },
+  "inputHelpers": "    private static int[][] getTestMatrix(int index) {
+        int[][][] grids = {
+            new int[][] { new int[] { 1, 1, 1 }, new int[] { 1, 0, 1 }, new int[] { 1, 1, 1 } }
+        };
+        return grids[index];
+    }",
+  "invocation": "                    int[][] matrix = getTestMatrix(i);
+                    actual = solver.setZeroes(matrix);",
+  "name": "setMatrixZeroes",
+  "returnType": "int[][]",
+  "serializer": "    // Serialize an int[][] to a canonical string representation
+    private static String serializeIntMatrix(int[][] matrix) {
+        if (matrix == null) return "null";
+        if (matrix.length == 0) return "[]";
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < matrix.length; i++) {
+            if (i > 0) sb.append(", ");
+            int[] row = matrix[i];
+            if (row == null) {
+                sb.append("null");
+                continue;
+            }
+            sb.append("[");
+            for (int j = 0; j < row.length; j++) {
+                if (j > 0) sb.append(", ");
+                sb.append(row[j]);
+            }
+            sb.append("]");
+        }
+        sb.append("]");
+        return sb.toString();
+    }",
+  "serializerMethod": "serializeIntMatrix",
+  "testCaseFile": "setMatrixZeroesTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) java adapters sudokuSolver 1`] = `
+{
+  "adapterPath": "./adapters/sudokuSolverAdapter.js",
+  "defaultClassName": "SudokuSolver",
+  "expectedCode": "        char[][] expected = new char[][] { new char[] { '5', '3', '4', '6', '7', '8', '9', '1', '2' }, new char[] { '6', '7', '2', '1', '9', '5', '3', '4', '8' }, new char[] { '1', '9', '8', '3', '4', '2', '5', '6', '7' }, new char[] { '8', '5', '9', '7', '6', '1', '4', '2', '3' }, new char[] { '4', '2', '6', '8', '5', '3', '7', '9', '1' }, new char[] { '7', '1', '3', '9', '2', '4', '8', '5', '6' }, new char[] { '9', '6', '1', '5', '3', '7', '2', '8', '4' }, new char[] { '2', '8', '7', '4', '1', '9', '6', '3', '5' }, new char[] { '3', '4', '5', '2', '8', '6', '1', '7', '9' } };
+",
+  "extractInput": {
+    "board": [
+      [
+        "5",
+        "3",
+        ".",
+        ".",
+        "7",
+        ".",
+        ".",
+        ".",
+        ".",
+      ],
+      [
+        "6",
+        ".",
+        ".",
+        "1",
+        "9",
+        "5",
+        ".",
+        ".",
+        ".",
+      ],
+      [
+        ".",
+        "9",
+        "8",
+        ".",
+        ".",
+        ".",
+        ".",
+        "6",
+        ".",
+      ],
+      [
+        "8",
+        ".",
+        ".",
+        ".",
+        "6",
+        ".",
+        ".",
+        ".",
+        "3",
+      ],
+      [
+        "4",
+        ".",
+        ".",
+        "8",
+        ".",
+        "3",
+        ".",
+        ".",
+        "1",
+      ],
+      [
+        "7",
+        ".",
+        ".",
+        ".",
+        "2",
+        ".",
+        ".",
+        ".",
+        "6",
+      ],
+      [
+        ".",
+        "6",
+        ".",
+        ".",
+        ".",
+        ".",
+        "2",
+        "8",
+        ".",
+      ],
+      [
+        ".",
+        ".",
+        ".",
+        "4",
+        "1",
+        "9",
+        ".",
+        ".",
+        "5",
+      ],
+      [
+        ".",
+        ".",
+        ".",
+        ".",
+        "8",
+        ".",
+        ".",
+        "7",
+        "9",
+      ],
+    ],
+  },
+  "inputHelpers": "    private static char[][] getTestBoard(int index) {
+        char[][][] grids = {
+            new char[][] { new char[] { '5', '3', '.', '.', '7', '.', '.', '.', '.' }, new char[] { '6', '.', '.', '1', '9', '5', '.', '.', '.' }, new char[] { '.', '9', '8', '.', '.', '.', '.', '6', '.' }, new char[] { '8', '.', '.', '.', '6', '.', '.', '.', '3' }, new char[] { '4', '.', '.', '8', '.', '3', '.', '.', '1' }, new char[] { '7', '.', '.', '.', '2', '.', '.', '.', '6' }, new char[] { '.', '6', '.', '.', '.', '.', '2', '8', '.' }, new char[] { '.', '.', '.', '4', '1', '9', '.', '.', '5' }, new char[] { '.', '.', '.', '.', '8', '.', '.', '7', '9' } }
+        };
+        return grids[index];
+    }",
+  "invocation": "                    char[][] board = getTestBoard(i);
+                    actual = solver.solveSudoku(board);",
+  "name": "sudokuSolver",
+  "returnType": "char[][]",
+  "serializer": "    // Serialize a char[][] to a canonical string representation
+    private static String serializeCharMatrix(char[][] matrix) {
+        if (matrix == null) return "null";
+        if (matrix.length == 0) return "[]";
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < matrix.length; i++) {
+            if (i > 0) sb.append(", ");
+            char[] row = matrix[i];
+            if (row == null) {
+                sb.append("null");
+                continue;
+            }
+            sb.append("[");
+            for (int j = 0; j < row.length; j++) {
+                if (j > 0) sb.append(", ");
+                sb.append("'");
+                appendEscapedChar(sb, row[j]);
+                sb.append("'");
+            }
+            sb.append("]");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private static void appendEscapedChar(StringBuilder sb, char ch) {
+        if (ch == '\\\\') {
+            sb.append("\\\\\\\\");
+        } else if (ch == 39) {
+            sb.append("\\\\'");
+        } else if (ch == '\\n') {
+            sb.append("\\\\n");
+        } else if (ch == '\\r') {
+            sb.append("\\\\r");
+        } else if (ch == '\\t') {
+            sb.append("\\\\t");
+        } else {
+            sb.append(ch);
+        }
+    }",
+  "serializerMethod": "serializeCharMatrix",
+  "testCaseFile": "sudokuSolverTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) java adapters twoSum 1`] = `
+{
+  "adapterPath": "./adapters/twoSumAdapter.js",
+  "defaultClassName": "TwoSum",
+  "expectedCode": "        int[] expected = new int[] { 0, 1 };
+",
+  "extractInput": {
+    "nums": [
+      2,
+      7,
+      11,
+      15,
+    ],
+    "target": 9,
+  },
+  "inputHelpers": "    private static int[] getTestNums(int index) {
+        int[][] inputs = {
+            new int[] { 2, 7, 11, 15 },
+            new int[] { 3, 2, 4 }
+        };
+        return inputs[index];
+    }
+
+    private static int getTestTarget(int index) {
+        int[] targets = {
+            9,
+            6
+        };
+        return targets[index];
+    }",
+  "invocation": "                    int[] nums = getTestNums(i);
+                    int target = getTestTarget(i);
+                    actual = solver.twoSum(nums, target);",
+  "name": "twoSum",
+  "returnType": "int[]",
+  "serializer": "    // Serialize an int[] to a canonical string representation
+    private static String serializeIntArray(int[] arr) {
+        if (arr == null) return "null";
+        if (arr.length == 0) return "[]";
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < arr.length; i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(arr[i]);
+        }
+        sb.append("]");
+        return sb.toString();
+    }",
+  "serializerMethod": "serializeIntArray",
+  "testCaseFile": "twoSumTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) java adapters wordSearch 1`] = `
+{
+  "adapterPath": "./adapters/wordSearchAdapter.js",
+  "defaultClassName": "WordSearch",
+  "expectedCode": "        boolean expected = true;
+",
+  "extractInput": {
+    "board": [
+      [
+        "A",
+        "B",
+        "C",
+        "E",
+      ],
+      [
+        "S",
+        "F",
+        "C",
+        "S",
+      ],
+      [
+        "A",
+        "D",
+        "E",
+        "E",
+      ],
+    ],
+    "word": "ABCCED",
+  },
+  "inputHelpers": "    private static char[][] getTestBoard(int index) {
+        char[][][] grids = {
+            new char[][] { new char[] { 'A', 'B', 'C', 'E' }, new char[] { 'S', 'F', 'C', 'S' }, new char[] { 'A', 'D', 'E', 'E' } }
+        };
+        return grids[index];
+    }
+
+    private static String getTestWord(int index) {
+        String[] inputs = {
+            "ABCCED"
+        };
+        return inputs[index];
+    }",
+  "invocation": "                    char[][] board = getTestBoard(i);
+                    String word = getTestWord(i);
+                    actual = solver.exist(board, word);",
+  "name": "wordSearch",
+  "returnType": "boolean",
+  "serializer": "    // Serialize a boolean to a canonical string representation
+    private static String serializeBoolean(boolean value) {
+        return String.valueOf(value);
+    }",
+  "serializerMethod": "serializeBoolean",
+  "testCaseFile": "wordSearchTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters binarySearch 1`] = `
+{
+  "adapterPath": "./adapters/javascript/binarySearchAdapter.js",
+  "defaultClassName": "BinarySearch",
+  "expectedCode": "  const expected = 2;
+",
+  "extractInput": {
+    "nums": [
+      1,
+      3,
+      5,
+      7,
+      9,
+    ],
+    "target": 5,
+  },
+  "inputHelpers": "function getTestNums(index) {
+  const inputs = [[1,3,5,7,9],[2,4,6,8]];
+  return inputs[index];
+}
+
+function getTestTarget(index) {
+  const inputs = [5,2];
+  return inputs[index];
+}",
+  "invocation": "const nums = getTestNums(i);
+          const target = getTestTarget(i);
+          actual = solver.binarySearch(nums, target);",
+  "name": "binarySearch",
+  "returnType": "number",
+  "serializer": "function serializeInt(value) {
+  return value === null || value === undefined ? "null" : String(value);
+}",
+  "serializerMethod": "serializeInt",
+  "testCaseFile": "binarySearchTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters groupAnagrams 1`] = `
+{
+  "adapterPath": "./adapters/javascript/groupAnagramsAdapter.js",
+  "defaultClassName": "GroupAnagrams",
+  "expectedCode": "  const expected = [["ate","eat","tea"],["bat"],["nat","tan"]];
+",
+  "extractInput": {
+    "strs": [
+      "eat",
+      "tea",
+      "tan",
+      "ate",
+      "nat",
+      "bat",
+    ],
+  },
+  "inputHelpers": "function getTestStrs(index) {
+  const inputs = [["eat","tea","tan","ate","nat","bat"]];
+  return inputs[index];
+}",
+  "invocation": "const strs = getTestStrs(i);
+          actual = solver.groupAnagrams(strs);",
+  "name": "groupAnagrams",
+  "returnType": "string[][]",
+  "serializer": "function serializeStringMatrix(matrix) {
+  if (matrix === null || matrix === undefined) return "null";
+  if (!Array.isArray(matrix)) return "null";
+  if (matrix.length === 0) return "[]";
+  const rows = matrix.map((row) => {
+    if (!Array.isArray(row)) return "null";
+    const items = row.map((value) => {
+      if (value === null || value === undefined) return "null";
+      return JSON.stringify(String(value));
+    });
+    return "[" + items.join(", ") + "]";
+  });
+  return "[" + rows.join(", ") + "]";
+}",
+  "serializerMethod": "serializeStringMatrix",
+  "testCaseFile": "groupAnagramsTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters letterCombinationsOfAPhoneNumber 1`] = `
+{
+  "adapterPath": "./adapters/javascript/letterCombinationsOfAPhoneNumberAdapter.js",
+  "defaultClassName": "LetterCombinationsOfAPhoneNumber",
+  "expectedCode": "  const expected = ["ad","ae","af","bd","be","bf","cd","ce","cf"];
+",
+  "extractInput": {
+    "digits": "23",
+  },
+  "inputHelpers": "function getTestDigits(index) {
+  const inputs = [
+    "23",
+    "7"
+  ];
+  return inputs[index];
+}",
+  "invocation": "const digits = getTestDigits(i);
+          actual = solver.letterCombinations(digits);",
+  "name": "letterCombinationsOfAPhoneNumber",
+  "returnType": "string[]",
+  "serializer": "function serializeStringArray(arr) {
+  if (arr === null || arr === undefined) return "null";
+  if (!Array.isArray(arr)) return "null";
+  const escaped = arr.map((value) => {
+    const str = value === null || value === undefined ? "" : String(value);
+    return "\\"" + str
+      .replace(/\\\\/g, "\\\\\\\\")
+      .replace(/\\n/g, "\\\\n")
+      .replace(/\\r/g, "\\\\r")
+      .replace(/\\t/g, "\\\\t")
+      .replace(/"/g, "\\\\\\"") + "\\"";
+  });
+  return "[" + escaped.join(", ") + "]";
+}",
+  "serializerMethod": "serializeStringArray",
+  "testCaseFile": "letterCombinationsOfAPhoneNumberTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters maximumAverageSubarrayI 1`] = `
+{
+  "adapterPath": "./adapters/javascript/maximumAverageSubarrayIAdapter.js",
+  "defaultClassName": "MaximumAverageSubarrayI",
+  "expectedCode": "  const expected = 12.75;
+",
+  "extractInput": {
+    "k": 4,
+    "nums": [
+      1,
+      12,
+      -5,
+      -6,
+      50,
+      3,
+    ],
+  },
+  "inputHelpers": "function getTestNums(index) {
+  const inputs = [[1,12,-5,-6,50,3],[5]];
+  return inputs[index];
+}
+
+function getTestK(index) {
+  const inputs = [4,1];
+  return inputs[index];
+}",
+  "invocation": "const nums = getTestNums(i);
+          const k = getTestK(i);
+          actual = solver.findMaxAverage(nums, k);",
+  "name": "maximumAverageSubarrayI",
+  "returnType": "number",
+  "serializer": "function serializeDouble(value) {
+  if (value === null || value === undefined) return "null";
+  if (!Number.isFinite(value)) return String(value);
+  const rounded = Math.round(value * 100000) / 100000;
+  return rounded.toFixed(5);
+}",
+  "serializerMethod": "serializeDouble",
+  "testCaseFile": "maximumAverageSubarrayITests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters minimumWindowSubstring 1`] = `
+{
+  "adapterPath": "./adapters/javascript/minimumWindowSubstringAdapter.js",
+  "defaultClassName": "MinimumWindowSubstring",
+  "expectedCode": "  const expected = "BANC";
+",
+  "extractInput": {
+    "s": "ADOBECODEBANC",
+    "t": "ABC",
+  },
+  "inputHelpers": "function getTestS(index) {
+  const inputs = [
+    "ADOBECODEBANC",
+    "a"
+  ];
+  return inputs[index];
+}
+
+function getTestT(index) {
+  const inputs = [
+    "ABC",
+    "a"
+  ];
+  return inputs[index];
+}",
+  "invocation": "const s = getTestS(i);
+          const t = getTestT(i);
+          actual = solver.minWindow(s, t);",
+  "name": "minimumWindowSubstring",
+  "returnType": "string",
+  "serializer": "function serializeString(value) {
+  if (value === null || value === undefined) return "null";
+  return String(value)
+    .replace(/\\\\/g, "\\\\\\\\")
+    .replace(/\\n/g, "\\\\n")
+    .replace(/\\r/g, "\\\\r")
+    .replace(/\\t/g, "\\\\t");
+}",
+  "serializerMethod": "serializeString",
+  "testCaseFile": "minimumWindowSubstringTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters setMatrixZeroes 1`] = `
+{
+  "adapterPath": "./adapters/javascript/setMatrixZeroesAdapter.js",
+  "defaultClassName": "SetMatrixZeroes",
+  "expectedCode": "  const expected = [[1,0,1],[0,0,0],[1,0,1]];
+",
+  "extractInput": {
+    "matrix": [
+      [
+        1,
+        1,
+        1,
+      ],
+      [
+        1,
+        0,
+        1,
+      ],
+      [
+        1,
+        1,
+        1,
+      ],
+    ],
+  },
+  "inputHelpers": "function getTestMatrix(index) {
+  const grids = [[[1,1,1],[1,0,1],[1,1,1]]];
+  const grid = grids[index] || [];
+  return grid.map(row => row.slice());
+}",
+  "invocation": "const matrix = getTestMatrix(i);
+          actual = solver.setZeroes(matrix);",
+  "name": "setMatrixZeroes",
+  "returnType": "number[][]",
+  "serializer": "function serializeIntMatrix(matrix) {
+  if (matrix === null || matrix === undefined) return "null";
+  if (!Array.isArray(matrix)) return "null";
+  if (matrix.length === 0) return "[]";
+  const parts = matrix.map((row) => {
+    if (row === null || row === undefined) return "null";
+    return "[" + row.join(", ") + "]";
+  });
+  return "[" + parts.join(", ") + "]";
+}",
+  "serializerMethod": "serializeIntMatrix",
+  "testCaseFile": "setMatrixZeroesTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters sudokuSolver 1`] = `
+{
+  "adapterPath": "./adapters/javascript/sudokuSolverAdapter.js",
+  "defaultClassName": "SudokuSolver",
+  "expectedCode": "  const expected = [["5","3","4","6","7","8","9","1","2"],["6","7","2","1","9","5","3","4","8"],["1","9","8","3","4","2","5","6","7"],["8","5","9","7","6","1","4","2","3"],["4","2","6","8","5","3","7","9","1"],["7","1","3","9","2","4","8","5","6"],["9","6","1","5","3","7","2","8","4"],["2","8","7","4","1","9","6","3","5"],["3","4","5","2","8","6","1","7","9"]];
+",
+  "extractInput": {
+    "board": [
+      [
+        "5",
+        "3",
+        ".",
+        ".",
+        "7",
+        ".",
+        ".",
+        ".",
+        ".",
+      ],
+      [
+        "6",
+        ".",
+        ".",
+        "1",
+        "9",
+        "5",
+        ".",
+        ".",
+        ".",
+      ],
+      [
+        ".",
+        "9",
+        "8",
+        ".",
+        ".",
+        ".",
+        ".",
+        "6",
+        ".",
+      ],
+      [
+        "8",
+        ".",
+        ".",
+        ".",
+        "6",
+        ".",
+        ".",
+        ".",
+        "3",
+      ],
+      [
+        "4",
+        ".",
+        ".",
+        "8",
+        ".",
+        "3",
+        ".",
+        ".",
+        "1",
+      ],
+      [
+        "7",
+        ".",
+        ".",
+        ".",
+        "2",
+        ".",
+        ".",
+        ".",
+        "6",
+      ],
+      [
+        ".",
+        "6",
+        ".",
+        ".",
+        ".",
+        ".",
+        "2",
+        "8",
+        ".",
+      ],
+      [
+        ".",
+        ".",
+        ".",
+        "4",
+        "1",
+        "9",
+        ".",
+        ".",
+        "5",
+      ],
+      [
+        ".",
+        ".",
+        ".",
+        ".",
+        "8",
+        ".",
+        ".",
+        "7",
+        "9",
+      ],
+    ],
+  },
+  "inputHelpers": "function getTestBoard(index) {
+  const grids = [[["5","3",".",".","7",".",".",".","."],["6",".",".","1","9","5",".",".","."],[".","9","8",".",".",".",".","6","."],["8",".",".",".","6",".",".",".","3"],["4",".",".","8",".","3",".",".","1"],["7",".",".",".","2",".",".",".","6"],[".","6",".",".",".",".","2","8","."],[".",".",".","4","1","9",".",".","5"],[".",".",".",".","8",".",".","7","9"]]];
+  const grid = grids[index] || [];
+  return grid.map(row => row.slice());
+}",
+  "invocation": "const board = getTestBoard(i);
+          actual = solver.solveSudoku(board);",
+  "name": "sudokuSolver",
+  "returnType": "string[][]",
+  "serializer": "function serializeCharMatrix(matrix) {
+  if (matrix === null || matrix === undefined) return "null";
+  if (!Array.isArray(matrix)) return "null";
+  if (matrix.length === 0) return "[]";
+  const rows = matrix.map((row) => {
+    if (!Array.isArray(row)) return "null";
+    const cells = row.map((cell) => "'" + escapeChar(cell ?? '') + "'");
+    return "[" + cells.join(", ") + "]";
+  });
+  return "[" + rows.join(", ") + "]";
+}
+
+function escapeChar(value) {
+  return String(value)
+    .replace(/\\\\/g, "\\\\\\\\")
+    .replace(/'/g, "\\\\'")
+    .replace(/\\n/g, "\\\\n")
+    .replace(/\\r/g, "\\\\r")
+    .replace(/\\t/g, "\\\\t");
+}",
+  "serializerMethod": "serializeCharMatrix",
+  "testCaseFile": "sudokuSolverTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters twoSum 1`] = `
+{
+  "adapterPath": "./adapters/javascript/twoSumAdapter.js",
+  "defaultClassName": "TwoSum",
+  "expectedCode": "  const expected = [0,1];
+",
+  "extractInput": {
+    "nums": [
+      2,
+      7,
+      11,
+      15,
+    ],
+    "target": 9,
+  },
+  "inputHelpers": "function getTestNums(index) {
+  const inputs = [[2,7,11,15],[3,2,4]];
+  return inputs[index];
+}
+
+function getTestTarget(index) {
+  const inputs = [9,6];
+  return inputs[index];
+}",
+  "invocation": "const nums = getTestNums(i);
+          const target = getTestTarget(i);
+          actual = solver.twoSum(nums, target);",
+  "name": "twoSum",
+  "returnType": "number[]",
+  "serializer": "function serializeIntArray(arr) {
+  if (arr === null || arr === undefined) return "null";
+  if (arr.length === 0) return "[]";
+  return "[" + arr.join(", ") + "]";
+}",
+  "serializerMethod": "serializeIntArray",
+  "testCaseFile": "twoSumTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) javascript adapters wordSearch 1`] = `
+{
+  "adapterPath": "./adapters/javascript/wordSearchAdapter.js",
+  "defaultClassName": "WordSearch",
+  "expectedCode": "  const expected = true;
+",
+  "extractInput": {
+    "board": [
+      [
+        "A",
+        "B",
+        "C",
+        "E",
+      ],
+      [
+        "S",
+        "F",
+        "C",
+        "S",
+      ],
+      [
+        "A",
+        "D",
+        "E",
+        "E",
+      ],
+    ],
+    "word": "ABCCED",
+  },
+  "inputHelpers": "function getTestBoard(index) {
+  const grids = [[["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]]];
+  const grid = grids[index] || [];
+  return grid.map(row => row.slice());
+}
+
+function getTestWord(index) {
+  const inputs = [
+    "ABCCED"
+  ];
+  return inputs[index];
+}",
+  "invocation": "const board = getTestBoard(i);
+          const word = getTestWord(i);
+          actual = solver.exist(board, word);",
+  "name": "wordSearch",
+  "returnType": "boolean",
+  "serializer": "function serializeBoolean(value) {
+  if (value === null || value === undefined) return "null";
+  return value ? "true" : "false";
+}",
+  "serializerMethod": "serializeBoolean",
+  "testCaseFile": "wordSearchTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters binarySearch 1`] = `
+{
+  "adapterPath": "./adapters/python/binarySearchAdapter.js",
+  "defaultClassName": "BinarySearch",
+  "expectedCode": "    expected = 2
+",
+  "extractInput": {
+    "nums": [
+      1,
+      3,
+      5,
+      7,
+      9,
+    ],
+    "target": 5,
+  },
+  "inputHelpers": "def get_test_nums(index):
+    inputs = [
+        [1, 3, 5, 7, 9],
+        [2, 4, 6, 8]
+    ]
+    return inputs[index]
+
+def get_test_target(index):
+    inputs = [
+        5,
+        2
+    ]
+    return inputs[index]
+",
+  "invocation": "nums = get_test_nums(i)
+target = get_test_target(i)
+actual = solver.binarySearch(nums, target)",
+  "name": "binarySearch",
+  "returnType": "int",
+  "serializer": "def serialize_int(value):
+    return "null" if value is None else str(value)
+",
+  "serializerMethod": "serialize_int",
+  "testCaseFile": "binarySearchTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters groupAnagrams 1`] = `
+{
+  "adapterPath": "./adapters/python/groupAnagramsAdapter.js",
+  "defaultClassName": "GroupAnagrams",
+  "expectedCode": "    expected = [["ate", "eat", "tea"], ["bat"], ["nat", "tan"]]
+",
+  "extractInput": {
+    "strs": [
+      "eat",
+      "tea",
+      "tan",
+      "ate",
+      "nat",
+      "bat",
+    ],
+  },
+  "inputHelpers": "def get_test_strs(index):
+    inputs = [
+        ["eat", "tea", "tan", "ate", "nat", "bat"]
+    ]
+    return inputs[index]
+",
+  "invocation": "strs = get_test_strs(i)
+actual = solver.groupAnagrams(strs)",
+  "name": "groupAnagrams",
+  "returnType": "list[list[str]]",
+  "serializer": "def serialize_string_matrix(matrix):
+    if matrix is None:
+        return "null"
+    if not isinstance(matrix, list):
+        return "null"
+    if len(matrix) == 0:
+        return "[]"
+
+    import json
+    rows = []
+    for row in matrix:
+        if row is None:
+            rows.append("null")
+            continue
+        items = []
+        for value in row:
+            if value is None:
+                items.append("null")
+            else:
+                items.append(json.dumps(str(value)))
+        rows.append("[" + ", ".join(items) + "]")
+    return "[" + ", ".join(rows) + "]"
+",
+  "serializerMethod": "serialize_string_matrix",
+  "testCaseFile": "groupAnagramsTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters letterCombinationsOfAPhoneNumber 1`] = `
+{
+  "adapterPath": "./adapters/python/letterCombinationsOfAPhoneNumberAdapter.js",
+  "defaultClassName": "LetterCombinationsOfAPhoneNumber",
+  "expectedCode": "    expected = ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]
+",
+  "extractInput": {
+    "digits": "23",
+  },
+  "inputHelpers": "def get_test_digits(index):
+    inputs = [
+        "23",
+        "7"
+    ]
+    return inputs[index]
+",
+  "invocation": "digits = get_test_digits(i)
+actual = solver.letterCombinations(digits)",
+  "name": "letterCombinationsOfAPhoneNumber",
+  "returnType": "list[str]",
+  "serializer": "def serialize_string_array(arr):
+    if arr is None:
+        return "null"
+    parts = []
+    for value in arr:
+        if value is None:
+            value = ""
+        else:
+            value = str(value)
+        escaped = value.replace("\\\\", "\\\\\\\\").replace("\\n", "\\\\n").replace("\\r", "\\\\r").replace("\\t", "\\\\t").replace("\\"", "\\\\\\"")
+        parts.append(f"\\"{escaped}\\"")
+    return "[" + ", ".join(parts) + "]"
+",
+  "serializerMethod": "serialize_string_array",
+  "testCaseFile": "letterCombinationsOfAPhoneNumberTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters maximumAverageSubarrayI 1`] = `
+{
+  "adapterPath": "./adapters/python/maximumAverageSubarrayIAdapter.js",
+  "defaultClassName": "MaximumAverageSubarrayI",
+  "expectedCode": "    expected = 12.75
+",
+  "extractInput": {
+    "k": 4,
+    "nums": [
+      1,
+      12,
+      -5,
+      -6,
+      50,
+      3,
+    ],
+  },
+  "inputHelpers": "def get_test_nums(index):
+    inputs = [
+        [1, 12, -5, -6, 50, 3],
+        [5]
+    ]
+    return inputs[index]
+
+def get_test_k(index):
+    inputs = [
+        4,
+        1
+    ]
+    return inputs[index]
+",
+  "invocation": "nums = get_test_nums(i)
+k = get_test_k(i)
+actual = solver.findMaxAverage(nums, k)",
+  "name": "maximumAverageSubarrayI",
+  "returnType": "float",
+  "serializer": "def serialize_double(value):
+    if value is None:
+        return "null"
+    return f"{value:.5f}"
+",
+  "serializerMethod": "serialize_double",
+  "testCaseFile": "maximumAverageSubarrayITests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters minimumWindowSubstring 1`] = `
+{
+  "adapterPath": "./adapters/python/minimumWindowSubstringAdapter.js",
+  "defaultClassName": "MinimumWindowSubstring",
+  "expectedCode": "    expected = "BANC"
+",
+  "extractInput": {
+    "s": "ADOBECODEBANC",
+    "t": "ABC",
+  },
+  "inputHelpers": "def get_test_s(index):
+    inputs = [
+        "ADOBECODEBANC",
+        "a"
+    ]
+    return inputs[index]
+
+def get_test_t(index):
+    inputs = [
+        "ABC",
+        "a"
+    ]
+    return inputs[index]
+",
+  "invocation": "s = get_test_s(i)
+t = get_test_t(i)
+actual = solver.minWindow(s, t)",
+  "name": "minimumWindowSubstring",
+  "returnType": "str",
+  "serializer": "def serialize_string(value):
+    if value is None:
+        return "null"
+    return value.replace("\\\\", "\\\\\\\\").replace("\\n", "\\\\n").replace("\\r", "\\\\r").replace("\\t", "\\\\t")
+",
+  "serializerMethod": "serialize_string",
+  "testCaseFile": "minimumWindowSubstringTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters setMatrixZeroes 1`] = `
+{
+  "adapterPath": "./adapters/python/setMatrixZeroesAdapter.js",
+  "defaultClassName": "SetMatrixZeroes",
+  "expectedCode": "    expected = [[1, 0, 1], [0, 0, 0], [1, 0, 1]]
+",
+  "extractInput": {
+    "matrix": [
+      [
+        1,
+        1,
+        1,
+      ],
+      [
+        1,
+        0,
+        1,
+      ],
+      [
+        1,
+        1,
+        1,
+      ],
+    ],
+  },
+  "inputHelpers": "def get_test_matrix(index):
+    grids = [
+        [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+    ]
+    grid = grids[index]
+    return [row[:] for row in grid]
+",
+  "invocation": "matrix = get_test_matrix(i)
+actual = solver.setZeroes(matrix)",
+  "name": "setMatrixZeroes",
+  "returnType": "list[list[int]]",
+  "serializer": "def serialize_int_matrix(matrix):
+    if matrix is None:
+        return "null"
+    if not isinstance(matrix, list):
+        return "null"
+    if len(matrix) == 0:
+        return "[]"
+
+    parts = []
+    for row in matrix:
+        if row is None:
+            parts.append("null")
+        else:
+            parts.append("[" + ", ".join(str(x) for x in row) + "]")
+
+    return "[" + ", ".join(parts) + "]"
+",
+  "serializerMethod": "serialize_int_matrix",
+  "testCaseFile": "setMatrixZeroesTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters sudokuSolver 1`] = `
+{
+  "adapterPath": "./adapters/python/sudokuSolverAdapter.js",
+  "defaultClassName": "SudokuSolver",
+  "expectedCode": "    expected = [["5", "3", "4", "6", "7", "8", "9", "1", "2"], ["6", "7", "2", "1", "9", "5", "3", "4", "8"], ["1", "9", "8", "3", "4", "2", "5", "6", "7"], ["8", "5", "9", "7", "6", "1", "4", "2", "3"], ["4", "2", "6", "8", "5", "3", "7", "9", "1"], ["7", "1", "3", "9", "2", "4", "8", "5", "6"], ["9", "6", "1", "5", "3", "7", "2", "8", "4"], ["2", "8", "7", "4", "1", "9", "6", "3", "5"], ["3", "4", "5", "2", "8", "6", "1", "7", "9"]]
+",
+  "extractInput": {
+    "board": [
+      [
+        "5",
+        "3",
+        ".",
+        ".",
+        "7",
+        ".",
+        ".",
+        ".",
+        ".",
+      ],
+      [
+        "6",
+        ".",
+        ".",
+        "1",
+        "9",
+        "5",
+        ".",
+        ".",
+        ".",
+      ],
+      [
+        ".",
+        "9",
+        "8",
+        ".",
+        ".",
+        ".",
+        ".",
+        "6",
+        ".",
+      ],
+      [
+        "8",
+        ".",
+        ".",
+        ".",
+        "6",
+        ".",
+        ".",
+        ".",
+        "3",
+      ],
+      [
+        "4",
+        ".",
+        ".",
+        "8",
+        ".",
+        "3",
+        ".",
+        ".",
+        "1",
+      ],
+      [
+        "7",
+        ".",
+        ".",
+        ".",
+        "2",
+        ".",
+        ".",
+        ".",
+        "6",
+      ],
+      [
+        ".",
+        "6",
+        ".",
+        ".",
+        ".",
+        ".",
+        "2",
+        "8",
+        ".",
+      ],
+      [
+        ".",
+        ".",
+        ".",
+        "4",
+        "1",
+        "9",
+        ".",
+        ".",
+        "5",
+      ],
+      [
+        ".",
+        ".",
+        ".",
+        ".",
+        "8",
+        ".",
+        ".",
+        "7",
+        "9",
+      ],
+    ],
+  },
+  "inputHelpers": "def get_test_board(index):
+    grids = [
+        [["5", "3", ".", ".", "7", ".", ".", ".", "."], ["6", ".", ".", "1", "9", "5", ".", ".", "."], [".", "9", "8", ".", ".", ".", ".", "6", "."], ["8", ".", ".", ".", "6", ".", ".", ".", "3"], ["4", ".", ".", "8", ".", "3", ".", ".", "1"], ["7", ".", ".", ".", "2", ".", ".", ".", "6"], [".", "6", ".", ".", ".", ".", "2", "8", "."], [".", ".", ".", "4", "1", "9", ".", ".", "5"], [".", ".", ".", ".", "8", ".", ".", "7", "9"]]
+    ]
+    grid = grids[index]
+    return [row[:] for row in grid]
+",
+  "invocation": "board = get_test_board(i)
+actual = solver.solveSudoku(board)",
+  "name": "sudokuSolver",
+  "returnType": "list[list[str]]",
+  "serializer": "def serialize_char_matrix(matrix):
+    if matrix is None:
+        return "null"
+    if not isinstance(matrix, list):
+        return "null"
+    if len(matrix) == 0:
+        return "[]"
+
+    parts = []
+    for row in matrix:
+        if row is None:
+            parts.append("null")
+            continue
+        cells = []
+        for cell in row:
+            value = '' if cell is None else str(cell)
+            escaped = (value
+                .replace('\\\\', '\\\\\\\\')
+                .replace("'", "\\\\'")
+                .replace("\\n", "\\\\n")
+                .replace("\\r", "\\\\r")
+                .replace("\\t", "\\\\t"))
+            cells.append("'" + escaped + "'")
+        parts.append("[" + ", ".join(cells) + "]")
+
+    return "[" + ", ".join(parts) + "]"
+",
+  "serializerMethod": "serialize_char_matrix",
+  "testCaseFile": "sudokuSolverTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters twoSum 1`] = `
+{
+  "adapterPath": "./adapters/python/twoSumAdapter.js",
+  "defaultClassName": "TwoSum",
+  "expectedCode": "    expected = [0, 1]
+",
+  "extractInput": {
+    "nums": [
+      2,
+      7,
+      11,
+      15,
+    ],
+    "target": 9,
+  },
+  "inputHelpers": "def get_test_nums(index):
+    inputs = [
+        [2, 7, 11, 15],
+        [3, 2, 4]
+    ]
+    return inputs[index]
+
+def get_test_target(index):
+    inputs = [
+        9,
+        6
+    ]
+    return inputs[index]
+",
+  "invocation": "nums = get_test_nums(i)
+target = get_test_target(i)
+actual = solver.twoSum(nums, target)",
+  "name": "twoSum",
+  "returnType": "list[int]",
+  "serializer": "def serialize_int_array(arr):
+    if arr is None:
+        return "null"
+    return "[" + ", ".join(str(x) for x in arr) + "]"
+",
+  "serializerMethod": "serialize_int_array",
+  "testCaseFile": "twoSumTests.js",
+}
+`;
+
+exports[`adapter outputs (characterization) python adapters wordSearch 1`] = `
+{
+  "adapterPath": "./adapters/python/wordSearchAdapter.js",
+  "defaultClassName": "WordSearch",
+  "expectedCode": "    expected = True
+",
+  "extractInput": {
+    "board": [
+      [
+        "A",
+        "B",
+        "C",
+        "E",
+      ],
+      [
+        "S",
+        "F",
+        "C",
+        "S",
+      ],
+      [
+        "A",
+        "D",
+        "E",
+        "E",
+      ],
+    ],
+    "word": "ABCCED",
+  },
+  "inputHelpers": "def get_test_board(index):
+    grids = [
+        [["A", "B", "C", "E"], ["S", "F", "C", "S"], ["A", "D", "E", "E"]]
+    ]
+    grid = grids[index]
+    return [row[:] for row in grid]
+
+
+def get_test_word(index):
+    inputs = [
+        "ABCCED"
+    ]
+    return inputs[index]
+",
+  "invocation": "board = get_test_board(i)
+word = get_test_word(i)
+actual = solver.exist(board, word)",
+  "name": "wordSearch",
+  "returnType": "bool",
+  "serializer": "def serialize_boolean(value):
+    if value is None:
+        return "null"
+    return "true" if value else "false"
+",
+  "serializerMethod": "serialize_boolean",
+  "testCaseFile": "wordSearchTests.js",
+}
+`;

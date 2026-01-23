@@ -1,0 +1,40 @@
+<p>
+  Implement a function <code>threeSum</code> that finds all unique triplets in an integer array
+  that sum to zero.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[][] threeSum(int[] nums)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return all unique triplets <code>[a, b, c]</code> such that <code>a + b + c = 0</code></li>
+  <li>Each triplet must be sorted in ascending order</li>
+  <li>The list of triplets must be sorted lexicographically (by first, then second, then third)</li>
+  <li>No duplicate triplets are allowed</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [-1, 0, 1, 2, -1, -4]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[[-1, -1, 2], [-1, 0, 1]]</code></pre>
+
+<p><strong>Explanation:</strong> The triplets <code>[-1, -1, 2]</code> and <code>[-1, 0, 1]</code> sum to zero.
+Each triplet is sorted, and the list is sorted lexicographically.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: nums = [0, 0, 0, 0]
+Output: [[0, 0, 0]]</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: nums = [0, 1, 1]
+Output: []</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The input array may contain negative numbers and duplicates</li>
+  <li>Return an empty list if no valid triplets exist</li>
+</ul>

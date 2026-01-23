@@ -1,0 +1,37 @@
+<p>
+  Given an integer array <code>nums</code>, return an array <code>answer</code> where <code>answer[i]</code> is the
+  product of all the elements of <code>nums</code> except <code>nums[i]</code>.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[] productExceptSelf(int[] nums)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Return an array of the same length as <code>nums</code></li>
+  <li><code>answer[i]</code> equals the product of all elements in <code>nums</code> except <code>nums[i]</code></li>
+  <li>Do not use division</li>
+</ul>
+
+<h3>Constraints</h3>
+<ul>
+  <li><code>2 &lt;= nums.length &lt;= 100000</code></li>
+  <li><code>-30 &lt;= nums[i] &lt;= 30</code></li>
+  <li>The product of any prefix or suffix of <code>nums</code> fits in a 32-bit integer</li>
+</ul>
+
+<h3>Example 1</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [1, 2, 3, 4]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[24, 12, 8, 6]</code></pre>
+
+<p><strong>Explanation:</strong> Each output value is the product of all the other numbers.</p>
+
+<h3>Example 2</h3>
+<p><strong>Input:</strong></p>
+<pre><code>nums = [-1, 1, 0, -3, 3]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[0, 0, 9, 0, 0]</code></pre>

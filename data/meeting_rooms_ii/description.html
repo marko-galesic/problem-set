@@ -1,0 +1,30 @@
+<p>
+  You are given an array of meeting time intervals where <code>intervals[i] = [start, end]</code>.
+  Return the minimum number of conference rooms required to host all meetings.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int minMeetingRooms(int[][] intervals)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Each interval has <code>start &lt; end</code></li>
+  <li>If one meeting ends at time <code>t</code>, another can start at <code>t</code> without overlapping</li>
+  <li>Return <code>0</code> when there are no meetings</li>
+</ul>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>intervals = [[0,30],[5,10],[15,20]]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>2</code></pre>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: intervals = [[7,10],[2,4]]
+Output: 1</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: intervals = []
+Output: 0</code></pre>
