@@ -400,6 +400,13 @@ body {
   transition: height 0.3s ease, flex 0.3s ease;
 }
 
+.is-resizing .description-container,
+.is-resizing .editor-container,
+.is-resizing .editor-section,
+.is-resizing .test-cases-section {
+  transition: none;
+}
+
 .test-cases-section.collapsed {
   height: 32px !important;
   min-height: 32px;
@@ -620,8 +627,9 @@ body {
   border-radius: 0;
   padding: 0;
   margin: 0;
-  overflow-y: auto;
-  flex-shrink: 0;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -828,8 +836,9 @@ body {
   border-radius: 0;
   padding: 0;
   margin: 0;
-  overflow-y: auto;
-  flex-shrink: 0;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -934,6 +943,7 @@ body {
   gap: 0;
   padding: 20px;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 

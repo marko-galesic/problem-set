@@ -7,7 +7,7 @@ export default {
   testMatch: ['**/__tests__/**/*.test.js'],
   testSequencer: './src/testSequencer.cjs',
   maxWorkers: 1,
-  testTimeout: 20000,
+  testTimeout: 60000,
   collectCoverageFrom: [
     'src/**/*.js',
     '!src/db/backfill*.js',

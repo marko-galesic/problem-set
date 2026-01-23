@@ -761,6 +761,307 @@ export const CHALLENGES = {
     testFile: './testCases/onlyLettersTests.js',
     adapter: './adapters/onlyLettersAdapter.js'
   }
+,
+  add_three: {
+    name: 'Add Three',
+    folder: 'add_three',
+    testFile: './testCases/addThreeTests.js',
+    adapter: './adapters/addThreeAdapter.js'
+  },
+  subtract_three: {
+    name: 'Subtract Three',
+    folder: 'subtract_three',
+    testFile: './testCases/subtractThreeTests.js',
+    adapter: './adapters/subtractThreeAdapter.js'
+  },
+  multiply_by_four: {
+    name: 'Multiply By Four',
+    folder: 'multiply_by_four',
+    testFile: './testCases/multiplyByFourTests.js',
+    adapter: './adapters/multiplyByFourAdapter.js'
+  },
+  multiply_by_five: {
+    name: 'Multiply By Five',
+    folder: 'multiply_by_five',
+    testFile: './testCases/multiplyByFiveTests.js',
+    adapter: './adapters/multiplyByFiveAdapter.js'
+  },
+  square_plus_one: {
+    name: 'Square Plus One',
+    folder: 'square_plus_one',
+    testFile: './testCases/squarePlusOneTests.js',
+    adapter: './adapters/squarePlusOneAdapter.js'
+  },
+  cube_minus_one: {
+    name: 'Cube Minus One',
+    folder: 'cube_minus_one',
+    testFile: './testCases/cubeMinusOneTests.js',
+    adapter: './adapters/cubeMinusOneAdapter.js'
+  },
+  max_of_two_numbers: {
+    name: 'Max Of Two Numbers',
+    folder: 'max_of_two_numbers',
+    testFile: './testCases/maxOfTwoNumbersTests.js',
+    adapter: './adapters/maxOfTwoNumbersAdapter.js'
+  },
+  min_of_two_numbers: {
+    name: 'Min Of Two Numbers',
+    folder: 'min_of_two_numbers',
+    testFile: './testCases/minOfTwoNumbersTests.js',
+    adapter: './adapters/minOfTwoNumbersAdapter.js'
+  },
+  max_of_three_numbers: {
+    name: 'Max Of Three Numbers',
+    folder: 'max_of_three_numbers',
+    testFile: './testCases/maxOfThreeNumbersTests.js',
+    adapter: './adapters/maxOfThreeNumbersAdapter.js'
+  },
+  min_of_three_numbers: {
+    name: 'Min Of Three Numbers',
+    folder: 'min_of_three_numbers',
+    testFile: './testCases/minOfThreeNumbersTests.js',
+    adapter: './adapters/minOfThreeNumbersAdapter.js'
+  },
+  absolute_difference: {
+    name: 'Absolute Difference',
+    folder: 'absolute_difference',
+    testFile: './testCases/absoluteDifferenceTests.js',
+    adapter: './adapters/absoluteDifferenceAdapter.js'
+  },
+  sum_of_squares: {
+    name: 'Sum Of Squares',
+    folder: 'sum_of_squares',
+    testFile: './testCases/sumOfSquaresTests.js',
+    adapter: './adapters/sumOfSquaresAdapter.js'
+  },
+  is_zero: {
+    name: 'Is Zero',
+    folder: 'is_zero',
+    testFile: './testCases/isZeroTests.js',
+    adapter: './adapters/isZeroAdapter.js'
+  },
+  is_multiple_of_three: {
+    name: 'Is Multiple Of Three',
+    folder: 'is_multiple_of_three',
+    testFile: './testCases/isMultipleOfThreeTests.js',
+    adapter: './adapters/isMultipleOfThreeAdapter.js'
+  },
+  clamp_to_range: {
+    name: 'Clamp To Range',
+    folder: 'clamp_to_range',
+    testFile: './testCases/clampToRangeTests.js',
+    adapter: './adapters/clampToRangeAdapter.js'
+  },
+  average_of_two_numbers: {
+    name: 'Average Of Two Numbers',
+    folder: 'average_of_two_numbers',
+    testFile: './testCases/averageOfTwoNumbersTests.js',
+    adapter: './adapters/averageOfTwoNumbersAdapter.js'
+  },
+  sum_of_array: {
+    name: 'Sum Of Array',
+    folder: 'sum_of_array',
+    testFile: './testCases/sumOfArrayTests.js',
+    adapter: './adapters/sumOfArrayAdapter.js'
+  },
+  product_of_array: {
+    name: 'Product Of Array',
+    folder: 'product_of_array',
+    testFile: './testCases/productOfArrayTests.js',
+    adapter: './adapters/productOfArrayAdapter.js'
+  },
+  max_in_array: {
+    name: 'Max In Array',
+    folder: 'max_in_array',
+    testFile: './testCases/maxInArrayTests.js',
+    adapter: './adapters/maxInArrayAdapter.js'
+  },
+  min_in_array: {
+    name: 'Min In Array',
+    folder: 'min_in_array',
+    testFile: './testCases/minInArrayTests.js',
+    adapter: './adapters/minInArrayAdapter.js'
+  },
+  average_of_array: {
+    name: 'Average Of Array',
+    folder: 'average_of_array',
+    testFile: './testCases/averageOfArrayTests.js',
+    adapter: './adapters/averageOfArrayAdapter.js'
+  },
+  count_even_numbers: {
+    name: 'Count Even Numbers',
+    folder: 'count_even_numbers',
+    testFile: './testCases/countEvenNumbersTests.js',
+    adapter: './adapters/countEvenNumbersAdapter.js'
+  },
+  count_odd_numbers: {
+    name: 'Count Odd Numbers',
+    folder: 'count_odd_numbers',
+    testFile: './testCases/countOddNumbersTests.js',
+    adapter: './adapters/countOddNumbersAdapter.js'
+  },
+  count_positive_numbers: {
+    name: 'Count Positive Numbers',
+    folder: 'count_positive_numbers',
+    testFile: './testCases/countPositiveNumbersTests.js',
+    adapter: './adapters/countPositiveNumbersAdapter.js'
+  },
+  count_negative_numbers: {
+    name: 'Count Negative Numbers',
+    folder: 'count_negative_numbers',
+    testFile: './testCases/countNegativeNumbersTests.js',
+    adapter: './adapters/countNegativeNumbersAdapter.js'
+  },
+  count_zeroes: {
+    name: 'Count Zeroes',
+    folder: 'count_zeroes',
+    testFile: './testCases/countZeroesTests.js',
+    adapter: './adapters/countZeroesAdapter.js'
+  },
+  index_of_target: {
+    name: 'Index Of Target',
+    folder: 'index_of_target',
+    testFile: './testCases/indexOfTargetTests.js',
+    adapter: './adapters/indexOfTargetAdapter.js'
+  },
+  last_index_of_target: {
+    name: 'Last Index Of Target',
+    folder: 'last_index_of_target',
+    testFile: './testCases/lastIndexOfTargetTests.js',
+    adapter: './adapters/lastIndexOfTargetAdapter.js'
+  },
+  contains_target: {
+    name: 'Contains Target',
+    folder: 'contains_target',
+    testFile: './testCases/containsTargetTests.js',
+    adapter: './adapters/containsTargetAdapter.js'
+  },
+  reverse_array: {
+    name: 'Reverse Array',
+    folder: 'reverse_array',
+    testFile: './testCases/reverseArrayTests.js',
+    adapter: './adapters/reverseArrayAdapter.js'
+  },
+  rotate_left_by_one: {
+    name: 'Rotate Left By One',
+    folder: 'rotate_left_by_one',
+    testFile: './testCases/rotateLeftByOneTests.js',
+    adapter: './adapters/rotateLeftByOneAdapter.js'
+  },
+  prefix_sums: {
+    name: 'Prefix Sums',
+    folder: 'prefix_sums',
+    testFile: './testCases/prefixSumsTests.js',
+    adapter: './adapters/prefixSumsAdapter.js'
+  },
+  running_max: {
+    name: 'Running Max',
+    folder: 'running_max',
+    testFile: './testCases/runningMaxTests.js',
+    adapter: './adapters/runningMaxAdapter.js'
+  },
+  count_greater_than: {
+    name: 'Count Greater Than',
+    folder: 'count_greater_than',
+    testFile: './testCases/countGreaterThanTests.js',
+    adapter: './adapters/countGreaterThanAdapter.js'
+  },
+  count_words: {
+    name: 'Count Words',
+    folder: 'count_words',
+    testFile: './testCases/countWordsTests.js',
+    adapter: './adapters/countWordsAdapter.js'
+  },
+  is_all_digits: {
+    name: 'Is All Digits',
+    folder: 'is_all_digits',
+    testFile: './testCases/isAllDigitsTests.js',
+    adapter: './adapters/isAllDigitsAdapter.js'
+  },
+  starts_with_capital: {
+    name: 'Starts With Capital',
+    folder: 'starts_with_capital',
+    testFile: './testCases/startsWithCapitalTests.js',
+    adapter: './adapters/startsWithCapitalAdapter.js'
+  },
+  swap_first_last_char: {
+    name: 'Swap First Last Char',
+    folder: 'swap_first_last_char',
+    testFile: './testCases/swapFirstLastCharTests.js',
+    adapter: './adapters/swapFirstLastCharAdapter.js'
+  },
+  replace_spaces_with_underscore: {
+    name: 'Replace Spaces With Underscore',
+    folder: 'replace_spaces_with_underscore',
+    testFile: './testCases/replaceSpacesWithUnderscoreTests.js',
+    adapter: './adapters/replaceSpacesWithUnderscoreAdapter.js'
+  },
+  count_occurrences_of_char: {
+    name: 'Count Occurrences Of Char',
+    folder: 'count_occurrences_of_char',
+    testFile: './testCases/countOccurrencesOfCharTests.js',
+    adapter: './adapters/countOccurrencesOfCharAdapter.js'
+  },
+  first_index_of_char: {
+    name: 'First Index Of Char',
+    folder: 'first_index_of_char',
+    testFile: './testCases/firstIndexOfCharTests.js',
+    adapter: './adapters/firstIndexOfCharAdapter.js'
+  },
+  last_index_of_char: {
+    name: 'Last Index Of Char',
+    folder: 'last_index_of_char',
+    testFile: './testCases/lastIndexOfCharTests.js',
+    adapter: './adapters/lastIndexOfCharAdapter.js'
+  },
+  repeat_n_times: {
+    name: 'Repeat N Times',
+    folder: 'repeat_n_times',
+    testFile: './testCases/repeatNTimesTests.js',
+    adapter: './adapters/repeatNTimesAdapter.js'
+  },
+  join_with_comma: {
+    name: 'Join With Comma',
+    folder: 'join_with_comma',
+    testFile: './testCases/joinWithCommaTests.js',
+    adapter: './adapters/joinWithCommaAdapter.js'
+  },
+  longest_word_length: {
+    name: 'Longest Word Length',
+    folder: 'longest_word_length',
+    testFile: './testCases/longestWordLengthTests.js',
+    adapter: './adapters/longestWordLengthAdapter.js'
+  },
+  transpose_matrix: {
+    name: 'Transpose Matrix',
+    folder: 'transpose_matrix',
+    testFile: './testCases/transposeMatrixTests.js',
+    adapter: './adapters/transposeMatrixAdapter.js'
+  },
+  diagonal_sum: {
+    name: 'Diagonal Sum',
+    folder: 'diagonal_sum',
+    testFile: './testCases/diagonalSumTests.js',
+    adapter: './adapters/diagonalSumAdapter.js'
+  },
+  row_sums: {
+    name: 'Row Sums',
+    folder: 'row_sums',
+    testFile: './testCases/rowSumsTests.js',
+    adapter: './adapters/rowSumsAdapter.js'
+  },
+  column_sums: {
+    name: 'Column Sums',
+    folder: 'column_sums',
+    testFile: './testCases/columnSumsTests.js',
+    adapter: './adapters/columnSumsAdapter.js'
+  },
+  count_positive_in_matrix: {
+    name: 'Count Positive In Matrix',
+    folder: 'count_positive_in_matrix',
+    testFile: './testCases/countPositiveInMatrixTests.js',
+    adapter: './adapters/countPositiveInMatrixAdapter.js'
+  }
 };
 
 // Helper function to get challenge config
