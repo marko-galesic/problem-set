@@ -503,6 +503,12 @@ export const CHALLENGES = {
     testFile: './testCases/squareNumberTests.js',
     adapter: './adapters/squareNumberAdapter.js'
   },
+  squares_of_sorted_array: {
+    name: 'Squares of a Sorted Array',
+    folder: 'squares_of_sorted_array',
+    testFile: './testCases/squaresOfSortedArrayTests.js',
+    adapter: './adapters/squaresOfSortedArrayAdapter.js'
+  },
   cube_number: {
     name: 'Cube Number',
     folder: 'cube_number',
