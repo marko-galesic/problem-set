@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
 import { loadAdapter, clearCache } from '../../adapters/index.js';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -35,6 +35,13 @@ describe('Adapter Registry', () => {
     test('should handle adapter path with ./ prefix', async () => {
       const adapter = await loadAdapter('./adapters/twoSumAdapter.js');
       expect(adapter).toBeDefined();
+    });
+
+    test('should load module without default export via file url', async () => {
+      const adapterUrl = pathToFileURL(join(__dirname, '../../adapters/index.js')).href;
+      const adapter = await loadAdapter(adapterUrl);
+      expect(adapter).toBeDefined();
+      expect(adapter.loadAdapter).toBeDefined();
     });
 
     test('should throw error for non-existent adapter', async () => {
