@@ -257,4 +257,40 @@ describe('javascript adapters (special cases)', () => {
     expect(invocation).toContain('ApiClient.setProvider');
     expect(invocation).toContain('analyzeArticles');
   });
+
+  test('paginated article stats adapter handles empty or malformed inputs', () => {
+    const edgeCases = [
+      {
+        author: null,
+        title: null,
+        pages: [
+          null,
+          { page: 'x', total_pages: undefined, data: 'bad' },
+          {
+            page: 2,
+            total_pages: 3,
+            data: [null, { id: 'bad', title: null, author: undefined, num_comments: NaN }]
+          }
+        ]
+      },
+      {}
+    ];
+
+    const inputHelpers = paginatedArticleStatsAdapter.generateInputHelpers(edgeCases);
+    expect(inputHelpers).toContain('if (index === 0) return [');
+    expect(inputHelpers).toContain('if (index === 1) return null;');
+
+    const extracted = paginatedArticleStatsAdapter.extractInput({});
+    expect(extracted).toEqual({ author: '', title: '' });
+
+    const expectedNull = paginatedArticleStatsAdapter.buildExpectedCode(null);
+    expect(expectedNull).toContain('const expected = null');
+
+    const expectedFallbacks = paginatedArticleStatsAdapter.buildExpectedCode({
+      sumByAuthor: 'bad',
+      countTitleMatches: Number.NaN
+    });
+    expect(expectedFallbacks).toContain('sumByAuthor: 0');
+    expect(expectedFallbacks).toContain('countTitleMatches: 0');
+  });
 });
