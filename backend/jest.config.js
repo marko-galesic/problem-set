@@ -1,6 +1,7 @@
 export default {
   testEnvironment: 'node',
   transform: {},
+  setupFiles: ['<rootDir>/src/__tests__/testEnvSetup.js'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },

@@ -6,9 +6,11 @@ import { mkdir } from 'fs/promises';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Database file location
-const DB_DIR = join(__dirname, '../../data');
-const DB_PATH = join(DB_DIR, 'challenges.db');
+// Database file location (allow override for tests/tools)
+const DEFAULT_DB_DIR = join(__dirname, '../../data');
+const DEFAULT_DB_PATH = join(DEFAULT_DB_DIR, 'challenges.db');
+const DB_PATH = process.env.CHALLENGES_DB_PATH || DEFAULT_DB_PATH;
+const DB_DIR = DB_PATH === ':memory:' ? null : dirname(DB_PATH);
 
 let db = null;
 
@@ -20,10 +22,12 @@ export function initDatabase() {
     return db;
   }
 
-  // Ensure data directory exists
-  mkdir(DB_DIR, { recursive: true }).catch(err => {
-    console.warn('Failed to create data directory:', err.message);
-  });
+  // Ensure data directory exists (skip for in-memory DB)
+  if (DB_DIR) {
+    mkdir(DB_DIR, { recursive: true }).catch(err => {
+      console.warn('Failed to create data directory:', err.message);
+    });
+  }
 
   // Open database connection
   db = new Database(DB_PATH);
