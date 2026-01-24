@@ -1,40 +1,38 @@
 <p>
-  Implement a function <code>threeSum</code> that finds all unique triplets in an integer array
-  that sum to zero.
+  Given an integer array <code>nums</code>, return all the triplets
+  <code>[nums[i], nums[j], nums[k]]</code> such that <code>i != j</code>, <code>i != k</code>,
+  and <code>j != k</code>, and <code>nums[i] + nums[j] + nums[k] == 0</code>.
 </p>
+
+<p>Notice that the solution set must not contain duplicate triplets.</p>
 
 <h3>Method Signature</h3>
 <pre><code>public int[][] threeSum(int[] nums)</code></pre>
 
-<h3>Requirements</h3>
-<ul>
-  <li>Return all unique triplets <code>[a, b, c]</code> such that <code>a + b + c = 0</code></li>
-  <li>Each triplet must be sorted in ascending order</li>
-  <li>The list of triplets must be sorted lexicographically (by first, then second, then third)</li>
-  <li>No duplicate triplets are allowed</li>
-</ul>
+<h3>Examples</h3>
+<p><strong>Example 1:</strong></p>
+<pre><code>Input: nums = [-1,0,1,2,-1,-4]
+Output: [[-1,-1,2],[-1,0,1]]</code></pre>
+<p><strong>Explanation:</strong><br>
+nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0.<br>
+nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0.<br>
+nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0.<br>
+The distinct triplets are <code>[-1,0,1]</code> and <code>[-1,-1,2]</code>.<br>
+Notice that the order of the output and the order of the triplets does not matter.
+</p>
 
-<h3>Example</h3>
-<p><strong>Input:</strong></p>
-<pre><code>nums = [-1, 0, 1, 2, -1, -4]</code></pre>
-
-<p><strong>Output:</strong></p>
-<pre><code>[[-1, -1, 2], [-1, 0, 1]]</code></pre>
-
-<p><strong>Explanation:</strong> The triplets <code>[-1, -1, 2]</code> and <code>[-1, 0, 1]</code> sum to zero.
-Each triplet is sorted, and the list is sorted lexicographically.</p>
-
-<h3>Additional Examples</h3>
 <p><strong>Example 2:</strong></p>
-<pre><code>Input: nums = [0, 0, 0, 0]
-Output: [[0, 0, 0]]</code></pre>
+<pre><code>Input: nums = [0,1,1]
+Output: []</code></pre>
+<p><strong>Explanation:</strong> The only possible triplet does not sum up to 0.</p>
 
 <p><strong>Example 3:</strong></p>
-<pre><code>Input: nums = [0, 1, 1]
-Output: []</code></pre>
+<pre><code>Input: nums = [0,0,0]
+Output: [[0,0,0]]</code></pre>
+<p><strong>Explanation:</strong> The only possible triplet sums up to 0.</p>
 
-<h3>Notes</h3>
+<h3>Constraints</h3>
 <ul>
-  <li>The input array may contain negative numbers and duplicates</li>
-  <li>Return an empty list if no valid triplets exist</li>
+  <li><code>3 &lt;= nums.length &lt;= 3000</code></li>
+  <li><code>-10^5 &lt;= nums[i] &lt;= 10^5</code></li>
 </ul>

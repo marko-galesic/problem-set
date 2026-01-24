@@ -53,9 +53,9 @@ export const submitTests = [
   },
   {
     id: 7,
-    name: "Array too short",
-    input: "nums = [1, 2]",
-    nums: [1, 2],
+    name: "All positive",
+    input: "nums = [1, 2, 3]",
+    nums: [1, 2, 3],
     expected: []
   },
   {
