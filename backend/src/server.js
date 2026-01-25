@@ -1067,7 +1067,309 @@ export const CHALLENGES = {
     folder: 'count_positive_in_matrix',
     testFile: './testCases/countPositiveInMatrixTests.js',
     adapter: './adapters/countPositiveInMatrixAdapter.js'
+  },
+
+  add_four: {
+    name: 'Add Four',
+    folder: 'add_four',
+    testFile: './testCases/addFourTests.js',
+    adapter: './adapters/addFourAdapter.js'
+  },
+  add_five: {
+    name: 'Add Five',
+    folder: 'add_five',
+    testFile: './testCases/addFiveTests.js',
+    adapter: './adapters/addFiveAdapter.js'
+  },
+  add_six: {
+    name: 'Add Six',
+    folder: 'add_six',
+    testFile: './testCases/addSixTests.js',
+    adapter: './adapters/addSixAdapter.js'
+  },
+  add_seven: {
+    name: 'Add Seven',
+    folder: 'add_seven',
+    testFile: './testCases/addSevenTests.js',
+    adapter: './adapters/addSevenAdapter.js'
+  },
+  add_eight: {
+    name: 'Add Eight',
+    folder: 'add_eight',
+    testFile: './testCases/addEightTests.js',
+    adapter: './adapters/addEightAdapter.js'
+  },
+  add_nine: {
+    name: 'Add Nine',
+    folder: 'add_nine',
+    testFile: './testCases/addNineTests.js',
+    adapter: './adapters/addNineAdapter.js'
+  },
+  add_ten: {
+    name: 'Add Ten',
+    folder: 'add_ten',
+    testFile: './testCases/addTenTests.js',
+    adapter: './adapters/addTenAdapter.js'
+  },
+  subtract_four: {
+    name: 'Subtract Four',
+    folder: 'subtract_four',
+    testFile: './testCases/subtractFourTests.js',
+    adapter: './adapters/subtractFourAdapter.js'
+  },
+  subtract_five: {
+    name: 'Subtract Five',
+    folder: 'subtract_five',
+    testFile: './testCases/subtractFiveTests.js',
+    adapter: './adapters/subtractFiveAdapter.js'
+  },
+  subtract_six: {
+    name: 'Subtract Six',
+    folder: 'subtract_six',
+    testFile: './testCases/subtractSixTests.js',
+    adapter: './adapters/subtractSixAdapter.js'
+  },
+  subtract_seven: {
+    name: 'Subtract Seven',
+    folder: 'subtract_seven',
+    testFile: './testCases/subtractSevenTests.js',
+    adapter: './adapters/subtractSevenAdapter.js'
+  },
+  subtract_eight: {
+    name: 'Subtract Eight',
+    folder: 'subtract_eight',
+    testFile: './testCases/subtractEightTests.js',
+    adapter: './adapters/subtractEightAdapter.js'
+  },
+  subtract_nine: {
+    name: 'Subtract Nine',
+    folder: 'subtract_nine',
+    testFile: './testCases/subtractNineTests.js',
+    adapter: './adapters/subtractNineAdapter.js'
+  },
+  subtract_ten: {
+    name: 'Subtract Ten',
+    folder: 'subtract_ten',
+    testFile: './testCases/subtractTenTests.js',
+    adapter: './adapters/subtractTenAdapter.js'
+  },
+  multiply_by_six: {
+    name: 'Multiply By Six',
+    folder: 'multiply_by_six',
+    testFile: './testCases/multiplyBySixTests.js',
+    adapter: './adapters/multiplyBySixAdapter.js'
+  },
+  multiply_by_seven: {
+    name: 'Multiply By Seven',
+    folder: 'multiply_by_seven',
+    testFile: './testCases/multiplyBySevenTests.js',
+    adapter: './adapters/multiplyBySevenAdapter.js'
+  },
+  multiply_by_eight: {
+    name: 'Multiply By Eight',
+    folder: 'multiply_by_eight',
+    testFile: './testCases/multiplyByEightTests.js',
+    adapter: './adapters/multiplyByEightAdapter.js'
+  },
+  multiply_by_nine: {
+    name: 'Multiply By Nine',
+    folder: 'multiply_by_nine',
+    testFile: './testCases/multiplyByNineTests.js',
+    adapter: './adapters/multiplyByNineAdapter.js'
+  },
+  multiply_by_ten: {
+    name: 'Multiply By Ten',
+    folder: 'multiply_by_ten',
+    testFile: './testCases/multiplyByTenTests.js',
+    adapter: './adapters/multiplyByTenAdapter.js'
+  },
+  multiply_by_eleven: {
+    name: 'Multiply By Eleven',
+    folder: 'multiply_by_eleven',
+    testFile: './testCases/multiplyByElevenTests.js',
+    adapter: './adapters/multiplyByElevenAdapter.js'
+  },
+  multiply_by_twelve: {
+    name: 'Multiply By Twelve',
+    folder: 'multiply_by_twelve',
+    testFile: './testCases/multiplyByTwelveTests.js',
+    adapter: './adapters/multiplyByTwelveAdapter.js'
+  },
+  divide_by_two: {
+    name: 'Divide By Two',
+    folder: 'divide_by_two',
+    testFile: './testCases/divideByTwoTests.js',
+    adapter: './adapters/divideByTwoAdapter.js'
+  },
+  divide_by_three: {
+    name: 'Divide By Three',
+    folder: 'divide_by_three',
+    testFile: './testCases/divideByThreeTests.js',
+    adapter: './adapters/divideByThreeAdapter.js'
+  },
+  divide_by_four: {
+    name: 'Divide By Four',
+    folder: 'divide_by_four',
+    testFile: './testCases/divideByFourTests.js',
+    adapter: './adapters/divideByFourAdapter.js'
+  },
+  divide_by_five: {
+    name: 'Divide By Five',
+    folder: 'divide_by_five',
+    testFile: './testCases/divideByFiveTests.js',
+    adapter: './adapters/divideByFiveAdapter.js'
+  },
+  divide_by_six: {
+    name: 'Divide By Six',
+    folder: 'divide_by_six',
+    testFile: './testCases/divideBySixTests.js',
+    adapter: './adapters/divideBySixAdapter.js'
+  },
+  square_plus_two: {
+    name: 'Square Plus Two',
+    folder: 'square_plus_two',
+    testFile: './testCases/squarePlusTwoTests.js',
+    adapter: './adapters/squarePlusTwoAdapter.js'
+  },
+  square_plus_three: {
+    name: 'Square Plus Three',
+    folder: 'square_plus_three',
+    testFile: './testCases/squarePlusThreeTests.js',
+    adapter: './adapters/squarePlusThreeAdapter.js'
+  },
+  square_minus_two: {
+    name: 'Square Minus Two',
+    folder: 'square_minus_two',
+    testFile: './testCases/squareMinusTwoTests.js',
+    adapter: './adapters/squareMinusTwoAdapter.js'
+  },
+  square_minus_three: {
+    name: 'Square Minus Three',
+    folder: 'square_minus_three',
+    testFile: './testCases/squareMinusThreeTests.js',
+    adapter: './adapters/squareMinusThreeAdapter.js'
+  },
+  cube_plus_one: {
+    name: 'Cube Plus One',
+    folder: 'cube_plus_one',
+    testFile: './testCases/cubePlusOneTests.js',
+    adapter: './adapters/cubePlusOneAdapter.js'
+  },
+  cube_plus_two: {
+    name: 'Cube Plus Two',
+    folder: 'cube_plus_two',
+    testFile: './testCases/cubePlusTwoTests.js',
+    adapter: './adapters/cubePlusTwoAdapter.js'
+  },
+  clamp_to_ten: {
+    name: 'Clamp To Ten',
+    folder: 'clamp_to_ten',
+    testFile: './testCases/clampToTenTests.js',
+    adapter: './adapters/clampToTenAdapter.js'
+  },
+  clamp_to_fifty: {
+    name: 'Clamp To Fifty',
+    folder: 'clamp_to_fifty',
+    testFile: './testCases/clampToFiftyTests.js',
+    adapter: './adapters/clampToFiftyAdapter.js'
+  },
+  is_multiple_of_five: {
+    name: 'Is Multiple Of Five',
+    folder: 'is_multiple_of_five',
+    testFile: './testCases/isMultipleOfFiveTests.js',
+    adapter: './adapters/isMultipleOfFiveAdapter.js'
+  },
+  is_multiple_of_seven: {
+    name: 'Is Multiple Of Seven',
+    folder: 'is_multiple_of_seven',
+    testFile: './testCases/isMultipleOfSevenTests.js',
+    adapter: './adapters/isMultipleOfSevenAdapter.js'
+  },
+  is_multiple_of_nine: {
+    name: 'Is Multiple Of Nine',
+    folder: 'is_multiple_of_nine',
+    testFile: './testCases/isMultipleOfNineTests.js',
+    adapter: './adapters/isMultipleOfNineAdapter.js'
+  },
+  is_multiple_of_ten: {
+    name: 'Is Multiple Of Ten',
+    folder: 'is_multiple_of_ten',
+    testFile: './testCases/isMultipleOfTenTests.js',
+    adapter: './adapters/isMultipleOfTenAdapter.js'
+  },
+  ends_with_question_mark: {
+    name: 'Ends With Question Mark',
+    folder: 'ends_with_question_mark',
+    testFile: './testCases/endsWithQuestionMarkTests.js',
+    adapter: './adapters/endsWithQuestionMarkAdapter.js'
+  },
+  ends_with_period: {
+    name: 'Ends With Period',
+    folder: 'ends_with_period',
+    testFile: './testCases/endsWithPeriodTests.js',
+    adapter: './adapters/endsWithPeriodAdapter.js'
+  },
+  ends_with_comma: {
+    name: 'Ends With Comma',
+    folder: 'ends_with_comma',
+    testFile: './testCases/endsWithCommaTests.js',
+    adapter: './adapters/endsWithCommaAdapter.js'
+  },
+  starts_with_consonant: {
+    name: 'Starts With Consonant',
+    folder: 'starts_with_consonant',
+    testFile: './testCases/startsWithConsonantTests.js',
+    adapter: './adapters/startsWithConsonantAdapter.js'
+  },
+  starts_with_digit: {
+    name: 'Starts With Digit',
+    folder: 'starts_with_digit',
+    testFile: './testCases/startsWithDigitTests.js',
+    adapter: './adapters/startsWithDigitAdapter.js'
+  },
+  starts_with_lowercase: {
+    name: 'Starts With Lowercase',
+    folder: 'starts_with_lowercase',
+    testFile: './testCases/startsWithLowercaseTests.js',
+    adapter: './adapters/startsWithLowercaseAdapter.js'
+  },
+  contains_uppercase: {
+    name: 'Contains Uppercase',
+    folder: 'contains_uppercase',
+    testFile: './testCases/containsUppercaseTests.js',
+    adapter: './adapters/containsUppercaseAdapter.js'
+  },
+  contains_lowercase: {
+    name: 'Contains Lowercase',
+    folder: 'contains_lowercase',
+    testFile: './testCases/containsLowercaseTests.js',
+    adapter: './adapters/containsLowercaseAdapter.js'
+  },
+  count_digits_in_string: {
+    name: 'Count Digits In String',
+    folder: 'count_digits_in_string',
+    testFile: './testCases/countDigitsInStringTests.js',
+    adapter: './adapters/countDigitsInStringAdapter.js'
+  },
+  count_spaces: {
+    name: 'Count Spaces',
+    folder: 'count_spaces',
+    testFile: './testCases/countSpacesTests.js',
+    adapter: './adapters/countSpacesAdapter.js'
+  },
+  remove_consonants: {
+    name: 'Remove Consonants',
+    folder: 'remove_consonants',
+    testFile: './testCases/removeConsonantsTests.js',
+    adapter: './adapters/removeConsonantsAdapter.js'
+  },
+  replace_spaces_with_plus: {
+    name: 'Replace Spaces With Plus',
+    folder: 'replace_spaces_with_plus',
+    testFile: './testCases/replaceSpacesWithPlusTests.js',
+    adapter: './adapters/replaceSpacesWithPlusAdapter.js'
   }
+
 };
 
 // Helper function to get challenge config

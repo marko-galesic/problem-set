@@ -1,0 +1,15 @@
+import { createStandardAdapter } from './standardAdapterFactory.js';
+
+const definition = {
+  "method": "subtractSix",
+  "className": "SubtractSix",
+  "returnType": "int",
+  "inputs": [
+    {
+      "name": "n",
+      "type": "int"
+    }
+  ]
+};
+
+export default createStandardAdapter(definition, 'java');

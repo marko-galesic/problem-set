@@ -1,0 +1,5 @@
+class EndsWithPeriod {
+    public boolean endsWithPeriod(String s) {
+        return s.endsWith(".");
+    }
+}
