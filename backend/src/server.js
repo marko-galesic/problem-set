@@ -1391,9 +1391,6 @@ export const CHALLENGES = {
 // Helper function to get challenge config
 // Tries database first, falls back to CHALLENGES object
 function getChallenge(challengeId) {
-  // #region agent log
-  fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server.js:getChallenge:start',message:'getChallenge start',data:{challengeId},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'E'})}).catch(()=>{});
-  // #endregion
   // Try database first
   try {
     const dbChallenge = getChallengeById(challengeId);
@@ -1408,9 +1405,6 @@ function getChallenge(challengeId) {
       const testFilePath = join(__dirname, candidate.testFile || '');
       const adapterPath = join(__dirname, candidate.adapter || '');
       if (existsSync(testFilePath) && existsSync(adapterPath)) {
-        // #region agent log
-        fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server.js:getChallenge:db',message:'getChallenge resolved from db',data:{challengeId,testFile:candidate.testFile,adapter:candidate.adapter},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'F'})}).catch(()=>{});
-        // #endregion
         return candidate;
       }
     }
@@ -1423,9 +1417,6 @@ function getChallenge(challengeId) {
   if (!challenge) {
     throw new Error(`Unknown challenge: ${challengeId}`);
   }
-  // #region agent log
-  fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server.js:getChallenge:config',message:'getChallenge resolved from config',data:{challengeId,testFile:challenge.testFile,adapter:challenge.adapter},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'G'})}).catch(()=>{});
-  // #endregion
   return challenge;
 }
 
@@ -1649,9 +1640,6 @@ app.get('/api/test-cases', async (req, res) => {
       const normalizedInput = typeof inputValue === 'object' && inputValue !== null
         ? JSON.stringify(inputValue)
         : inputValue;
-      // #region agent log
-      fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server.js:test-cases:run',message:'normalized run test input',data:{challengeId,language,testId:test.id,inputType:typeof inputValue,usedProvidedInput:test.input !== undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'K'})}).catch(()=>{});
-      // #endregion
       return {
         id: test.id,
         name: test.name,
@@ -1666,9 +1654,6 @@ app.get('/api/test-cases', async (req, res) => {
       const normalizedInput = typeof inputValue === 'object' && inputValue !== null
         ? JSON.stringify(inputValue)
         : inputValue;
-      // #region agent log
-      fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'server.js:test-cases:submit',message:'normalized submit test input',data:{challengeId,language,testId:test.id,inputType:typeof inputValue,usedProvidedInput:test.input !== undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'K'})}).catch(()=>{});
-      // #endregion
       return {
         id: test.id,
         name: test.name,
@@ -2497,7 +2482,7 @@ app.post('/api/submissions', async (req, res) => {
   try {
     const { challenge: challengeId, avgTime, timerTime, date, solution, guidanceLevel, submitAttempts, language: rawLanguage } = req.body;
     const language = normalizeLanguage(rawLanguage);
-    
+
     if (!challengeId) {
       return res.status(400).json({ error: 'Challenge is required' });
     }
