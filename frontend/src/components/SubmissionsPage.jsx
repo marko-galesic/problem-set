@@ -22,6 +22,18 @@ const TECH_BAR_LEGEND = [
     }
   }
 ];
+const TECH_BAR_THRESHOLDS = TECH_BAR_LEGEND.reduce((acc, entry) => {
+  const tier = entry.tier.toLowerCase();
+  const tierKey = tier.includes('top') ? 'top' : tier.includes('mid') ? 'mid' : tier;
+  Object.entries(entry.minutes).forEach(([difficulty, minutes]) => {
+    const key = difficulty.trim().toLowerCase();
+    if (!acc[key]) {
+      acc[key] = {};
+    }
+    acc[key][tierKey] = minutes;
+  });
+  return acc;
+}, {});
 
 const LANGUAGE_OPTIONS = [
   { id: 'java', label: 'Java' },
@@ -79,6 +91,47 @@ function formatFitness(value) {
   return `${(value * 100).toFixed(1)}%`;
 }
 
+function normalizeDifficulty(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'easy' || normalized === 'medium' || normalized === 'hard') {
+    return normalized;
+  }
+  return null;
+}
+
+function computeTechBarLabel(timerTime, difficulty) {
+  const difficultyKey = normalizeDifficulty(difficulty);
+  if (!difficultyKey) {
+    return null;
+  }
+  const thresholds = TECH_BAR_THRESHOLDS[difficultyKey];
+  if (!thresholds || typeof thresholds.top !== 'number' || typeof thresholds.mid !== 'number') {
+    return null;
+  }
+  if (timerTime === null || timerTime === undefined) {
+    return null;
+  }
+  const numericTime = Number(timerTime);
+  if (!Number.isFinite(numericTime) || numericTime < 0) {
+    return null;
+  }
+  const minutes = numericTime / 60000;
+  if (minutes <= thresholds.top) {
+    return 'exceeds';
+  }
+  if (minutes <= thresholds.mid) {
+    return 'met';
+  }
+  return 'not_met';
+}
+
+function getTechBarLabel(submission, difficulty) {
+  return submission?.techBarLabel ?? computeTechBarLabel(submission?.timerTime, difficulty);
+}
+
 function buildCsvRow(values) {
   return values
     .map((value) => {
@@ -129,7 +182,6 @@ export default function SubmissionsPage() {
       'Timer Time',
       'Submit Attempts',
       'Guidance',
-      'Tech Bar Status',
       'Tech Bar Label'
     ];
 
@@ -137,6 +189,7 @@ export default function SubmissionsPage() {
       const challenge = challengeMap[submission.challenge] || {};
       const title = challenge.name || submission.challenge || 'Unknown Challenge';
       const difficulty = challenge.difficulty ?? UNKNOWN_DIFFICULTY;
+      const techBarLabel = getTechBarLabel(submission, difficulty);
       return [
         title,
         difficulty,
@@ -145,8 +198,7 @@ export default function SubmissionsPage() {
         formatTime(submission.timerTime),
         formatAttempts(submission.submitAttempts),
         submission.guidanceLevel ?? 'Independent',
-        submission.techBarStatus ?? 'pending',
-        submission.techBarLabel ?? 'None'
+        techBarLabel ?? 'None'
       ];
     });
 
@@ -615,7 +667,6 @@ export default function SubmissionsPage() {
                   <th>Timer Time</th>
                   <th>Submit Attempts</th>
                   <th>Guidance</th>
-                  <th>Tech Bar Status</th>
                   <th>Tech Bar Label</th>
                 </tr>
               </thead>
@@ -624,6 +675,7 @@ export default function SubmissionsPage() {
                   const challenge = challengeMap[submission.challenge] || {};
                   const title = challenge.name || submission.challenge || 'Unknown Challenge';
                   const difficulty = challenge.difficulty ?? UNKNOWN_DIFFICULTY;
+                  const techBarLabel = getTechBarLabel(submission, difficulty);
                   return (
                     <tr key={submission.id || `${submission.challenge}-${submission.date}`}>
                       <td>{title}</td>
@@ -633,8 +685,7 @@ export default function SubmissionsPage() {
                       <td>{formatTime(submission.timerTime)}</td>
                       <td>{formatAttempts(submission.submitAttempts)}</td>
                       <td>{submission.guidanceLevel ?? 'Independent'}</td>
-                      <td>{submission.techBarStatus ?? 'pending'}</td>
-                      <td>{submission.techBarLabel ?? 'None'}</td>
+                      <td>{techBarLabel ?? 'None'}</td>
                     </tr>
                   );
                 })}
