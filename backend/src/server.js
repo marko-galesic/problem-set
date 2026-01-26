@@ -29,6 +29,7 @@ import {
   insertSubmission as insertSubmissionToDb,
   deleteSubmission as deleteSubmissionFromDb,
   updateSubmission as updateSubmissionInDb,
+  updateSubmissionTechBar as updateSubmissionTechBarInDb,
   getLanguagePreference as getLanguagePreferenceFromDb,
   getLatestLanguagePreference as getLatestLanguagePreferenceFromDb,
   setLanguagePreference as setLanguagePreferenceInDb,
@@ -42,6 +43,9 @@ const __dirname = dirname(__filename);
 // Default challenge ID (configurable)
 export const DEFAULT_CHALLENGE = 'two_sum';
 const GLOBAL_LANGUAGE_PREFERENCE_KEY = '__global__';
+const TECH_BAR_LABELS = new Set(['not_met', 'met', 'exceeds']);
+const TECH_BAR_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const techBarDescriptionCache = new Map();
 
 // Challenge configuration
 export const CHALLENGES = {
@@ -1437,6 +1441,212 @@ function normalizeLanguage(value) {
   return 'java';
 }
 
+function stripHtml(html) {
+  if (!html) {
+    return '';
+  }
+  const withoutTags = html.replace(/<[^>]*>/g, ' ');
+  return withoutTags
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeChallengeName(challengeId) {
+  if (!challengeId) {
+    return 'Unknown';
+  }
+  return challengeId
+    .split('_')
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+async function getTechBarDescriptionText(folder) {
+  if (!folder) {
+    return '';
+  }
+  if (techBarDescriptionCache.has(folder)) {
+    return techBarDescriptionCache.get(folder);
+  }
+  const descriptionPath = join(__dirname, '../../data', folder, 'description.html');
+  try {
+    const html = await readFile(descriptionPath, 'utf8');
+    const text = stripHtml(html);
+    techBarDescriptionCache.set(folder, text);
+    return text;
+  } catch {
+    techBarDescriptionCache.set(folder, '');
+    return '';
+  }
+}
+
+async function evaluateTechBarLabel({
+  client,
+  challengeName,
+  descriptionText,
+  solution
+}) {
+  const systemPrompt = [
+    'You are evaluating a coding interview submission against the Meta interview bar.',
+    'Consider correctness, algorithmic approach, code quality, and overall interview readiness.',
+    'Return only JSON with a single key "label" set to one of: not_met, met, exceeds.'
+  ].join(' ');
+
+  const userPrompt = [
+    `Challenge: ${challengeName || 'Unknown'}`,
+    descriptionText ? `Description: ${descriptionText}` : 'Description: (none provided)',
+    'Submission:',
+    solution
+  ].join('\n\n');
+
+  const response = await client.chat.completions.create({
+    model: TECH_BAR_MODEL,
+    temperature: 0,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ]
+  });
+
+  const content = response.choices?.[0]?.message?.content?.trim();
+  if (!content) {
+    throw new Error('OpenAI response missing content');
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch (error) {
+    throw new Error(`Failed to parse OpenAI JSON: ${content}`);
+  }
+
+  const label = parsed?.label;
+  if (!TECH_BAR_LABELS.has(label)) {
+    throw new Error(`Invalid label from OpenAI: ${label}`);
+  }
+
+  return label;
+}
+
+async function updateTechBarInFile({
+  submissionId,
+  challengeFolder,
+  challengeId,
+  status,
+  label
+}) {
+  const folder = challengeFolder || challengeId || DEFAULT_CHALLENGE;
+  const submissionsPath = join(__dirname, '../../data', folder, 'submissions.json');
+  let submissions = [];
+  try {
+    const submissionsContent = await readFile(submissionsPath, 'utf8');
+    submissions = JSON.parse(submissionsContent);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return false;
+    }
+    throw error;
+  }
+  const submissionIndex = submissions.findIndex(sub => sub.id === submissionId);
+  if (submissionIndex === -1) {
+    return false;
+  }
+  submissions[submissionIndex].techBarStatus = status;
+  submissions[submissionIndex].techBarLabel = label;
+  await writeFile(submissionsPath, JSON.stringify(submissions, null, 2), 'utf8');
+  return true;
+}
+
+async function updateTechBarForSubmission({
+  submissionId,
+  challengeFolder,
+  challengeId,
+  status,
+  label,
+  storedInDb
+}) {
+  if (storedInDb) {
+    try {
+      const result = updateSubmissionTechBarInDb(submissionId, status, label);
+      if (result.changes > 0) {
+        return true;
+      }
+    } catch (error) {
+      console.warn(`Failed to update tech bar in DB for ${submissionId}: ${error.message}`);
+    }
+  }
+  try {
+    return await updateTechBarInFile({
+      submissionId,
+      challengeFolder,
+      challengeId,
+      status,
+      label
+    });
+  } catch (error) {
+    console.warn(`Failed to update tech bar in file for ${submissionId}: ${error.message}`);
+    return false;
+  }
+}
+
+async function evaluateTechBarForSubmission({
+  submissionId,
+  challengeId,
+  solution,
+  storedInDb
+}) {
+  try {
+    const challenge = getChallenge(challengeId);
+    const challengeFolder = challenge.folder || challengeId;
+    const challengeName = challenge.name || normalizeChallengeName(challengeId);
+    const trimmedSolution = typeof solution === 'string' ? solution.trim() : '';
+
+    if (!trimmedSolution) {
+      await updateTechBarForSubmission({
+        submissionId,
+        challengeFolder,
+        challengeId,
+        status: 'completed',
+        label: 'no_submission',
+        storedInDb
+      });
+      return;
+    }
+
+    const client = getOpenAiClient();
+    if (!client) {
+      console.warn('Missing OPENAI_API_KEY; skipping tech bar label evaluation.');
+      return;
+    }
+
+    const descriptionText = await getTechBarDescriptionText(challengeFolder);
+    const label = await evaluateTechBarLabel({
+      client,
+      challengeName,
+      descriptionText,
+      solution: trimmedSolution
+    });
+
+    await updateTechBarForSubmission({
+      submissionId,
+      challengeFolder,
+      challengeId,
+      status: 'completed',
+      label,
+      storedInDb
+    });
+  } catch (error) {
+    console.warn(`Tech bar evaluation failed for submission ${submissionId}: ${error.message}`);
+  }
+}
+
 function getLanguageAdapterPath(challenge, language) {
   if (language === 'python' && challenge.adapter.startsWith('./adapters/')) {
     return challenge.adapter.replace('./adapters/', './adapters/python/');
@@ -2482,6 +2692,7 @@ app.post('/api/submissions', async (req, res) => {
   try {
     const { challenge: challengeId, avgTime, timerTime, date, solution, guidanceLevel, submitAttempts, language: rawLanguage } = req.body;
     const language = normalizeLanguage(rawLanguage);
+    let storedInDb = false;
 
     if (!challengeId) {
       return res.status(400).json({ error: 'Challenge is required' });
@@ -2512,6 +2723,7 @@ app.post('/api/submissions', async (req, res) => {
     // Save to database
     try {
       insertSubmissionToDb(newSubmission);
+      storedInDb = true;
     } catch (dbError) {
       console.warn('Failed to save submission to database, falling back to file:', dbError.message);
       // Fallback to file-based storage
@@ -2571,6 +2783,12 @@ app.post('/api/submissions', async (req, res) => {
       } catch (snapshotError) {
         console.error('Fitness snapshot error:', snapshotError);
       }
+      void evaluateTechBarForSubmission({
+        submissionId,
+        challengeId,
+        solution,
+        storedInDb
+      });
     });
     
     res.json({ success: true, submission: apiSubmission });
@@ -3476,3 +3694,20 @@ if (process.env.NODE_ENV !== 'test') {
     });
   });
 }
+
+export const __testables = {
+  normalizeLanguage,
+  stripHtml,
+  normalizeChallengeName,
+  getTechBarDescriptionText,
+  evaluateTechBarLabel,
+  updateTechBarInFile,
+  getLanguageAdapterPath,
+  getTemplateFilename,
+  buildProgressSummary,
+  buildTopicFitnessCore,
+  buildTopicFitnessWithTransfer,
+  buildFitnessSnapshotEntries,
+  getLanguageSimilarity,
+  getOnboardingRamp
+};

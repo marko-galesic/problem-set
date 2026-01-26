@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeAll, beforeEach, afterAll, jest } from '@jest/globals';
 import { createAppTestClient } from '../utils/appTestClient.js';
+import { getSubmissionById } from '../../db/queries.js';
 
 const mockCreate = jest.fn();
 
@@ -19,6 +20,18 @@ function mockOpenAiModule() {
       }
     }
   }));
+}
+
+async function waitForTechBarLabel(submissionId, expectedLabel) {
+  const maxAttempts = 20;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const submission = getSubmissionById(submissionId);
+    if (submission?.tech_bar_label === expectedLabel) {
+      return submission;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  return getSubmissionById(submissionId);
 }
 
 describe('AI-assisted endpoints', () => {
@@ -93,6 +106,36 @@ describe('AI-assisted endpoints', () => {
     expect(response.body).toHaveProperty('explanation');
     expect(response.body).toHaveProperty('systemPrompt');
     expect(response.body).toHaveProperty('userPrompt');
+  });
+
+  test('evaluates tech bar label asynchronously on submission', async () => {
+    mockCreate.mockResolvedValueOnce({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({ label: 'met' })
+          }
+        }
+      ]
+    });
+
+    const submissionData = {
+      challenge: 'two_sum',
+      avgTime: 95,
+      timerTime: 4800,
+      date: new Date().toISOString(),
+      solution: 'class TwoSum { public int[] twoSum(int[] nums, int target) { return null; } }'
+    };
+
+    const response = await client.post('/api/submissions', submissionData);
+    expect(response.status).toBe(200);
+
+    const submissionId = response.body.submission.id;
+    const submission = await waitForTechBarLabel(submissionId, 'met');
+
+    expect(submission).toBeDefined();
+    expect(submission.tech_bar_label).toBe('met');
+    expect(submission.tech_bar_status).toBe('completed');
   });
 
   test('returns progress report', async () => {

@@ -278,6 +278,16 @@ export function updateSubmission(submissionId, timerTime) {
   return stmt.run(timerTime, submissionId);
 }
 
+export function updateSubmissionTechBar(submissionId, status, label) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    UPDATE submissions
+    SET tech_bar_status = ?, tech_bar_label = ?
+    WHERE id = ?
+  `);
+  return stmt.run(status, label, submissionId);
+}
+
 /**
  * Language preference queries
  */

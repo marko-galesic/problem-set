@@ -20,17 +20,17 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
   if (!testCases || testCases.length === 0) {
     return (
       <div className="test-cases-preview">
-        <div className="test-cases-preview-header">
-          <h2>Test Cases</h2>
-          <button 
-            className="btn-sidebar-toggle"
-            onClick={onToggle}
-            title="Hide test cases"
-          >
-            ◀
-          </button>
-        </div>
-        <div style={{ padding: '20px' }}>
+        <div className="test-tabs-container">
+          <div className="test-tabs-header">
+            <div className="test-tabs-spacer"></div>
+            <button 
+              className="btn-sidebar-toggle"
+              onClick={onToggle}
+              title="Hide test cases"
+            >
+              ◀
+            </button>
+          </div>
           <p className="no-results">Loading test cases...</p>
         </div>
       </div>
@@ -41,33 +41,28 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
 
   return (
     <div className="test-cases-preview">
-      <div className="test-cases-preview-header">
-        <h2>
-          Test Cases
-          <span className="test-count">({testCases.length} {testCases.length === 1 ? 'test' : 'tests'})</span>
-        </h2>
-        <button 
-          className="btn-sidebar-toggle"
-          onClick={onToggle}
-          title="Hide test cases"
-        >
-          ◀
-        </button>
-      </div>
-
       <div className="test-tabs-container">
-        <div className="test-tabs">
-          {testCases.map((testCase, index) => (
-            <button
-              key={testCase.id || index}
-              className={`test-tab ${index === selectedTestIndex ? 'active' : ''}`}
-              onClick={() => setSelectedTestIndex(index)}
-            >
-              <span className="test-tab-label">
-                Test {index + 1}: {testCase.name}
-              </span>
-            </button>
-          ))}
+        <div className="test-tabs-header">
+          <div className="test-tabs">
+            {testCases.map((testCase, index) => (
+              <button
+                key={testCase.id || index}
+                className={`test-tab ${index === selectedTestIndex ? 'active' : ''}`}
+                onClick={() => setSelectedTestIndex(index)}
+              >
+                <span className="test-tab-label">
+                  Test {index + 1}: {testCase.name}
+                </span>
+              </button>
+            ))}
+          </div>
+          <button 
+            className="btn-sidebar-toggle"
+            onClick={onToggle}
+            title="Hide test cases"
+          >
+            ◀
+          </button>
         </div>
 
         <div className="test-case-content">
@@ -95,4 +90,3 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
     </div>
   );
 }
-

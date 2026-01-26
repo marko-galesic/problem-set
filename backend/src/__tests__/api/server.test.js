@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { randomUUID } from 'crypto';
 import { createAppTestClient } from '../utils/appTestClient.js';
+import { getSubmissionById } from '../../db/queries.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,6 +23,18 @@ async function createTestDataFile(challengeId, filename, content) {
   }
   await writeFile(filePath, content, 'utf8');
   return { filePath, previousContent };
+}
+
+async function waitForTechBarLabel(submissionId, expectedLabel) {
+  const maxAttempts = 20;
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const submission = getSubmissionById(submissionId);
+    if (submission?.tech_bar_label === expectedLabel) {
+      return submission;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  return getSubmissionById(submissionId);
 }
 
 describe('API Endpoints', () => {
@@ -363,6 +376,25 @@ describe('API Endpoints', () => {
       expect(response.body.success).toBe(true);
       expect(response.body).toHaveProperty('submission');
       expect(response.body.submission).toHaveProperty('id');
+    });
+
+    test('should mark tech bar label when solution is missing', async () => {
+      const submissionData = {
+        challenge: 'two_sum',
+        avgTime: 120,
+        timerTime: 6000,
+        date: new Date().toISOString()
+      };
+
+      const response = await client.post('/api/submissions', submissionData);
+      expect(response.status).toBe(200);
+
+      const submissionId = response.body.submission.id;
+      const submission = await waitForTechBarLabel(submissionId, 'no_submission');
+
+      expect(submission).toBeDefined();
+      expect(submission.tech_bar_label).toBe('no_submission');
+      expect(submission.tech_bar_status).toBe('completed');
     });
 
     test('should validate required fields', async () => {

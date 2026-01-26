@@ -735,12 +735,6 @@ body {
   font-weight: 500;
 }
 
-.test-count {
-  color: #666666;
-  font-weight: normal;
-  font-size: 16px;
-}
-
 .expand-icon {
   color: #666666;
   font-size: 12px;
@@ -954,6 +948,20 @@ body {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+}
+
+.test-tabs-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.test-tabs-header .test-tabs {
+  flex: 1 1 auto;
+}
+
+.test-tabs-spacer {
+  flex: 1 1 auto;
 }
 
 .test-tabs {
