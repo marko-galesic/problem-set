@@ -9,3 +9,4 @@ temp/
 *.jar
 .env
 .vite/
+backend/data/challenges.db

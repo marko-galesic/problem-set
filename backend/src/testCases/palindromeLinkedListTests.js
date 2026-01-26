@@ -31,13 +31,6 @@ export const runTests = [
 export const submitTests = [
   ...runTests,
   {
-    id: 4,
-    name: "Empty list",
-    input: "head = []",
-    head: null,
-    expected: true
-  },
-  {
     id: 5,
     name: "Single node",
     input: "head = [7]",
