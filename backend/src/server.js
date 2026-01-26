@@ -153,6 +153,12 @@ export const CHALLENGES = {
     testFile: './testCases/intersectionOfTwoLinkedListsTests.js',
     adapter: './adapters/intersectionOfTwoLinkedListsAdapter.js'
   },
+  palindrome_linked_list: {
+    name: 'Palindrome Linked List',
+    folder: 'palindrome_linked_list',
+    testFile: './testCases/palindromeLinkedListTests.js',
+    adapter: './adapters/palindromeLinkedListAdapter.js'
+  },
   longest_substring_without_repeating_characters: {
     name: 'Longest Substring Without Repeating Characters',
     folder: 'longest_substring_without_repeating_characters',

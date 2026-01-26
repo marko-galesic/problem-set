@@ -1,0 +1,52 @@
+<p>
+  Given the head of a singly linked list, return <code>true</code> if the list
+  is a palindrome and <code>false</code> otherwise.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public boolean isPalindrome(ListNode head)</code></pre>
+
+<h3>Requirements</h3>
+<ul>
+  <li>Compare values from both ends of the list</li>
+  <li>The ListNode class is provided as a utility class (see ListNode.java)</li>
+  <li>Return true for an empty list or a single node</li>
+  <li>Try to solve it in O(n) time and O(1) extra space if possible</li>
+</ul>
+
+<h3>ListNode Structure</h3>
+<pre><code>class ListNode {
+    int val;
+    ListNode next;
+
+    ListNode(int val) { this.val = val; }
+    ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+}</code></pre>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>head = [1, 2, 2, 1]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>true</code></pre>
+
+<p><strong>Explanation:</strong> The list <code>1 -> 2 -> 2 -> 1</code> reads the same forward and backward.</p>
+
+<h3>Additional Examples</h3>
+<p><strong>Example 2:</strong></p>
+<pre><code>Input: head = [1, 2]
+Output: false</code></pre>
+
+<p><strong>Example 3:</strong></p>
+<pre><code>Input: head = [1]
+Output: true</code></pre>
+
+<p><strong>Example 4:</strong></p>
+<pre><code>Input: head = []
+Output: true</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>The number of nodes in the list is in the range [0, 10^5]</li>
+  <li>Node values are in the range [-10^9, 10^9]</li>
+</ul>
