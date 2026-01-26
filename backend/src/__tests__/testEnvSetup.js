@@ -7,7 +7,7 @@ if (!process.env.CHALLENGES_DB_PATH || process.env.CHALLENGES_DB_PATH === ':memo
   const workerId = process.env.JEST_WORKER_ID || '0';
   process.env.CHALLENGES_DB_PATH = join(
     tmpdir(),
-    `ssml-parser-test-${process.pid}-${workerId}.db`
+    `problem-set-${process.pid}-${workerId}.db`
   );
   shouldSeed = true;
 }

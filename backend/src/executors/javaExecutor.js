@@ -1021,7 +1021,7 @@ ${testCases.map((tc, idx) => `                        case ${idx}: expected = ge
                 String expectedStr = ${isPrimitiveType ? `expectedError ? "null" : ${serializerMethod}(expected)` : `${serializerMethod}(expected)`};
                 // #region agent log
                 try {
-                    java.io.FileWriter fw = new java.io.FileWriter("/Users/markogalesic/dev/ssml-parser-test/.cursor/debug.log", true);
+                    java.io.FileWriter fw = new java.io.FileWriter("/Users/markogalesic/dev/problem-set/.cursor/debug.log", true);
                     java.io.BufferedWriter bw = new java.io.BufferedWriter(fw);
                     String logData = "test=" + i + ",actual=" + (actualStr != null ? actualStr.replace("\\"", "\\\\\\"") : "null") + ",expected=" + (expectedStr != null ? expectedStr.replace("\\"", "\\\\\\"") : "null");
                     String json = "{\\"location\\":\\"TestHarness:main\\",\\"message\\":\\"Test result\\",\\"data\\":\\"" + logData + "\\",\\"hypothesisId\\":\\"F\\",\\"sessionId\\":\\"debug-session\\",\\"runId\\":\\"post-fix\\",\\"timestamp\\":" + System.currentTimeMillis() + "}";

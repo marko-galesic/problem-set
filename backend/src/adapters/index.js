@@ -22,7 +22,7 @@ export async function loadAdapter(adapterPath) {
 
   try {
     // Resolve the adapter path relative to the server.js file location
-    // adapterPath is like './adapters/ssmlAdapter.js' relative to server.js (in src/)
+    // adapterPath is like './adapters/challengeAdapter.js' relative to server.js (in src/)
     // We're in adapters/index.js, so we need to go up to src/ and then use the path
     const srcDir = dirname(__dirname); // Go up from adapters/ to src/
     let resolvedPath;
@@ -55,4 +55,3 @@ export async function loadAdapter(adapterPath) {
 export function clearCache() {
   adapterCache.clear();
 }
-
