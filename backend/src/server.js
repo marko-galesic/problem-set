@@ -29,6 +29,9 @@ import {
   insertSubmission as insertSubmissionToDb,
   deleteSubmission as deleteSubmissionFromDb,
   updateSubmission as updateSubmissionInDb,
+  getLanguagePreference as getLanguagePreferenceFromDb,
+  getLatestLanguagePreference as getLatestLanguagePreferenceFromDb,
+  setLanguagePreference as setLanguagePreferenceInDb,
   insertFitnessSnapshot,
   getFitnessHistory
 } from './db/queries.js';
@@ -38,6 +41,7 @@ const __dirname = dirname(__filename);
 
 // Default challenge ID (configurable)
 export const DEFAULT_CHALLENGE = 'two_sum';
+const GLOBAL_LANGUAGE_PREFERENCE_KEY = '__global__';
 
 // Challenge configuration
 export const CHALLENGES = {
@@ -1896,6 +1900,48 @@ app.delete('/api/cleanup', async (req, res) => {
   }
 });
 
+function resolveGlobalLanguagePreference() {
+  const entry = getLanguagePreferenceFromDb(GLOBAL_LANGUAGE_PREFERENCE_KEY);
+  if (entry?.language) {
+    return entry;
+  }
+  const fallback = getLatestLanguagePreferenceFromDb(GLOBAL_LANGUAGE_PREFERENCE_KEY);
+  if (fallback?.language) {
+    const normalized = normalizeLanguage(fallback.language);
+    setLanguagePreferenceInDb(GLOBAL_LANGUAGE_PREFERENCE_KEY, normalized);
+    return { language: normalized };
+  }
+  return null;
+}
+
+// Language preference endpoints (global)
+app.get('/api/language-preference', (req, res) => {
+  try {
+    const entry = resolveGlobalLanguagePreference();
+    const language = entry?.language ? normalizeLanguage(entry.language) : null;
+    res.json({ language });
+  } catch (error) {
+    console.error('Language preference error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to load language preference'
+    });
+  }
+});
+
+app.post('/api/language-preference', (req, res) => {
+  try {
+    const { language: rawLanguage } = req.body || {};
+    const language = normalizeLanguage(rawLanguage);
+    setLanguagePreferenceInDb(GLOBAL_LANGUAGE_PREFERENCE_KEY, language);
+    res.json({ success: true, language });
+  } catch (error) {
+    console.error('Save language preference error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to save language preference'
+    });
+  }
+});
+
 // Challenges endpoint - returns available challenges
 app.get('/api/challenges', (req, res) => {
   try {
@@ -1999,6 +2045,8 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
     const systemPrompt = [
       'You are a coach recommending the next LeetCode challenge.',
       'Use the submission history to pick a helpful next problem.',
+      'Hard constraint: avoid recommending any challenge attempted in the last 14 days; treat missing or invalid submission dates as recent.',
+      'If every known challenge falls within that 14-day window, recommend the least-recently submitted challenge and say it is a fallback due to coverage.',
       'Guidance labels: Independent = no help, Minor = small hints, Guided = significant AI guidance.',
       'Weigh Independent and Minor submissions more than Guided when recommending.',
       'Topic fitness is a 0-1 score per topic and difficulty (easy, medium, hard) with fields: fitness, submissionCount, lastSubmission.',
@@ -2014,7 +2062,7 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       getAllSubmissions()
     );
 
-    const cutoffMs = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const cutoffMs = Date.now() - 14 * 24 * 60 * 60 * 1000;
 
     function isRecentSubmission(submission) {
       if (!submission || typeof submission !== 'object') {
@@ -2071,9 +2119,28 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       return sanitized;
     });
 
+    const recentChallenges = Array.from(
+      new Map(
+        sanitizedSubmissions
+          .filter((submission) => submission && typeof submission === 'object')
+          .map((submission) => {
+            const challengeId = typeof submission.challenge === 'string' ? submission.challenge.trim() : '';
+            const challengeName = typeof submission.challengeName === 'string' ? submission.challengeName.trim() : '';
+            if (!challengeId && !challengeName) {
+              return null;
+            }
+            const key = challengeId || challengeName.toLowerCase();
+            return [key, { id: challengeId || undefined, name: challengeName || undefined }];
+          })
+          .filter(Boolean)
+      ).values()
+    );
+
     const userPrompt = [
       'Submission history:',
       JSON.stringify(sanitizedSubmissions),
+      'Recent challenges (last 14 days; do not recommend):',
+      JSON.stringify(recentChallenges),
       'Topic fitness per topic (0 = not fit, 1 = 100% fit):',
       JSON.stringify(topicFitness),
       'Known challenge metadata (may be empty):',
@@ -2119,6 +2186,71 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
   } catch (error) {
     console.error('Recommend next challenge error:', error);
     return res.status(500).json({ error: error.message || 'Failed to recommend challenge' });
+  }
+});
+
+// Daily progress report endpoint - returns an encouraging summary
+app.post('/api/progress-report', async (req, res) => {
+  try {
+    const { submissions, dateKey } = req.body || {};
+
+    if (!Array.isArray(submissions)) {
+      return res.status(400).json({ error: 'submissions must be an array' });
+    }
+
+    if (submissions.length === 0) {
+      return res.status(400).json({ error: 'submissions must not be empty' });
+    }
+
+    const client = getOpenAiClient();
+    if (!client) {
+      return res.status(503).json({ error: 'Missing OPENAI_API_KEY' });
+    }
+
+    const sanitizedSubmissions = submissions.map((submission) => {
+      if (!submission || typeof submission !== 'object') {
+        return submission;
+      }
+      const cleaned = { ...submission };
+      delete cleaned.solution;
+      delete cleaned.code;
+      return cleaned;
+    });
+
+    const summary = buildProgressSummary(sanitizedSubmissions);
+    const systemPrompt = [
+      'You are a supportive coding coach writing a daily progress report.',
+      'Be encouraging, concise, and specific.',
+      'Mention the submission count and one concrete highlight.',
+      'Guidance labels: Independent = no help, Minor = small hints, Guided = significant AI guidance.',
+      'Use 4-6 sentences in plain text or markdown.',
+      'No emojis and no exclamation marks.',
+      'End with a gentle next-step suggestion.'
+    ].join(' ');
+
+    const userPrompt = [
+      `Date: ${dateKey || 'today'}`,
+      'Progress summary (JSON):',
+      JSON.stringify(summary, null, 2)
+    ].join('\n\n');
+
+    const response = await client.chat.completions.create({
+      model: 'gpt-5',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ]
+    });
+
+    const report = response.choices?.[0]?.message?.content?.trim();
+    if (!report) {
+      return res.status(502).json({ error: 'OpenAI response missing content' });
+    }
+
+    return res.json({ report });
+  } catch (error) {
+    console.error('Progress report error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to generate progress report' });
   }
 });
 
@@ -2610,7 +2742,89 @@ app.get('/api/challenges/metadata', (req, res) => {
   }
 });
 
-function buildTopicFitness(challenges, submissions) {
+function buildProgressSummary(submissions) {
+  const challengeCounts = new Map();
+  const languageCounts = new Map();
+  const guidanceCounts = new Map();
+  let avgTimeTotal = 0;
+  let avgTimeCount = 0;
+  let timerTimeTotal = 0;
+  let timerTimeCount = 0;
+  let untrackedTimerCount = 0;
+  let lastSubmission = null;
+
+  for (const submission of submissions) {
+    if (!submission || typeof submission !== 'object') {
+      continue;
+    }
+
+    const challengeName = typeof submission.challengeName === 'string' && submission.challengeName.trim()
+      ? submission.challengeName.trim()
+      : typeof submission.challenge === 'string' && submission.challenge.trim()
+        ? submission.challenge.trim()
+        : 'Unknown';
+    challengeCounts.set(challengeName, (challengeCounts.get(challengeName) || 0) + 1);
+
+    const language = typeof submission.language === 'string' && submission.language.trim()
+      ? submission.language.trim().toLowerCase()
+      : 'unknown';
+    languageCounts.set(language, (languageCounts.get(language) || 0) + 1);
+
+    const guidance = typeof submission.guidanceLevel === 'string' && submission.guidanceLevel.trim()
+      ? submission.guidanceLevel.trim()
+      : 'Independent';
+    guidanceCounts.set(guidance, (guidanceCounts.get(guidance) || 0) + 1);
+
+    const avgTime = Number(submission.avgTime);
+    if (Number.isFinite(avgTime) && avgTime >= 0) {
+      avgTimeTotal += avgTime;
+      avgTimeCount += 1;
+    }
+
+    const timerTime = Number(submission.timerTime);
+    if (Number.isFinite(timerTime)) {
+      if (timerTime < 0) {
+        untrackedTimerCount += 1;
+      } else {
+        timerTimeTotal += timerTime;
+        timerTimeCount += 1;
+      }
+    }
+
+    const submittedAt = Date.parse(submission.date);
+    if (Number.isFinite(submittedAt)) {
+      if (!lastSubmission || submittedAt > lastSubmission) {
+        lastSubmission = submittedAt;
+      }
+    }
+  }
+
+  const challengeBreakdown = Array.from(challengeCounts.entries())
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count);
+  const languageBreakdown = Array.from(languageCounts.entries())
+    .map(([language, count]) => ({ language, count }))
+    .sort((a, b) => b.count - a.count);
+  const guidanceBreakdown = Array.from(guidanceCounts.entries())
+    .reduce((acc, [level, count]) => {
+      acc[level] = count;
+      return acc;
+    }, {});
+
+  return {
+    totalSubmissions: submissions.length,
+    uniqueChallenges: challengeBreakdown.length,
+    challengeBreakdown,
+    languageBreakdown,
+    guidanceBreakdown,
+    avgRuntimeMs: avgTimeCount > 0 ? Math.round(avgTimeTotal / avgTimeCount) : null,
+    totalTimerTimeMs: timerTimeCount > 0 ? timerTimeTotal : null,
+    untrackedTimerCount,
+    lastSubmission: lastSubmission ? new Date(lastSubmission).toISOString() : null
+  };
+}
+
+function buildTopicFitnessCore(challenges, submissions) {
   const allTopics = new Set();
   const challengeTopics = {};
   const challengeDifficulty = {};
@@ -2742,7 +2956,8 @@ function buildTopicFitness(challenges, submissions) {
       medium: buildEntry(stat.difficulties.medium),
       hard: buildEntry(stat.difficulties.hard),
       overallFitness: stat.overall.totalWeight > 0 ? stat.overall.totalFitness / stat.overall.totalWeight : 0,
-      overallLastSubmission: stat.overall.lastSubmission
+      overallLastSubmission: stat.overall.lastSubmission,
+      overallSubmissionCount: stat.overall.submissionCount
     };
   });
 
@@ -2755,7 +2970,175 @@ function buildTopicFitness(challenges, submissions) {
     return dateB - dateA;
   });
 
-  return topics.map(({ overallFitness, overallLastSubmission, ...rest }) => rest);
+  return topics;
+}
+
+function stripTopicFitnessOverallFields(topics) {
+  return topics.map(({ overallFitness, overallLastSubmission, overallSubmissionCount, ...rest }) => rest);
+}
+
+function buildTopicFitness(challenges, submissions) {
+  return stripTopicFitnessOverallFields(buildTopicFitnessCore(challenges, submissions));
+}
+
+const SIMILARITY_TIER_WEIGHTS = {
+  same: 1,
+  close: 0.85,
+  medium: 0.6,
+  far: 0.4
+};
+
+const LANGUAGE_SIMILARITY_TIERS = {
+  javascript: { typescript: 'close', python: 'medium', java: 'medium' },
+  typescript: { javascript: 'close', python: 'medium', java: 'medium' },
+  python: { javascript: 'medium', typescript: 'medium', java: 'far' },
+  java: { javascript: 'medium', typescript: 'medium', python: 'far' }
+};
+
+function getLanguageSimilarity(sourceLanguage, targetLanguage) {
+  if (sourceLanguage === targetLanguage) {
+    return SIMILARITY_TIER_WEIGHTS.same;
+  }
+  const tier = LANGUAGE_SIMILARITY_TIERS[sourceLanguage]?.[targetLanguage] ?? 'far';
+  return SIMILARITY_TIER_WEIGHTS[tier] ?? SIMILARITY_TIER_WEIGHTS.far;
+}
+
+const ONBOARDING_MIN_CARRYOVER = 0.3;
+const ONBOARDING_SUBMISSION_SCALE = 8;
+
+function getOnboardingRamp(submissionCount) {
+  const count = Number.isFinite(submissionCount) ? Math.max(0, submissionCount) : 0;
+  if (count <= 0) {
+    return ONBOARDING_MIN_CARRYOVER;
+  }
+  const ramp = ONBOARDING_MIN_CARRYOVER
+    + (1 - ONBOARDING_MIN_CARRYOVER) * (1 - Math.exp(-count / ONBOARDING_SUBMISSION_SCALE));
+  return Math.min(1, Math.max(0, ramp));
+}
+
+function buildTopicFitnessWithTransfer(challenges, submissions, targetLanguage) {
+  const normalizedTarget = normalizeLanguage(targetLanguage);
+  const submissionsByLanguage = new Map();
+
+  for (const submission of submissions) {
+    const language = normalizeLanguage(submission.language);
+    if (!submissionsByLanguage.has(language)) {
+      submissionsByLanguage.set(language, []);
+    }
+    submissionsByLanguage.get(language).push(submission);
+  }
+
+  if (!submissionsByLanguage.has(normalizedTarget)) {
+    submissionsByLanguage.set(normalizedTarget, []);
+  }
+
+  const topicMaps = new Map();
+  const topicsByLanguage = new Map();
+
+  for (const [language, languageSubmissions] of submissionsByLanguage.entries()) {
+    const topics = buildTopicFitnessCore(challenges, languageSubmissions);
+    topicsByLanguage.set(language, topics);
+    const topicMap = new Map();
+    for (const entry of topics) {
+      topicMap.set(entry.topic, entry);
+    }
+    topicMaps.set(language, topicMap);
+  }
+
+  const targetTopics = topicsByLanguage.get(normalizedTarget) ?? buildTopicFitnessCore(challenges, []);
+  const targetSubmissionCount = submissionsByLanguage.get(normalizedTarget)?.length ?? 0;
+  const ramp = getOnboardingRamp(targetSubmissionCount);
+  const otherLanguages = Array.from(topicsByLanguage.keys()).filter(
+    (language) => language !== normalizedTarget
+  );
+
+  const clampFitness = (value) => Math.min(1, Math.max(0, value));
+
+  const applyCarryover = (baseFitness, carryoverFitness) => {
+    const base = Number.isFinite(baseFitness) ? baseFitness : 0;
+    const carryover = Number.isFinite(carryoverFitness) ? carryoverFitness : 0;
+    const blended = base + (1 - base) * ramp * carryover;
+    return clampFitness(blended);
+  };
+
+  const computeCarryover = (topic, difficulty) => {
+    let weightedSum = 0;
+    let weightTotal = 0;
+
+    for (const language of otherLanguages) {
+      const topicMap = topicMaps.get(language);
+      if (!topicMap) {
+        continue;
+      }
+      const entry = topicMap.get(topic);
+      if (!entry) {
+        continue;
+      }
+
+      let fitness = 0;
+      let submissionCount = 0;
+      if (difficulty === 'overall') {
+        fitness = entry.overallFitness ?? 0;
+        submissionCount = entry.overallSubmissionCount ?? 0;
+      } else {
+        const detail = entry[difficulty];
+        fitness = detail?.fitness ?? 0;
+        submissionCount = detail?.submissionCount ?? 0;
+      }
+
+      if (!submissionCount) {
+        continue;
+      }
+
+      const similarity = getLanguageSimilarity(language, normalizedTarget);
+      if (similarity <= 0) {
+        continue;
+      }
+      weightedSum += similarity * fitness;
+      weightTotal += similarity;
+    }
+
+    return weightTotal > 0 ? weightedSum / weightTotal : 0;
+  };
+
+  const adjustedTopics = targetTopics.map((entry) => {
+    const adjusted = {
+      ...entry,
+      easy: { ...entry.easy },
+      medium: { ...entry.medium },
+      hard: { ...entry.hard }
+    };
+
+    adjusted.easy.fitness = applyCarryover(
+      adjusted.easy.fitness,
+      computeCarryover(adjusted.topic, 'easy')
+    );
+    adjusted.medium.fitness = applyCarryover(
+      adjusted.medium.fitness,
+      computeCarryover(adjusted.topic, 'medium')
+    );
+    adjusted.hard.fitness = applyCarryover(
+      adjusted.hard.fitness,
+      computeCarryover(adjusted.topic, 'hard')
+    );
+    adjusted.overallFitness = applyCarryover(
+      adjusted.overallFitness ?? 0,
+      computeCarryover(adjusted.topic, 'overall')
+    );
+
+    return adjusted;
+  });
+
+  adjustedTopics.sort((a, b) => {
+    if (b.overallFitness !== a.overallFitness) {
+      return b.overallFitness - a.overallFitness;
+    }
+    const dateA = a.overallLastSubmission ? Date.parse(a.overallLastSubmission) : 0;
+    const dateB = b.overallLastSubmission ? Date.parse(b.overallLastSubmission) : 0;
+    return dateB - dateA;
+  });
+
+  return stripTopicFitnessOverallFields(adjustedTopics);
 }
 
 function buildFitnessSnapshotEntries(topicFitness, language) {
@@ -2793,10 +3176,7 @@ function createFitnessSnapshot() {
   ));
   const entries = [];
   for (const language of languages) {
-    const languageSubmissions = submissions.filter(
-      submission => normalizeLanguage(submission.language) === language
-    );
-    const topicFitness = buildTopicFitness(challenges, languageSubmissions);
+    const topicFitness = buildTopicFitnessWithTransfer(challenges, submissions, language);
     entries.push(...buildFitnessSnapshotEntries(topicFitness, language));
   }
   if (entries.length === 0) {
@@ -2812,10 +3192,7 @@ app.get('/api/topic-fitness', (req, res) => {
     const challenges = getAllChallenges();
     const submissions = getAllSubmissions();
     const language = normalizeLanguage(req.query.language);
-    const filteredSubmissions = submissions.filter(
-      submission => normalizeLanguage(submission.language) === language
-    );
-    const topics = buildTopicFitness(challenges, filteredSubmissions);
+    const topics = buildTopicFitnessWithTransfer(challenges, submissions, language);
     res.json({ topics, count: topics.length });
   } catch (error) {
     console.error('Get topic fitness error:', error);

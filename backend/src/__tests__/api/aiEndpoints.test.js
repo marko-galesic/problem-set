@@ -51,6 +51,12 @@ describe('AI-assisted endpoints', () => {
     expect(response.body).toHaveProperty('error');
   });
 
+  test('rejects progress-report when submissions is not an array', async () => {
+    const response = await client.post('/api/progress-report', { submissions: 'nope' });
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('error');
+  });
+
   test('recommends next challenge with formatted submissions', async () => {
     mockCreate.mockResolvedValueOnce({
       choices: [
@@ -87,6 +93,32 @@ describe('AI-assisted endpoints', () => {
     expect(response.body).toHaveProperty('explanation');
     expect(response.body).toHaveProperty('systemPrompt');
     expect(response.body).toHaveProperty('userPrompt');
+  });
+
+  test('returns progress report', async () => {
+    mockCreate.mockResolvedValueOnce({
+      choices: [
+        {
+          message: { content: 'You made solid progress today.' }
+        }
+      ]
+    });
+
+    const response = await client.post('/api/progress-report', {
+      submissions: [
+        {
+          challenge: 'two_sum',
+          challengeName: 'Two Sum',
+          avgTime: 12,
+          timerTime: 1200,
+          date: new Date().toISOString()
+        }
+      ],
+      dateKey: '2024-01-01'
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('report');
   });
 
   test('returns 503 when OpenAI key is missing', async () => {

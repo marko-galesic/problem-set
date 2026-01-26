@@ -1,5 +1,5 @@
 @startuml
-title ProblemSet Architecture
+title ProblemSet Runtime Architecture
 skinparam componentStyle rectangle
 skinparam shadowing false
 skinparam linetype ortho
@@ -8,26 +8,36 @@ actor User
 
 rectangle "Browser" as Browser {
   component "Frontend (React + Vite)\nfrontend/" as FE
-  component "Local Storage\n(code + submissions)" as LS
+  component "Monaco Editor\ncode + output UI" as Editor
+  component "Local Storage\n(drafts, timer, prefs)" as LS
+  FE --> Editor : embeds
 }
 
-component "Backend API (Express)\nbackend/src/server.js" as BE
+rectangle "Backend API (Express)\nbackend/src/server.js" as BE {
+  component "Challenge Registry\nCHALLENGES map" as Registry
+  component "Adapters\nbackend/src/adapters/*\nbackend/src/adapters/python/*" as Adapters
+  component "Test Cases\nbackend/src/testCases/*" as Tests
+  component "Executors\nbackend/src/executors/*" as Exec
+  folder "Temp Work Dir\nbackend/temp/<id>/*" as Temp
+}
+
 database "SQLite\nbackend/data/challenges.db" as DB
 folder "Challenge Data\n/data/<id>/*" as Data
-component "Adapters\nbackend/src/adapters/*" as Adapters
-component "Test Cases\nbackend/src/testCases/*" as Tests
-component "Executors\nbackend/src/executors/*" as Exec
 component "Runtimes\nJDK / Python / Node" as Runtimes
 cloud "OpenAI API\n(optional)" as OpenAI
 
 User --> FE : uses UI
-FE --> BE : /api/* requests
-FE --> LS : save/load drafts
-BE --> DB : metadata + submissions
-BE --> Data : templates + descriptions
+FE --> BE : /api/* (challenges, run, submit, AI)
+FE --> LS : drafts + settings
+
+BE --> Registry : resolve metadata
+BE --> Data : templates + descriptions + golden
+BE --> DB : submissions + progress
 BE --> Tests : run/submit suites
 BE --> Adapters : input/output normalization
-BE --> Exec : compile/run code
-Exec --> Runtimes : process execution
-BE --> OpenAI : bug-hunt + recommendations
+Adapters --> Exec : generated runner
+Tests --> Exec : inputs + expected
+Exec --> Temp : write sources + results
+Exec --> Runtimes : compile/run
+BE --> OpenAI : bug-hunt + guidance
 @enduml

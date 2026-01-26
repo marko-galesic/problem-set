@@ -208,7 +208,6 @@ class TestClock {
     TestClock._mockTime = null;
   }
 }
-
 function captureStdout(callback) {
   const originalWrite = process.stdout.write.bind(process.stdout);
   let buffer = '';
@@ -554,3 +553,13 @@ async function parseTestResults(output, testCases, stderr = '') {
 
   return results;
 }
+
+export const __testUtils = {
+  hasTsNode,
+  getTempDir,
+  ensureTempDir,
+  spawnAsync,
+  stripBlockComments,
+  extractClassNameFromTemplate,
+  hasClassDefinition
+};

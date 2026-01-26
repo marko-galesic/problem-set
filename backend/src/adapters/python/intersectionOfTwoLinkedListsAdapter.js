@@ -14,11 +14,8 @@ export default {
     };
   },
 
-  buildExpectedCode: (expected, indent = '    ', varName = 'expected') => {
-    if (!expected || !Array.isArray(expected) || expected.length === 0) {
-      return `${indent}${varName} = None\n`;
-    }
-    return `${indent}${varName} = build_list(${buildListLiteral(expected)})\n`;
+  buildExpectedCode: (_expected, indent = '    ', varName = 'expected') => {
+    return `${indent}${varName} = CURRENT_EXPECTED[0]\n`;
   },
 
   generateSerializer: () => {
@@ -36,11 +33,14 @@ export default {
 
   generateInvocation: (parserVar) => {
     return `headA, headB = get_test_heads(i)
+CURRENT_EXPECTED[0] = find_intersection(headA, headB)
 actual = ${parserVar}.getIntersectionNode(headA, headB)`;
   },
 
   generateInputHelpers: (testCases) => {
-    return `def build_list(values):
+    return `CURRENT_EXPECTED = [None]
+
+def build_list(values):
     if values is None or len(values) == 0:
         return None
     dummy = ListNode(0)
@@ -93,6 +93,22 @@ ${testCases.map(tc => `        (${buildListLiteral(tc.listA !== undefined ? tc.l
         headB = build_list(listB_vals)
 
     return headA, headB
+
+def find_intersection(headA, headB):
+    if headA is None or headB is None:
+        return None
+    a = headA
+    b = headB
+    while a is not b:
+        a = headB if a is None else a.next
+        b = headA if b is None else b.next
+    return a
+`;
+  },
+
+  generateComparison: () => {
+    return `def compare_results(actual, expected, actual_str, expected_str):
+    return actual is expected
 `;
   },
 

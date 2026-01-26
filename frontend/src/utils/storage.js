@@ -83,12 +83,42 @@ export function getCurrentCode(challenge = 'two_sum', language = 'java') {
   return localStorage.getItem(getStorageKey(challenge, 'current_code', language));
 }
 
-export function saveLanguagePreference(language, challenge = 'two_sum') {
-  localStorage.setItem(getStorageKey(challenge, 'language'), language);
+export async function saveLanguagePreference(language) {
+  try {
+    const response = await fetch('/api/language-preference', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ language })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save language preference');
+    }
+
+    const data = await response.json();
+    return data.language ?? language;
+  } catch (error) {
+    console.error('Error saving language preference:', error);
+    return null;
+  }
 }
 
-export function getLanguagePreference(challenge = 'two_sum') {
-  return localStorage.getItem(getStorageKey(challenge, 'language'));
+export async function getLanguagePreference() {
+  try {
+    const response = await fetch('/api/language-preference');
+
+    if (!response.ok) {
+      throw new Error('Failed to load language preference');
+    }
+
+    const data = await response.json();
+    return data.language ?? null;
+  } catch (error) {
+    console.error('Error loading language preference:', error);
+    return null;
+  }
 }
 
 export function getSubmitAttempts(challenge = 'two_sum', language = 'java') {
@@ -109,18 +139,21 @@ export function resetSubmitAttempts(challenge = 'two_sum', language = 'java') {
   localStorage.setItem(getStorageKey(challenge, 'submit_attempts', language), '0');
 }
 
-export function saveTimerState(challenge, elapsedTime, isRunning, accumulatedTime) {
+export function saveTimerState(challenge, elapsedTime, isRunning, accumulatedTime, language) {
   const timerState = {
     elapsedTime,
     isRunning,
     accumulatedTime,
     timestamp: Date.now()
   };
-  localStorage.setItem(getStorageKey(challenge, 'timer_state'), JSON.stringify(timerState));
+  localStorage.setItem(getStorageKey(challenge, 'timer_state', language), JSON.stringify(timerState));
 }
 
-export function getTimerState(challenge = 'two_sum') {
-  const saved = localStorage.getItem(getStorageKey(challenge, 'timer_state'));
+export function getTimerState(challenge = 'two_sum', language) {
+  let saved = localStorage.getItem(getStorageKey(challenge, 'timer_state', language));
+  if (!saved && language) {
+    saved = localStorage.getItem(getStorageKey(challenge, 'timer_state'));
+  }
   if (!saved) return null;
   
   try {

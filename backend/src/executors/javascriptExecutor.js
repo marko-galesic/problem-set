@@ -434,3 +434,12 @@ async function parseTestResults(output, testCases, stderr = '') {
 
   return results;
 }
+
+export const __testUtils = {
+  getTempDir,
+  ensureTempDir,
+  spawnAsync,
+  stripBlockComments,
+  extractClassNameFromTemplate,
+  hasClassDefinition
+};

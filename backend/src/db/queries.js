@@ -278,6 +278,47 @@ export function updateSubmission(submissionId, timerTime) {
   return stmt.run(timerTime, submissionId);
 }
 
+/**
+ * Language preference queries
+ */
+
+export function getLanguagePreference(challengeId) {
+  const db = getDatabase();
+  const stmt = db.prepare('SELECT language FROM language_preferences WHERE challenge_id = ?');
+  return stmt.get(challengeId);
+}
+
+export function getLatestLanguagePreference(excludeChallengeId) {
+  const db = getDatabase();
+  if (excludeChallengeId) {
+    const stmt = db.prepare(`
+      SELECT language FROM language_preferences
+      WHERE challenge_id != ?
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `);
+    return stmt.get(excludeChallengeId);
+  }
+  const stmt = db.prepare(`
+    SELECT language FROM language_preferences
+    ORDER BY updated_at DESC
+    LIMIT 1
+  `);
+  return stmt.get();
+}
+
+export function setLanguagePreference(challengeId, language) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    INSERT INTO language_preferences (challenge_id, language, updated_at)
+    VALUES (?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(challenge_id) DO UPDATE SET
+      language = excluded.language,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+  return stmt.run(challengeId, language);
+}
+
 
 /**
  * Analytics queries

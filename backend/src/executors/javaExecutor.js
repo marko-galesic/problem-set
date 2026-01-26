@@ -1426,3 +1426,16 @@ function deepEqual(obj1, obj2) {
 
   return true;
 }
+
+export const __testUtils = {
+  spawnAsync,
+  getTempDir,
+  ensureTempDir,
+  findJavaInstallation,
+  detectWrapperClass,
+  makeClassesStatic,
+  removeInnerClassIfTopLevelExists,
+  extractClassNameFromTemplate,
+  parseTestResults,
+  deepEqual
+};

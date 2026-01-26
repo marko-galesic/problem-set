@@ -194,6 +194,11 @@ export async function executePythonCode(userCode, testCases, adapter, challengeI
     : '';
 
   const serializerCode = adapter.generateSerializer();
+  const comparatorCode = adapter.generateComparison
+    ? adapter.generateComparison()
+    : `def compare_results(actual, expected, actual_str, expected_str):
+    return actual_str == expected_str
+`;
   const inputHelpersCode = adapter.generateInputHelpers(testCases);
   const invocationCode = adapter.generateInvocation('parser');
   const invocationIndented = indentCode(invocationCode, 20);
@@ -215,6 +220,8 @@ import io
 from contextlib import redirect_stdout
 
 ${serializerCode}
+
+${comparatorCode}
 
 ${inputHelpersCode}
 
@@ -265,7 +272,7 @@ ${invocationIndented}
 
                 actual_str = ${serializerMethod}(actual)
                 expected_str = ${serializerMethod}(expected)
-                passed = actual_str == expected_str
+                passed = compare_results(actual, expected, actual_str, expected_str)
                 duration_ms = int((time.time() - start_time) * 1000)
             except Exception as exc:
                 actual_str = "null"
@@ -359,6 +366,17 @@ if __name__ == "__main__":
     };
   }
 }
+
+export const __testUtils = {
+  getTempDir,
+  ensureTempDir,
+  spawnAsync,
+  findPythonExecutable,
+  indentCode,
+  stripTripleQuotedStrings,
+  extractClassNameFromTemplate,
+  hasClassDefinition
+};
 
 async function parseTestResults(output, testCases, stderr = '') {
   const results = [];

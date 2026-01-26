@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RecommendationPromptPopover from './RecommendationPromptPopover';
+import LanguageSwitchPopover from './LanguageSwitchPopover';
+import { getLanguagePreference, saveLanguagePreference } from '../utils/storage';
 
 const UNKNOWN_DIFFICULTY = 'Not set';
 const TECH_BAR_LEGEND = [
@@ -103,6 +105,7 @@ export default function SubmissionsPage() {
   const [recommendationExpanded, setRecommendationExpanded] = useState(false);
   const [recommendationEmpty, setRecommendationEmpty] = useState(createLanguageMap(false));
   const [isPromptPopoverOpen, setIsPromptPopoverOpen] = useState(false);
+  const [languagePopoverInfo, setLanguagePopoverInfo] = useState(null);
 
   function renderDifficultyCell(entry, level) {
     const data = entry?.[level] || {};
@@ -176,6 +179,23 @@ export default function SubmissionsPage() {
     return 'java';
   }
 
+  function getLanguageLabel(languageId) {
+    return LANGUAGE_OPTIONS.find((option) => option.id === languageId)?.label || languageId;
+  }
+
+  function handleLanguageSwitch(nextLanguage, currentLanguage) {
+    if (nextLanguage === currentLanguage) {
+      return;
+    }
+    setLanguagePopoverInfo({
+      from: getLanguageLabel(currentLanguage),
+      to: getLanguageLabel(nextLanguage)
+    });
+    setSelectedLanguage(nextLanguage);
+    setSelectedRecommendationLanguage(nextLanguage);
+    void saveLanguagePreference(nextLanguage);
+  }
+
   function buildFallbackRecommendation(language) {
     const label = LANGUAGE_OPTIONS.find(option => option.id === language)?.label || 'Java';
     return {
@@ -186,6 +206,26 @@ export default function SubmissionsPage() {
       userPrompt: null
     };
   }
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadLanguagePreference() {
+      const savedLanguage = await getLanguagePreference();
+      if (!isMounted) {
+        return;
+      }
+      const normalized = normalizeLanguage(savedLanguage || 'java');
+      setSelectedLanguage(normalized);
+      setSelectedRecommendationLanguage(normalized);
+    }
+
+    loadLanguagePreference();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -414,7 +454,7 @@ export default function SubmissionsPage() {
                   type="button"
                   role="tab"
                   aria-selected={selectedLanguage === option.id}
-                  onClick={() => setSelectedLanguage(option.id)}
+                  onClick={() => handleLanguageSwitch(option.id, selectedLanguage)}
                 >
                   {option.label}
                 </button>
@@ -491,7 +531,10 @@ export default function SubmissionsPage() {
                   type="button"
                   role="tab"
                   aria-selected={selectedRecommendationLanguage === option.id}
-                  onClick={() => setSelectedRecommendationLanguage(option.id)}
+                  onClick={() => handleLanguageSwitch(
+                    option.id,
+                    selectedRecommendationLanguage
+                  )}
                 >
                   {option.label}
                 </button>
@@ -600,6 +643,12 @@ export default function SubmissionsPage() {
           </div>
         )}
       </main>
+      <LanguageSwitchPopover
+        isOpen={Boolean(languagePopoverInfo)}
+        onClose={() => setLanguagePopoverInfo(null)}
+        fromLanguage={languagePopoverInfo?.from}
+        toLanguage={languagePopoverInfo?.to}
+      />
       <RecommendationPromptPopover
         isOpen={isPromptPopoverOpen}
         onClose={() => setIsPromptPopoverOpen(false)}

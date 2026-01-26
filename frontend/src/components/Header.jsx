@@ -20,7 +20,10 @@ export default function Header({
   onTimerStateChange,
   onBugHunt,
   isBugHuntLoading,
-  onGuide
+  onGuide,
+  onProgress,
+  isProgressDisabled,
+  progressTitle
 }) {
   return (
     <div className="header">
@@ -53,7 +56,7 @@ export default function Header({
           <option value="typescript">TypeScript</option>
         </select>
         <Timer 
-          key={currentChallenge}
+          key={`${currentChallenge}_${currentLanguage}`}
           ref={timerRef}
           initialElapsedTime={timerInitialState?.elapsedTime || 0}
           initialIsRunning={timerInitialState?.isRunning || false}
@@ -62,6 +65,14 @@ export default function Header({
         />
       </div>
       <div className="header-actions">
+        <button
+          onClick={onProgress}
+          disabled={isRunning || isProgressDisabled}
+          className="btn btn-progress"
+          title={progressTitle || 'View your daily progress report'}
+        >
+          Your Progress
+        </button>
         <button
           onClick={onGuide}
           disabled={isRunning}

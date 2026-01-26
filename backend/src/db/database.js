@@ -129,6 +129,15 @@ function createSchema(database) {
     )
   `);
 
+  // Language preferences per challenge
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS language_preferences (
+      challenge_id TEXT PRIMARY KEY,
+      language TEXT NOT NULL DEFAULT 'java',
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Topic fitness history snapshots
   database.exec(`
     CREATE TABLE IF NOT EXISTS fitness_history (

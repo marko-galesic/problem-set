@@ -12,6 +12,7 @@ import BugAnswerPopover from './components/BugAnswerPopover';
 import GuideConfirmPopover from './components/GuideConfirmPopover';
 import GuideChatPopover from './components/GuideChatPopover';
 import NextChallengePopover from './components/NextChallengePopover';
+import ProgressReportPopover from './components/ProgressReportPopover';
 
 const DEFAULT_CODE = {
   java: `class TwoSum {
@@ -36,6 +37,77 @@ const DEFAULT_CODE = {
 };
 
 const UNTRACKED_TIMER_VALUE = -1;
+const PROGRESS_REPORT_CACHE_KEY = 'daily_progress_report_v1';
+
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function parseSubmissionDate(value) {
+  if (!value) {
+    return null;
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return parsed;
+}
+
+function isSameLocalDay(value, referenceDate = new Date()) {
+  const parsed = parseSubmissionDate(value);
+  if (!parsed) {
+    return false;
+  }
+  return (
+    parsed.getFullYear() === referenceDate.getFullYear() &&
+    parsed.getMonth() === referenceDate.getMonth() &&
+    parsed.getDate() === referenceDate.getDate()
+  );
+}
+
+function getProgressReportCache() {
+  if (typeof localStorage === 'undefined') {
+    return null;
+  }
+  const raw = localStorage.getItem(PROGRESS_REPORT_CACHE_KEY);
+  if (!raw) {
+    return null;
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    return null;
+  }
+}
+
+function saveProgressReportCache(entry) {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+  localStorage.setItem(PROGRESS_REPORT_CACHE_KEY, JSON.stringify(entry));
+}
+
+function clearProgressReportCache() {
+  if (typeof localStorage === 'undefined') {
+    return;
+  }
+  localStorage.removeItem(PROGRESS_REPORT_CACHE_KEY);
+}
+
+function buildProgressSignature(submissions) {
+  if (!Array.isArray(submissions) || submissions.length === 0) {
+    return '';
+  }
+  const timestamps = submissions
+    .map((submission) => Date.parse(submission?.date))
+    .filter((value) => Number.isFinite(value));
+  const latestTimestamp = timestamps.length > 0 ? Math.max(...timestamps) : Date.now();
+  return `${submissions.length}:${latestTimestamp}`;
+}
 
 function App() {
   const [currentChallenge, setCurrentChallenge] = useState('two_sum');
@@ -55,6 +127,7 @@ function App() {
   const [currentActionType, setCurrentActionType] = useState(null);
   const [verticalDividerPosition, setVerticalDividerPosition] = useState(40);
   const timerRef = useRef(null);
+  const languageLoadRef = useRef(0);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [submissions, setSubmissions] = useState([]);
@@ -84,6 +157,13 @@ function App() {
   const [nextChallengeId, setNextChallengeId] = useState(null);
   const [nextChallengeCountdown, setNextChallengeCountdown] = useState(5);
   const nextChallengeCountdownRef = useRef(null);
+  const [isProgressPopoverOpen, setIsProgressPopoverOpen] = useState(false);
+  const [isProgressReportLoading, setIsProgressReportLoading] = useState(false);
+  const [progressReportError, setProgressReportError] = useState('');
+  const [progressReport, setProgressReport] = useState('');
+  const [progressEligible, setProgressEligible] = useState(false);
+  const [progressSubmissionCount, setProgressSubmissionCount] = useState(0);
+  const progressCheckTimeoutRef = useRef(null);
 
   function normalizeLanguage(value) {
     if (typeof value !== 'string') {
@@ -100,6 +180,141 @@ function App() {
       return 'typescript';
     }
     return 'java';
+  }
+
+  function buildProgressPayload(submissions) {
+    return (submissions || []).map((submission) => ({
+      challenge: submission.challenge ?? submission.challengeId ?? '',
+      challengeName: submission.challengeName ?? '',
+      language: normalizeLanguage(submission.language),
+      avgTime: submission.avgTime ?? null,
+      timerTime: submission.timerTime ?? null,
+      submitAttempts: submission.submitAttempts ?? null,
+      guidanceLevel: submission.guidanceLevel ?? 'Independent',
+      techBarStatus: submission.techBarStatus ?? 'pending',
+      techBarLabel: submission.techBarLabel ?? null,
+      date: submission.date ?? null
+    }));
+  }
+
+  async function loadAllSubmissions() {
+    if (!Array.isArray(challenges) || challenges.length === 0) {
+      return [];
+    }
+    const submissionsByChallenge = await Promise.all(
+      challenges.map(async (challenge) => {
+        const challengeId = challenge?.id;
+        if (!challengeId) {
+          return [];
+        }
+        try {
+          const response = await fetch(`/api/submissions?challenge=${challengeId}`);
+          if (!response.ok) {
+            throw new Error('Failed to load submissions');
+          }
+          const data = await response.json();
+          return (data.submissions || []).map((submission) => ({
+            ...submission,
+            challenge: submission.challenge ?? challengeId,
+            challengeName: submission.challengeName ?? challenge?.name
+          }));
+        } catch (error) {
+          return [];
+        }
+      })
+    );
+    return submissionsByChallenge.flat();
+  }
+
+  async function prepareProgressReport(submissions, signature, dateKey) {
+    if (!Array.isArray(submissions) || submissions.length === 0 || isProgressReportLoading) {
+      return;
+    }
+    setIsProgressReportLoading(true);
+    setProgressReportError('');
+    try {
+      const response = await fetch('/api/progress-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dateKey,
+          submissions: buildProgressPayload(submissions)
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate progress report');
+      }
+
+      const data = await response.json();
+      const reportText = typeof data.report === 'string' ? data.report.trim() : '';
+      if (!reportText) {
+        throw new Error('No report returned.');
+      }
+
+      setProgressReport(reportText);
+      saveProgressReportCache({
+        dateKey,
+        signature,
+        report: reportText,
+        createdAt: new Date().toISOString()
+      });
+    } catch (error) {
+      setProgressReportError(error.message || 'Failed to generate progress report.');
+    } finally {
+      setIsProgressReportLoading(false);
+    }
+  }
+
+  async function refreshProgressEligibility({ autoPrepare = false } = {}) {
+    const now = new Date();
+    const isAfterFour = now.getHours() >= 16;
+    if (!isAfterFour) {
+      setProgressEligible(false);
+      setProgressSubmissionCount(0);
+      setProgressReport('');
+      setProgressReportError('');
+      return { eligible: false, submissions: [], signature: '', dateKey: getLocalDateKey(now) };
+    }
+
+    const allSubmissions = await loadAllSubmissions();
+    const todaysSubmissions = allSubmissions.filter((submission) => isSameLocalDay(submission?.date, now));
+    const signature = buildProgressSignature(todaysSubmissions);
+    const dateKey = getLocalDateKey(now);
+    const eligible = todaysSubmissions.length > 0;
+    setProgressEligible(eligible);
+    setProgressSubmissionCount(todaysSubmissions.length);
+
+    const cached = getProgressReportCache();
+    if (cached && cached.dateKey !== dateKey) {
+      clearProgressReportCache();
+      setProgressReport('');
+    }
+
+    if (eligible && cached && cached.dateKey === dateKey && cached.signature === signature && cached.report) {
+      setProgressReport(cached.report);
+      setProgressReportError('');
+      return { eligible, submissions: todaysSubmissions, signature, dateKey, usedCache: true };
+    }
+
+    if (!eligible) {
+      setProgressReport('');
+      setProgressReportError('');
+      return { eligible, submissions: todaysSubmissions, signature, dateKey };
+    }
+
+    if (autoPrepare) {
+      setProgressReport('');
+      await prepareProgressReport(todaysSubmissions, signature, dateKey);
+    }
+
+    return { eligible, submissions: todaysSubmissions, signature, dateKey };
+  }
+
+  function handleProgressOpen() {
+    setProgressReportError('');
+    setIsProgressPopoverOpen(true);
+    void refreshProgressEligibility({ autoPrepare: true });
   }
 
   // Fetch challenges on mount
@@ -145,8 +360,22 @@ function App() {
   }
 
   useEffect(() => {
-    const savedLanguage = getLanguagePreference(currentChallenge) || 'java';
-    setCurrentLanguage(normalizeLanguage(savedLanguage));
+    let isActive = true;
+    const requestId = ++languageLoadRef.current;
+
+    async function loadLanguagePreference() {
+      const savedLanguage = await getLanguagePreference();
+      if (!isActive || requestId !== languageLoadRef.current) {
+        return;
+      }
+      setCurrentLanguage(normalizeLanguage(savedLanguage || 'java'));
+    }
+
+    loadLanguagePreference();
+
+    return () => {
+      isActive = false;
+    };
   }, [currentChallenge]);
 
   // Load challenge-specific data when challenge or language changes
@@ -198,7 +427,7 @@ function App() {
         const loadedSubmissions = await getSubmissions(currentChallenge);
         setSubmissions(loadedSubmissions);
 
-        const savedTimerState = getTimerState(currentChallenge);
+        const savedTimerState = getTimerState(currentChallenge, currentLanguage);
         if (savedTimerState) {
           setTimerInitialState(savedTimerState);
         } else {
@@ -213,6 +442,36 @@ function App() {
     }
     loadChallengeData();
   }, [currentChallenge, currentLanguage]);
+
+  useEffect(() => {
+    if (progressCheckTimeoutRef.current) {
+      clearTimeout(progressCheckTimeoutRef.current);
+      progressCheckTimeoutRef.current = null;
+    }
+
+    const now = new Date();
+    const isAfterFour = now.getHours() >= 16;
+
+    if (!isAfterFour) {
+      const target = new Date(now);
+      target.setHours(16, 0, 0, 0);
+      const delay = target.getTime() - now.getTime();
+      if (delay > 0) {
+        progressCheckTimeoutRef.current = setTimeout(() => {
+          void refreshProgressEligibility({ autoPrepare: true });
+        }, delay);
+      }
+    }
+
+    void refreshProgressEligibility({ autoPrepare: true });
+
+    return () => {
+      if (progressCheckTimeoutRef.current) {
+        clearTimeout(progressCheckTimeoutRef.current);
+        progressCheckTimeoutRef.current = null;
+      }
+    };
+  }, [challenges, submissions]);
 
 
   useEffect(() => {
@@ -283,7 +542,7 @@ function App() {
 
   function handleTimerStateChange(elapsedTime, isRunning, accumulatedTime) {
     // Save timer state whenever it changes
-    saveTimerState(currentChallenge, elapsedTime, isRunning, accumulatedTime);
+    saveTimerState(currentChallenge, elapsedTime, isRunning, accumulatedTime, currentLanguage);
   }
 
   function handleChallengeChange(newChallenge) {
@@ -297,7 +556,7 @@ function App() {
       const currentElapsedTime = timerRef.current.getElapsedTime();
       timerRef.current.stop();
       // Persist a paused snapshot to avoid leaking ticks into the next challenge.
-      saveTimerState(currentChallenge, currentElapsedTime, false, currentElapsedTime);
+      saveTimerState(currentChallenge, currentElapsedTime, false, currentElapsedTime, currentLanguage);
     }
     
     setCurrentChallenge(newChallenge);
@@ -342,8 +601,21 @@ function App() {
   }
 
   function handleLanguageChange(newLanguage) {
+    languageLoadRef.current += 1;
     saveCurrentCode(code, currentChallenge, currentLanguage);
-    saveLanguagePreference(newLanguage, currentChallenge);
+    if (timerRef.current) {
+      const currentElapsedTime = timerRef.current.getElapsedTime();
+      timerRef.current.stop();
+      // Persist a paused snapshot before switching languages.
+      saveTimerState(currentChallenge, currentElapsedTime, false, currentElapsedTime, currentLanguage);
+    }
+    const savedTimerState = getTimerState(currentChallenge, newLanguage);
+    if (savedTimerState) {
+      setTimerInitialState(savedTimerState);
+    } else {
+      setTimerInitialState({ elapsedTime: 0, isRunning: false, accumulatedTime: 0 });
+    }
+    void saveLanguagePreference(newLanguage);
     setCurrentLanguage(newLanguage);
     setTestResults(null);
     setCurrentActionType(null);
@@ -355,7 +627,7 @@ function App() {
       // Reset the timer
       timerRef.current?.reset();
       // Save reset timer state
-      saveTimerState(currentChallenge, 0, false, 0);
+      saveTimerState(currentChallenge, 0, false, 0, currentLanguage);
       setTimerInitialState({ elapsedTime: 0, isRunning: false, accumulatedTime: 0 });
       
       // First, cleanup the challenge-specific temp directory
@@ -888,6 +1160,9 @@ function App() {
     : bugHintEvaluation
       ? 'Note: This hint is significant; your submission will be marked as Guided.'
       : 'Note: Using this hint will mark your submission as Minor (hint).';
+  const progressButtonTitle = progressEligible
+    ? `View your daily progress report (${progressSubmissionCount} submission${progressSubmissionCount === 1 ? '' : 's'})`
+    : 'Available after 4pm on days you submit';
   const baseRunTestIds = (testCases.runTests || []).slice(0, 3).map((test) => test.id);
 
   return (
@@ -910,6 +1185,9 @@ function App() {
         timerInitialState={timerInitialState}
         onTimerStateChange={handleTimerStateChange}
         onGuide={handleGuideRequest}
+        onProgress={handleProgressOpen}
+        isProgressDisabled={!progressEligible}
+        progressTitle={progressButtonTitle}
         onBugHunt={handleBugHunt}
         isBugHuntLoading={isBugLoading}
       />
@@ -945,6 +1223,13 @@ function App() {
         onSend={handleGuideSend}
         isLoading={isGuideLoading}
         error={guideError}
+      />
+      <ProgressReportPopover
+        isOpen={isProgressPopoverOpen}
+        onClose={() => setIsProgressPopoverOpen(false)}
+        isLoading={isProgressReportLoading}
+        error={progressReportError}
+        report={progressReport}
       />
       <NextChallengePopover
         isOpen={isNextChallengeOpen}
