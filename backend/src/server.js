@@ -141,6 +141,12 @@ export const CHALLENGES = {
     testFile: './testCases/middleOfLinkedListTests.js',
     adapter: './adapters/middleOfLinkedListAdapter.js'
   },
+  remove_nth_node_from_end_of_list: {
+    name: 'Remove Nth Node From End of List',
+    folder: 'remove_nth_node_from_end_of_list',
+    testFile: './testCases/removeNthNodeFromEndOfListTests.js',
+    adapter: './adapters/removeNthNodeFromEndOfListAdapter.js'
+  },
   merge_two_sorted_lists: {
     name: 'Merge Two Sorted Lists',
     folder: 'merge_two_sorted_lists',
