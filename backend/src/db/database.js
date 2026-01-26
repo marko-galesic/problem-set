@@ -59,6 +59,13 @@ export function getDatabase() {
 }
 
 /**
+ * Get the configured database path (useful for tools/scripts).
+ */
+export function getDatabasePath() {
+  return DB_PATH;
+}
+
+/**
  * Create database schema
  */
 function createSchema(database) {

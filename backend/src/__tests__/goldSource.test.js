@@ -140,7 +140,7 @@ describe('Gold Source Validation', () => {
 
           expect(failedTests.length).toBe(0);
         }
-      }, 60000); // 60 second timeout per challenge (3 languages)
+      }, 120000); // 120 second timeout per challenge (4 languages; coverage is slower)
     });
   }
   
