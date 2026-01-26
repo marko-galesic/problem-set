@@ -4,6 +4,7 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { dirname } from 'path';
+import * as ts from 'typescript';
 import { DEFAULT_CHALLENGE } from '../server.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -19,6 +20,36 @@ function hasTsNode() {
   } catch {
     return false;
   }
+}
+
+function getTsNodeArgs(filePath) {
+  const majorVersion = Number.parseInt(process.versions.node.split('.')[0], 10);
+  if (Number.isFinite(majorVersion) && majorVersion >= 20) {
+    const registerHook = [
+      'data:text/javascript,import { register } from "node:module";',
+      'import { pathToFileURL } from "node:url";',
+      'register("ts-node/esm", pathToFileURL("./"));'
+    ].join(' ');
+    return ['--import', registerHook, filePath];
+  }
+  return ['--loader', 'ts-node/esm', filePath];
+}
+
+function shouldTranspileTs() {
+  const majorVersion = Number.parseInt(process.versions.node.split('.')[0], 10);
+  return Number.isFinite(majorVersion) && majorVersion >= 20;
+}
+
+function transpileTypeScript(source, filePath) {
+  const transpileResult = ts.transpileModule(source, {
+    compilerOptions: {
+      target: ts.ScriptTarget.ES2020,
+      module: ts.ModuleKind.ESNext,
+      isolatedModules: true
+    },
+    fileName: filePath
+  });
+  return transpileResult.outputText;
 }
 
 function getTempDir(challengeId = DEFAULT_CHALLENGE) {
@@ -377,8 +408,14 @@ main();
 `;
 
   const tsNodeAvailable = hasTsNode();
-  const runnerSource = tsNodeAvailable ? tsSource : jsSource;
-  const runnerExtension = tsNodeAvailable ? 'ts' : 'js';
+  const shouldTranspile = shouldTranspileTs();
+  const useTsNodeRuntime = tsNodeAvailable && !shouldTranspile;
+  const runnerExtension = useTsNodeRuntime ? 'ts' : 'js';
+  const runnerSource = useTsNodeRuntime
+    ? tsSource
+    : tsNodeAvailable
+      ? transpileTypeScript(tsSource, `${className}_runner.ts`)
+      : jsSource;
   const filePath = join(TEMP_DIR, `${className}_runner.${runnerExtension}`);
 
   try {
@@ -388,10 +425,8 @@ main();
     let executionResult;
     const startTime = Date.now();
     try {
-      const args = tsNodeAvailable
-        ? ['--loader', 'ts-node/esm', filePath]
-        : [filePath];
-      const env = tsNodeAvailable
+      const args = useTsNodeRuntime ? getTsNodeArgs(filePath) : [filePath];
+      const env = useTsNodeRuntime
         ? { ...process.env, TS_NODE_TRANSPILE_ONLY: '1' }
         : process.env;
       executionResult = await spawnAsync(

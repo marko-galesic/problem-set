@@ -30,6 +30,14 @@ const LANGUAGE_OPTIONS = [
   { id: 'typescript', label: 'TypeScript' }
 ];
 
+const FITNESS_GRADE_BANDS = [
+  { min: 0.9, grade: 'A', status: 'exceeds', tone: 'a' },
+  { min: 0.8, grade: 'B', status: 'met', tone: 'b' },
+  { min: 0.7, grade: 'C', status: 'met', tone: 'c' },
+  { min: 0.6, grade: 'D', status: 'not met', tone: 'd' },
+  { min: 0, grade: 'E', status: 'not met', tone: 'e' }
+];
+
 function createLanguageMap(defaultValue) {
   return LANGUAGE_OPTIONS.reduce((acc, option) => {
     acc[option.id] = defaultValue;
@@ -72,13 +80,6 @@ function formatAttempts(value) {
   return String(value);
 }
 
-function formatFitness(value) {
-  if (value === null || value === undefined || Number.isNaN(value)) {
-    return 'N/A';
-  }
-  return `${(value * 100).toFixed(1)}%`;
-}
-
 function buildCsvRow(values) {
   return values
     .map((value) => {
@@ -107,14 +108,37 @@ export default function SubmissionsPage() {
   const [isPromptPopoverOpen, setIsPromptPopoverOpen] = useState(false);
   const [languagePopoverInfo, setLanguagePopoverInfo] = useState(null);
 
+  function getFitnessGrade(fitness) {
+    const normalized = Math.max(0, Math.min(1, fitness));
+    return (
+      FITNESS_GRADE_BANDS.find((band) => normalized >= band.min) ||
+      FITNESS_GRADE_BANDS[FITNESS_GRADE_BANDS.length - 1]
+    );
+  }
+
   function renderDifficultyCell(entry, level) {
     const data = entry?.[level] || {};
+    const submissionCount = Number.isFinite(data.submissionCount) ? data.submissionCount : 0;
+    const fitness = Number.isFinite(data.fitness) ? data.fitness : 0;
+    const hasNoSignal = submissionCount <= 0 || fitness <= 0;
+
+    if (hasNoSignal) {
+      return (
+        <div className="topic-fitness-cell is-empty">
+          <div className="topic-fitness-empty">Fresh start</div>
+        </div>
+      );
+    }
+
+    const grade = getFitnessGrade(fitness);
     return (
       <div className="topic-fitness-cell">
-        <div className="topic-fitness-metric">Fitness: {formatFitness(data.fitness)}</div>
-        <div className="topic-fitness-metric">Submissions: {data.submissionCount ?? 0}</div>
-        <div className="topic-fitness-metric">
-          Last: {data.lastSubmission ? formatDate(data.lastSubmission) : 'N/A'}
+        <div className="topic-fitness-score" aria-label={`${grade.grade} ${grade.status}`}>
+          <span className={`topic-fitness-grade grade-${grade.tone}`}>{grade.grade}</span>
+          <span className="topic-fitness-separator" aria-hidden="true">
+            /
+          </span>
+          <span className="topic-fitness-status-label">{grade.status}</span>
         </div>
       </div>
     );

@@ -187,12 +187,20 @@ describe('TypeScript Executor', () => {
 
     expect(fsMocks.writeFile).toHaveBeenCalledTimes(1);
     const [writtenPath] = fsMocks.writeFile.mock.calls[0];
-    expect(writtenPath).toContain('TsNodeSolver_runner.ts');
+    const nodeMajor = Number.parseInt(process.versions.node.split('.')[0], 10);
+    const usesTranspileFallback = Number.isFinite(nodeMajor) && nodeMajor >= 20;
 
     const [, spawnArgs, spawnOptions] = spawnMock.mock.calls[0];
-    expect(spawnArgs).toContain('--loader');
-    expect(spawnArgs).toContain('ts-node/esm');
-    expect(spawnOptions.env.TS_NODE_TRANSPILE_ONLY).toBe('1');
+    if (usesTranspileFallback) {
+      expect(writtenPath).toContain('TsNodeSolver_runner.js');
+      expect(spawnArgs).not.toContain('--loader');
+      expect(spawnOptions.env).toBe(process.env);
+    } else {
+      expect(writtenPath).toContain('TsNodeSolver_runner.ts');
+      expect(spawnArgs).toContain('--loader');
+      expect(spawnArgs).toContain('ts-node/esm');
+      expect(spawnOptions.env.TS_NODE_TRANSPILE_ONLY).toBe('1');
+    }
   });
 
   test('returns runtime error on non-zero exit code', async () => {
