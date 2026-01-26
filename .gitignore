@@ -10,3 +10,4 @@ temp/
 .env
 .vite/
 backend/data/challenges.db
+data/*/submissions.json
