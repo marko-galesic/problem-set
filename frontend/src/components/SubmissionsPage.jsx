@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RecommendationPromptPopover from './RecommendationPromptPopover';
 import LanguageSwitchPopover from './LanguageSwitchPopover';
+import TopicFitnessCriteriaPopover from './TopicFitnessCriteriaPopover';
 import { getLanguagePreference, saveLanguagePreference } from '../utils/storage';
 
 const UNKNOWN_DIFFICULTY = 'Not set';
@@ -107,6 +108,7 @@ export default function SubmissionsPage() {
   const [recommendationEmpty, setRecommendationEmpty] = useState(createLanguageMap(false));
   const [isPromptPopoverOpen, setIsPromptPopoverOpen] = useState(false);
   const [languagePopoverInfo, setLanguagePopoverInfo] = useState(null);
+  const [isCriteriaPopoverOpen, setIsCriteriaPopoverOpen] = useState(false);
 
   function getFitnessGrade(fitness) {
     const normalized = Math.max(0, Math.min(1, fitness));
@@ -552,6 +554,18 @@ export default function SubmissionsPage() {
               <h2>Topic Fitness</h2>
               <p>Weighted scores across your submissions</p>
             </div>
+            <div className="topic-fitness-header-actions">
+              <button
+                className="topic-fitness-criteria-button"
+                type="button"
+                onClick={() => setIsCriteriaPopoverOpen((prev) => !prev)}
+                aria-haspopup="dialog"
+                aria-expanded={isCriteriaPopoverOpen}
+                aria-controls="topic-fitness-criteria-popover"
+              >
+                Show criteria
+              </button>
+            </div>
           </div>
           <div className="topic-fitness-body">
             {topicFitnessLoading && (
@@ -587,26 +601,6 @@ export default function SubmissionsPage() {
                 </table>
               </div>
             )}
-          </div>
-        </section>
-        <section className="submissions-legend">
-          <div className="submissions-legend-header">
-            <h2>Tech Bar Standard (minutes)</h2>
-            <p>Reference targets by difficulty</p>
-          </div>
-          <div className="submissions-legend-grid">
-            {TECH_BAR_LEGEND.map((entry) => (
-              <div key={entry.tier} className="submissions-legend-card">
-                <div className="submissions-legend-tier">{entry.tier}</div>
-                <div className="submissions-legend-pills">
-                  {Object.entries(entry.minutes).map(([difficulty, minutes]) => (
-                    <span key={difficulty} className={`submissions-legend-pill ${difficulty.toLowerCase()}`}>
-                      {difficulty}: {minutes} min
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
           </div>
         </section>
         {loading && <div className="submissions-page-status">Loading submissions...</div>}
@@ -652,6 +646,11 @@ export default function SubmissionsPage() {
           </div>
         )}
       </main>
+      <TopicFitnessCriteriaPopover
+        isOpen={isCriteriaPopoverOpen}
+        onClose={() => setIsCriteriaPopoverOpen(false)}
+        legend={TECH_BAR_LEGEND}
+      />
       <LanguageSwitchPopover
         isOpen={Boolean(languagePopoverInfo)}
         onClose={() => setLanguagePopoverInfo(null)}

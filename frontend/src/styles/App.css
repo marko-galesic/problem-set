@@ -2267,6 +2267,67 @@ body {
   margin-bottom: 0;
 }
 
+/* Topic Fitness Criteria Popover */
+.topic-fitness-criteria-popover-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1004;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.topic-fitness-criteria-popover {
+  position: relative;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+  width: min(640px, calc(100vw - 24px));
+  max-height: min(70vh, 560px);
+  display: flex;
+  flex-direction: column;
+}
+
+.topic-fitness-criteria-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  border-radius: 10px 10px 0 0;
+}
+
+.topic-fitness-criteria-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #666666;
+}
+
+.topic-fitness-criteria-close:hover {
+  color: #333333;
+}
+
+.topic-fitness-criteria-content {
+  padding: 16px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.topic-fitness-criteria-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: #666666;
+}
+
 /* Guide Confirm Popover */
 .guide-confirm-popover-overlay {
   position: fixed;
@@ -2829,6 +2890,36 @@ body {
 .topic-fitness-header p {
   font-size: 12px;
   color: #666666;
+}
+
+.topic-fitness-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topic-fitness-criteria-button {
+  border: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  color: #0066cc;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.topic-fitness-criteria-button:hover {
+  background-color: #f0f7ff;
+  color: #0052a3;
+  border-color: #c5ddf5;
+}
+
+.topic-fitness-criteria-button:focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
 }
 
 .topic-fitness-tabs {
