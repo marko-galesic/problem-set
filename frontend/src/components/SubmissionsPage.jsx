@@ -93,6 +93,7 @@ function buildCsvRow(values) {
 export default function SubmissionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [allSubmissions, setAllSubmissions] = useState([]);
   const [submissions, setSubmissions] = useState([]);
   const [challengeMap, setChallengeMap] = useState({});
   const [topicFitness, setTopicFitness] = useState([]);
@@ -202,6 +203,12 @@ export default function SubmissionsPage() {
 
   function getLanguageLabel(languageId) {
     return LANGUAGE_OPTIONS.find((option) => option.id === languageId)?.label || languageId;
+  }
+
+  function filterSubmissionsByLanguage(list, language) {
+    return (list || []).filter(
+      (submission) => normalizeLanguage(submission.language) === language
+    );
   }
 
   function handleLanguageSwitch(nextLanguage, currentLanguage) {
@@ -320,7 +327,7 @@ export default function SubmissionsPage() {
 
         if (isMounted) {
           setChallengeMap(map);
-          setSubmissions(allSubmissions);
+          setAllSubmissions(allSubmissions);
         }
 
         if (isMounted) {
@@ -399,6 +406,10 @@ export default function SubmissionsPage() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    setSubmissions(filterSubmissionsByLanguage(allSubmissions, selectedLanguage));
+  }, [allSubmissions, selectedLanguage]);
 
   useEffect(() => {
     let isMounted = true;
