@@ -563,15 +563,15 @@ export default function SubmissionsPage() {
         </section>
         <section className="topic-fitness-panel">
           <div className="topic-fitness-header">
-            <div>
-              <h2>Topic Fitness &amp; Submissions</h2>
-              <p>
-                {isFitnessTab
-                  ? 'Weighted scores across your submissions'
-                  : 'Chronological list for the selected language'}
-              </p>
-            </div>
-            <div className="topic-fitness-header-actions">
+            <div className="topic-fitness-header-main">
+              <div className="topic-fitness-header-text">
+                <h2>Topic Fitness &amp; Submissions</h2>
+                <p>
+                  {isFitnessTab
+                    ? 'Weighted scores across your submissions'
+                    : 'Chronological list for the selected language'}
+                </p>
+              </div>
               <div className="topic-fitness-tabs" role="tablist" aria-label="Topic fitness views">
                 <button
                   type="button"
@@ -598,6 +598,8 @@ export default function SubmissionsPage() {
                   Submissions
                 </button>
               </div>
+            </div>
+            <div className="topic-fitness-header-actions">
               {isFitnessTab && (
                 <button
                   className="topic-fitness-criteria-button"
