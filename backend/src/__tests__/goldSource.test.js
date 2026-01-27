@@ -92,7 +92,7 @@ describe('Gold Source Validation', () => {
     describe(challenge.name, () => {
       test('gold source should pass all submit tests', async () => {
         const languages = ['java', 'javascript', 'typescript', 'python'];
-        for (const language of languages) {
+        const languageRuns = await Promise.all(languages.map(async (language) => {
           // Read the gold source
           const goldSource = await readGoldSource(challengeId, language);
           expect(goldSource).toBeTruthy();
@@ -112,6 +112,10 @@ describe('Gold Source Validation', () => {
             challengeId
           );
 
+          return { language, submitTests, result };
+        }));
+
+        for (const { language, submitTests, result } of languageRuns) {
           // Verify execution succeeded
           expect(result.success).toBe(true);
           expect(result.error).toBeUndefined();
@@ -140,7 +144,7 @@ describe('Gold Source Validation', () => {
 
           expect(failedTests.length).toBe(0);
         }
-      }, 120000); // 120 second timeout per challenge (4 languages; coverage is slower)
+      }, 240000); // 240 second timeout per challenge (4 languages; coverage is slower)
     });
   }
   
