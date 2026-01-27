@@ -4,12 +4,12 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { dirname } from 'path';
-import * as ts from 'typescript';
 import { DEFAULT_CHALLENGE } from '../server.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const require = createRequire(import.meta.url);
+let tsModule = null;
 
 const TIMEOUT_MS = 10000;
 
@@ -40,7 +40,25 @@ function shouldTranspileTs() {
   return Number.isFinite(majorVersion) && majorVersion >= 20;
 }
 
-function transpileTypeScript(source, filePath) {
+async function loadTypeScript() {
+  if (tsModule) {
+    return tsModule;
+  }
+  try {
+    const mod = await import('typescript');
+    tsModule = mod;
+    return tsModule;
+  } catch (error) {
+    const err = new Error(
+      'TypeScript runtime dependency is missing. Run "npm install" in backend to install it.'
+    );
+    err.cause = error;
+    throw err;
+  }
+}
+
+async function transpileTypeScript(source, filePath) {
+  const ts = await loadTypeScript();
   const transpileResult = ts.transpileModule(source, {
     compilerOptions: {
       target: ts.ScriptTarget.ES2020,
@@ -411,11 +429,12 @@ main();
   const shouldTranspile = shouldTranspileTs();
   const useTsNodeRuntime = tsNodeAvailable && !shouldTranspile;
   const runnerExtension = useTsNodeRuntime ? 'ts' : 'js';
-  const runnerSource = useTsNodeRuntime
-    ? tsSource
-    : tsNodeAvailable
-      ? transpileTypeScript(tsSource, `${className}_runner.ts`)
-      : jsSource;
+  let runnerSource = jsSource;
+  if (useTsNodeRuntime) {
+    runnerSource = tsSource;
+  } else if (tsNodeAvailable) {
+    runnerSource = await transpileTypeScript(tsSource, `${className}_runner.ts`);
+  }
   const filePath = join(TEMP_DIR, `${className}_runner.${runnerExtension}`);
 
   try {

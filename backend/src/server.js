@@ -3677,21 +3677,22 @@ async function discoverChallenges() {
 if (process.env.NODE_ENV !== 'test') {
   // Initialize database
   initDatabase();
-  
+  const startServer = () => {
+    app.listen(PORT, () => {
+      console.log(`Backend server running on http://localhost:${PORT}`);
+    });
+  };
+
   // Auto-discover challenges on startup
   discoverChallenges().then(() => {
     // Run one-time cleanup of old temp files on server startup
     return cleanupOldTempFiles();
   }).then(() => {
-    app.listen(PORT, () => {
-      console.log(`Backend server running on http://localhost:${PORT}`);
-    });
+    startServer();
   }).catch(err => {
     console.error('Error during startup:', err);
     // Still start the server even if discovery/cleanup fails
-    app.listen(PORT, () => {
-      console.log(`Backend server running on http://localhost:${PORT}`);
-    });
+    startServer();
   });
 }
 
