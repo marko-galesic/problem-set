@@ -102,7 +102,6 @@ export default function SubmissionsPage() {
   const [recommendationLoading, setRecommendationLoading] = useState(createLanguageMap(false));
   const [recommendationError, setRecommendationError] = useState(createLanguageMap(null));
   const [recommendation, setRecommendation] = useState(createLanguageMap(null));
-  const [selectedRecommendationLanguage, setSelectedRecommendationLanguage] = useState('java');
   const [recommendationExpanded, setRecommendationExpanded] = useState(false);
   const [recommendationEmpty, setRecommendationEmpty] = useState(createLanguageMap(false));
   const [isPromptPopoverOpen, setIsPromptPopoverOpen] = useState(false);
@@ -214,7 +213,6 @@ export default function SubmissionsPage() {
       to: getLanguageLabel(nextLanguage)
     });
     setSelectedLanguage(nextLanguage);
-    setSelectedRecommendationLanguage(nextLanguage);
     void saveLanguagePreference(nextLanguage);
   }
 
@@ -239,7 +237,6 @@ export default function SubmissionsPage() {
       }
       const normalized = normalizeLanguage(savedLanguage || 'java');
       setSelectedLanguage(normalized);
-      setSelectedRecommendationLanguage(normalized);
     }
 
     loadLanguagePreference();
@@ -448,6 +445,18 @@ export default function SubmissionsPage() {
           <p className="submissions-page-subtitle">Chronological list across all challenges</p>
         </div>
         <div className="submissions-page-actions">
+          <select
+            value={selectedLanguage}
+            onChange={(event) => handleLanguageSwitch(event.target.value, selectedLanguage)}
+            className="language-select"
+            title="Select language"
+          >
+            {LANGUAGE_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
           <button
             className="submissions-page-button"
             type="button"
@@ -467,20 +476,6 @@ export default function SubmissionsPage() {
             <div>
               <h2>Topic Fitness</h2>
               <p>Weighted scores across your submissions</p>
-            </div>
-            <div className="topic-fitness-tabs" role="tablist" aria-label="Topic fitness language">
-              {LANGUAGE_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  className={`topic-fitness-tab ${selectedLanguage === option.id ? 'is-active' : ''}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedLanguage === option.id}
-                  onClick={() => handleLanguageSwitch(option.id, selectedLanguage)}
-                >
-                  {option.label}
-                </button>
-              ))}
             </div>
           </div>
           <div className="topic-fitness-body">
@@ -545,24 +540,7 @@ export default function SubmissionsPage() {
               <h2>Next Challenge Recommendation</h2>
               <p>Based on your submission history</p>
             </div>
-            <div className="topic-fitness-tabs" role="tablist" aria-label="Recommendation language">
-              {LANGUAGE_OPTIONS.map((option) => (
-                <button
-                  key={option.id}
-                  className={`topic-fitness-tab ${selectedRecommendationLanguage === option.id ? 'is-active' : ''}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedRecommendationLanguage === option.id}
-                  onClick={() => handleLanguageSwitch(
-                    option.id,
-                    selectedRecommendationLanguage
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-            {recommendation[selectedRecommendationLanguage] && (
+            {recommendation[selectedLanguage] && (
               <button
                 className="recommendation-toggle"
                 type="button"
@@ -578,41 +556,41 @@ export default function SubmissionsPage() {
                 <span className="spinner" aria-hidden="true" />
                 <span>Evaluating which challenge should be next</span>
               </div>
-            ) : recommendationError[selectedRecommendationLanguage] ? (
+            ) : recommendationError[selectedLanguage] ? (
               <div className="recommendation-error">
-                {recommendationError[selectedRecommendationLanguage]}
+                {recommendationError[selectedLanguage]}
               </div>
-            ) : recommendationEmpty[selectedRecommendationLanguage] ? (
+            ) : recommendationEmpty[selectedLanguage] ? (
               <div className="recommendation-status">No submissions yet.</div>
-            ) : recommendation[selectedRecommendationLanguage] ? (
+            ) : recommendation[selectedLanguage] ? (
               <div className="recommendation-result">
                 <div className="recommendation-primary">
                   <div className="recommendation-name">
-                    {recommendation[selectedRecommendationLanguage].name}
+                    {recommendation[selectedLanguage].name}
                   </div>
                   <div className="recommendation-difficulty">
-                    {recommendation[selectedRecommendationLanguage].difficulty}
+                    {recommendation[selectedLanguage].difficulty}
                   </div>
                 </div>
                 {recommendationExpanded && (
                   <div className="recommendation-details">
-                    {recommendation[selectedRecommendationLanguage].systemPrompt ||
-                    recommendation[selectedRecommendationLanguage].userPrompt ? (
+                    {recommendation[selectedLanguage].systemPrompt ||
+                    recommendation[selectedLanguage].userPrompt ? (
                       <button
                         type="button"
                         className="recommendation-justification"
                         onClick={() => setIsPromptPopoverOpen(true)}
                       >
-                        {recommendation[selectedRecommendationLanguage].explanation}
+                        {recommendation[selectedLanguage].explanation}
                       </button>
                     ) : (
                       <div className="recommendation-justification">
-                        {recommendation[selectedRecommendationLanguage].explanation}
+                        {recommendation[selectedLanguage].explanation}
                       </div>
                     )}
                     <div className="recommendation-detail-line">
                       <span className="recommendation-detail-label">Difficulty</span>
-                      <span>{recommendation[selectedRecommendationLanguage].difficulty}</span>
+                      <span>{recommendation[selectedLanguage].difficulty}</span>
                     </div>
                   </div>
                 )}
@@ -672,8 +650,8 @@ export default function SubmissionsPage() {
       <RecommendationPromptPopover
         isOpen={isPromptPopoverOpen}
         onClose={() => setIsPromptPopoverOpen(false)}
-        systemPrompt={recommendation[selectedRecommendationLanguage]?.systemPrompt}
-        userPrompt={recommendation[selectedRecommendationLanguage]?.userPrompt}
+        systemPrompt={recommendation[selectedLanguage]?.systemPrompt}
+        userPrompt={recommendation[selectedLanguage]?.userPrompt}
       />
     </div>
   );

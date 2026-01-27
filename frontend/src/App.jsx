@@ -1180,7 +1180,6 @@ function App() {
         challenges={challenges}
         onChallengeChange={handleChallengeChange}
         currentLanguage={currentLanguage}
-        onLanguageChange={handleLanguageChange}
         timerRef={timerRef}
         timerInitialState={timerInitialState}
         onTimerStateChange={handleTimerStateChange}

@@ -14,7 +14,6 @@ export default function Header({
   challenges,
   onChallengeChange,
   currentLanguage,
-  onLanguageChange,
   timerRef,
   timerInitialState,
   onTimerStateChange,
@@ -43,18 +42,6 @@ export default function Header({
             ))}
           </select>
         )}
-        <select
-          value={currentLanguage || 'java'}
-          onChange={(e) => onLanguageChange && onLanguageChange(e.target.value)}
-          className="language-select"
-          disabled={isRunning}
-          title="Select language"
-        >
-          <option value="java">Java</option>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-          <option value="typescript">TypeScript</option>
-        </select>
         <Timer 
           key={`${currentChallenge}_${currentLanguage}`}
           ref={timerRef}
