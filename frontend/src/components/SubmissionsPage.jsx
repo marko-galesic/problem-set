@@ -471,69 +471,6 @@ export default function SubmissionsPage() {
         </div>
       </header>
       <main className="submissions-page-content">
-        <section className="topic-fitness-panel">
-          <div className="topic-fitness-header">
-            <div>
-              <h2>Topic Fitness</h2>
-              <p>Weighted scores across your submissions</p>
-            </div>
-          </div>
-          <div className="topic-fitness-body">
-            {topicFitnessLoading && (
-              <div className="topic-fitness-status">Calculating topic fitness...</div>
-            )}
-            {!topicFitnessLoading && topicFitnessError && (
-              <div className="topic-fitness-error">{topicFitnessError}</div>
-            )}
-            {!topicFitnessLoading && !topicFitnessError && topicFitness.length === 0 && (
-              <div className="topic-fitness-status">No topic data yet.</div>
-            )}
-            {!topicFitnessLoading && !topicFitnessError && topicFitness.length > 0 && (
-              <div className="topic-fitness-table-wrapper">
-                <table className="topic-fitness-table">
-                  <thead>
-                    <tr>
-                      <th>Topic</th>
-                      <th>Easy</th>
-                      <th>Medium</th>
-                      <th>Hard</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topicFitness.map((entry) => (
-                      <tr key={entry.topic}>
-                        <td>{entry.topic}</td>
-                        <td>{renderDifficultyCell(entry, 'easy')}</td>
-                        <td>{renderDifficultyCell(entry, 'medium')}</td>
-                        <td>{renderDifficultyCell(entry, 'hard')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </section>
-        <section className="submissions-legend">
-          <div className="submissions-legend-header">
-            <h2>Tech Bar Standard (minutes)</h2>
-            <p>Reference targets by difficulty</p>
-          </div>
-          <div className="submissions-legend-grid">
-            {TECH_BAR_LEGEND.map((entry) => (
-              <div key={entry.tier} className="submissions-legend-card">
-                <div className="submissions-legend-tier">{entry.tier}</div>
-                <div className="submissions-legend-pills">
-                  {Object.entries(entry.minutes).map(([difficulty, minutes]) => (
-                    <span key={difficulty} className={`submissions-legend-pill ${difficulty.toLowerCase()}`}>
-                      {difficulty}: {minutes} min
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
         <section className="recommendation-panel">
           <div className="recommendation-panel-header">
             <div>
@@ -596,6 +533,69 @@ export default function SubmissionsPage() {
                 )}
               </div>
             ) : null}
+          </div>
+        </section>
+        <section className="topic-fitness-panel">
+          <div className="topic-fitness-header">
+            <div>
+              <h2>Topic Fitness</h2>
+              <p>Weighted scores across your submissions</p>
+            </div>
+          </div>
+          <div className="topic-fitness-body">
+            {topicFitnessLoading && (
+              <div className="topic-fitness-status">Calculating topic fitness...</div>
+            )}
+            {!topicFitnessLoading && topicFitnessError && (
+              <div className="topic-fitness-error">{topicFitnessError}</div>
+            )}
+            {!topicFitnessLoading && !topicFitnessError && topicFitness.length === 0 && (
+              <div className="topic-fitness-status">No topic data yet.</div>
+            )}
+            {!topicFitnessLoading && !topicFitnessError && topicFitness.length > 0 && (
+              <div className="topic-fitness-table-wrapper">
+                <table className="topic-fitness-table">
+                  <thead>
+                    <tr>
+                      <th>Topic</th>
+                      <th>Easy</th>
+                      <th>Medium</th>
+                      <th>Hard</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topicFitness.map((entry) => (
+                      <tr key={entry.topic}>
+                        <td>{entry.topic}</td>
+                        <td>{renderDifficultyCell(entry, 'easy')}</td>
+                        <td>{renderDifficultyCell(entry, 'medium')}</td>
+                        <td>{renderDifficultyCell(entry, 'hard')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
+        <section className="submissions-legend">
+          <div className="submissions-legend-header">
+            <h2>Tech Bar Standard (minutes)</h2>
+            <p>Reference targets by difficulty</p>
+          </div>
+          <div className="submissions-legend-grid">
+            {TECH_BAR_LEGEND.map((entry) => (
+              <div key={entry.tier} className="submissions-legend-card">
+                <div className="submissions-legend-tier">{entry.tier}</div>
+                <div className="submissions-legend-pills">
+                  {Object.entries(entry.minutes).map(([difficulty, minutes]) => (
+                    <span key={difficulty} className={`submissions-legend-pill ${difficulty.toLowerCase()}`}>
+                      {difficulty}: {minutes} min
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
         {loading && <div className="submissions-page-status">Loading submissions...</div>}
