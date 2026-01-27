@@ -109,6 +109,7 @@ export default function SubmissionsPage() {
   const [isPromptPopoverOpen, setIsPromptPopoverOpen] = useState(false);
   const [languagePopoverInfo, setLanguagePopoverInfo] = useState(null);
   const [isCriteriaPopoverOpen, setIsCriteriaPopoverOpen] = useState(false);
+  const [activeTopicTab, setActiveTopicTab] = useState('fitness');
 
   function getFitnessGrade(fitness) {
     const normalized = Math.max(0, Math.min(1, fitness));
@@ -223,6 +224,16 @@ export default function SubmissionsPage() {
     });
     setSelectedLanguage(nextLanguage);
     void saveLanguagePreference(nextLanguage);
+  }
+
+  function handleTopicTabChange(nextTab) {
+    if (nextTab === activeTopicTab) {
+      return;
+    }
+    setActiveTopicTab(nextTab);
+    if (nextTab !== 'fitness') {
+      setIsCriteriaPopoverOpen(false);
+    }
   }
 
   function buildFallbackRecommendation(language) {
@@ -449,6 +460,8 @@ export default function SubmissionsPage() {
   const isRecommendationLoading = LANGUAGE_OPTIONS.some(
     option => recommendationLoading[option.id]
   );
+  const isFitnessTab = activeTopicTab === 'fitness';
+  const isSubmissionsTab = activeTopicTab === 'submissions';
 
   return (
     <div className="submissions-page">
@@ -551,100 +564,148 @@ export default function SubmissionsPage() {
         <section className="topic-fitness-panel">
           <div className="topic-fitness-header">
             <div>
-              <h2>Topic Fitness</h2>
-              <p>Weighted scores across your submissions</p>
+              <h2>Topic Fitness &amp; Submissions</h2>
+              <p>
+                {isFitnessTab
+                  ? 'Weighted scores across your submissions'
+                  : 'Chronological list for the selected language'}
+              </p>
             </div>
             <div className="topic-fitness-header-actions">
-              <button
-                className="topic-fitness-criteria-button"
-                type="button"
-                onClick={() => setIsCriteriaPopoverOpen((prev) => !prev)}
-                aria-haspopup="dialog"
-                aria-expanded={isCriteriaPopoverOpen}
-                aria-controls="topic-fitness-criteria-popover"
-              >
-                Show criteria
-              </button>
+              <div className="topic-fitness-tabs" role="tablist" aria-label="Topic fitness views">
+                <button
+                  type="button"
+                  id="topic-fitness-tab"
+                  role="tab"
+                  aria-selected={isFitnessTab}
+                  aria-controls="topic-fitness-panel"
+                  tabIndex={isFitnessTab ? 0 : -1}
+                  className={`topic-fitness-tab${isFitnessTab ? ' is-active' : ''}`}
+                  onClick={() => handleTopicTabChange('fitness')}
+                >
+                  Topic fitness
+                </button>
+                <button
+                  type="button"
+                  id="topic-submissions-tab"
+                  role="tab"
+                  aria-selected={isSubmissionsTab}
+                  aria-controls="topic-fitness-submissions-panel"
+                  tabIndex={isSubmissionsTab ? 0 : -1}
+                  className={`topic-fitness-tab${isSubmissionsTab ? ' is-active' : ''}`}
+                  onClick={() => handleTopicTabChange('submissions')}
+                >
+                  Submissions
+                </button>
+              </div>
+              {isFitnessTab && (
+                <button
+                  className="topic-fitness-criteria-button"
+                  type="button"
+                  onClick={() => setIsCriteriaPopoverOpen((prev) => !prev)}
+                  aria-haspopup="dialog"
+                  aria-expanded={isCriteriaPopoverOpen}
+                  aria-controls="topic-fitness-criteria-popover"
+                >
+                  Show criteria
+                </button>
+              )}
             </div>
           </div>
           <div className="topic-fitness-body">
-            {topicFitnessLoading && (
-              <div className="topic-fitness-status">Calculating topic fitness...</div>
+            {isFitnessTab && (
+              <div
+                role="tabpanel"
+                id="topic-fitness-panel"
+                aria-labelledby="topic-fitness-tab"
+              >
+                {topicFitnessLoading && (
+                  <div className="topic-fitness-status">Calculating topic fitness...</div>
+                )}
+                {!topicFitnessLoading && topicFitnessError && (
+                  <div className="topic-fitness-error">{topicFitnessError}</div>
+                )}
+                {!topicFitnessLoading && !topicFitnessError && topicFitness.length === 0 && (
+                  <div className="topic-fitness-status">No topic data yet.</div>
+                )}
+                {!topicFitnessLoading && !topicFitnessError && topicFitness.length > 0 && (
+                  <div className="topic-fitness-table-wrapper">
+                    <table className="topic-fitness-table">
+                      <thead>
+                        <tr>
+                          <th>Topic</th>
+                          <th>Easy</th>
+                          <th>Medium</th>
+                          <th>Hard</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {topicFitness.map((entry) => (
+                          <tr key={entry.topic}>
+                            <td>{entry.topic}</td>
+                            <td>{renderDifficultyCell(entry, 'easy')}</td>
+                            <td>{renderDifficultyCell(entry, 'medium')}</td>
+                            <td>{renderDifficultyCell(entry, 'hard')}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             )}
-            {!topicFitnessLoading && topicFitnessError && (
-              <div className="topic-fitness-error">{topicFitnessError}</div>
-            )}
-            {!topicFitnessLoading && !topicFitnessError && topicFitness.length === 0 && (
-              <div className="topic-fitness-status">No topic data yet.</div>
-            )}
-            {!topicFitnessLoading && !topicFitnessError && topicFitness.length > 0 && (
-              <div className="topic-fitness-table-wrapper">
-                <table className="topic-fitness-table">
-                  <thead>
-                    <tr>
-                      <th>Topic</th>
-                      <th>Easy</th>
-                      <th>Medium</th>
-                      <th>Hard</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topicFitness.map((entry) => (
-                      <tr key={entry.topic}>
-                        <td>{entry.topic}</td>
-                        <td>{renderDifficultyCell(entry, 'easy')}</td>
-                        <td>{renderDifficultyCell(entry, 'medium')}</td>
-                        <td>{renderDifficultyCell(entry, 'hard')}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {isSubmissionsTab && (
+              <div
+                role="tabpanel"
+                id="topic-fitness-submissions-panel"
+                aria-labelledby="topic-submissions-tab"
+              >
+                {loading && <div className="submissions-page-status">Loading submissions...</div>}
+                {error && !loading && <div className="submissions-page-error">{error}</div>}
+                {!loading && !error && submissions.length === 0 && (
+                  <div className="submissions-page-status">No submissions available.</div>
+                )}
+                {!loading && !error && submissions.length > 0 && (
+                  <div className="submissions-page-table-wrapper">
+                    <table className="submissions-page-table">
+                      <thead>
+                        <tr>
+                          <th>Problem Title</th>
+                          <th>Difficulty</th>
+                          <th>Submitted</th>
+                          <th>Avg Runtime</th>
+                          <th>Timer Time</th>
+                          <th>Submit Attempts</th>
+                          <th>Guidance</th>
+                          <th>Tech Bar Label</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {submissions.map((submission) => {
+                          const challenge = challengeMap[submission.challenge] || {};
+                          const title = challenge.name || submission.challenge || 'Unknown Challenge';
+                          const difficulty = challenge.difficulty ?? UNKNOWN_DIFFICULTY;
+                          return (
+                            <tr key={submission.id || `${submission.challenge}-${submission.date}`}>
+                              <td>{title}</td>
+                              <td>{difficulty}</td>
+                              <td>{formatDate(submission.date)}</td>
+                              <td>{submission.avgTime ?? 'N/A'}ms</td>
+                              <td>{formatTime(submission.timerTime)}</td>
+                              <td>{formatAttempts(submission.submitAttempts)}</td>
+                              <td>{submission.guidanceLevel ?? 'Independent'}</td>
+                              <td>{submission.techBarLabel ?? 'None'}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </section>
-        {loading && <div className="submissions-page-status">Loading submissions...</div>}
-        {error && !loading && <div className="submissions-page-error">{error}</div>}
-        {!loading && !error && submissions.length === 0 && (
-          <div className="submissions-page-status">No submissions available.</div>
-        )}
-        {!loading && !error && submissions.length > 0 && (
-          <div className="submissions-page-table-wrapper">
-            <table className="submissions-page-table">
-              <thead>
-                <tr>
-                  <th>Problem Title</th>
-                  <th>Difficulty</th>
-                  <th>Submitted</th>
-                  <th>Avg Runtime</th>
-                  <th>Timer Time</th>
-                  <th>Submit Attempts</th>
-                  <th>Guidance</th>
-                  <th>Tech Bar Label</th>
-                </tr>
-              </thead>
-              <tbody>
-                {submissions.map((submission) => {
-                  const challenge = challengeMap[submission.challenge] || {};
-                  const title = challenge.name || submission.challenge || 'Unknown Challenge';
-                  const difficulty = challenge.difficulty ?? UNKNOWN_DIFFICULTY;
-                  return (
-                    <tr key={submission.id || `${submission.challenge}-${submission.date}`}>
-                      <td>{title}</td>
-                      <td>{difficulty}</td>
-                      <td>{formatDate(submission.date)}</td>
-                      <td>{submission.avgTime ?? 'N/A'}ms</td>
-                      <td>{formatTime(submission.timerTime)}</td>
-                      <td>{formatAttempts(submission.submitAttempts)}</td>
-                      <td>{submission.guidanceLevel ?? 'Independent'}</td>
-                      <td>{submission.techBarLabel ?? 'None'}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
       </main>
       <TopicFitnessCriteriaPopover
         isOpen={isCriteriaPopoverOpen}
