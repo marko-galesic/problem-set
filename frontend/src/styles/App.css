@@ -479,7 +479,7 @@ body {
 }
 
 .code-editor-container {
-  background-color: #ffffff;
+  background-color: #f6f5f0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -494,6 +494,7 @@ body {
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  background-color: #f6f5f0;
 }
 
 
