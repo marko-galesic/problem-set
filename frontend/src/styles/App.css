@@ -1001,6 +1001,16 @@ body {
   overflow-y: auto;
 }
 
+.test-cases-preview .test-tabs-container {
+  padding: 0;
+}
+
+.test-tabs-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
 .test-tabs-header {
   display: flex;
   align-items: center;

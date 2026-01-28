@@ -26,8 +26,7 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
     return (
       <div className="test-cases-preview">
         <div className="test-tabs-container">
-          <div className="test-tabs-header">
-            <div className="test-tabs-spacer"></div>
+          <div className="test-tabs-toolbar">
             <IconButton 
               className="btn btn--icon btn--ghost btn-sidebar-toggle"
               onClick={onToggle}
@@ -48,6 +47,16 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
   return (
     <div className="test-cases-preview">
       <div className="test-tabs-container">
+        <div className="test-tabs-toolbar">
+          <IconButton 
+            className="btn btn--icon btn--ghost btn-sidebar-toggle"
+            onClick={onToggle}
+            title="Hide test cases"
+            type="button"
+          >
+            ◀
+          </IconButton>
+        </div>
         <div className="test-tabs-header">
           <Tabs
             value={selectedTestIndex}
@@ -71,14 +80,6 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
               />
             ))}
           </Tabs>
-          <IconButton 
-            className="btn btn--icon btn--ghost btn-sidebar-toggle"
-            onClick={onToggle}
-            title="Hide test cases"
-            type="button"
-          >
-            ◀
-          </IconButton>
         </div>
 
         <div className="test-case-content">
