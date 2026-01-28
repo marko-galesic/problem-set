@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Button, Popover } from '@mui/material';
 
 export default function TimerPopover({ 
   isOpen, 
@@ -14,7 +15,6 @@ export default function TimerPopover({
   const [hours, setHours] = useState('0');
   const [minutes, setMinutes] = useState('0');
   const [seconds, setSeconds] = useState('0');
-  const popoverRef = useRef(null);
 
   // Convert milliseconds to HH:MM:SS
   function msToTime(ms) {
@@ -47,47 +47,7 @@ export default function TimerPopover({
     onClose();
   }
 
-  // Handle click outside to close
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        isOpen &&
-        popoverRef.current &&
-        !popoverRef.current.contains(event.target) &&
-        triggerRef &&
-        triggerRef.current &&
-        !triggerRef.current.contains(event.target)
-      ) {
-        if (allowUntracked) {
-          handleUntracked();
-        } else {
-          onClose();
-        }
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [isOpen, onClose, triggerRef]);
-
-  // Position popover relative to trigger
-  useEffect(() => {
-    if (isOpen && triggerRef?.current && popoverRef.current) {
-      const triggerRect = triggerRef.current.getBoundingClientRect();
-      const popoverRect = popoverRef.current.getBoundingClientRect();
-      
-      // Position below the trigger, centered
-      const top = triggerRect.bottom + 8;
-      const left = triggerRect.left + (triggerRect.width / 2) - (popoverRect.width / 2);
-      
-      popoverRef.current.style.top = `${top}px`;
-      popoverRef.current.style.left = `${left}px`;
-    }
-  }, [isOpen, triggerRef]);
+  const anchorEl = triggerRef?.current || null;
 
   function handleSave() {
     const h = parseInt(hours) || 0;
@@ -125,11 +85,18 @@ export default function TimerPopover({
     return null;
   }
 
+  function handlePopoverClose() {
+    handleCancel();
+  }
+
   return (
-    <div 
-      ref={popoverRef}
-      className="timer-popover"
-      onKeyDown={handleKeyDown}
+    <Popover
+      open={Boolean(isOpen && anchorEl)}
+      anchorEl={anchorEl}
+      onClose={handlePopoverClose}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+      PaperProps={{ className: 'timer-popover', onKeyDown: handleKeyDown }}
     >
       <div className="timer-popover-header">
         <span>{headerText}</span>
@@ -172,31 +139,31 @@ export default function TimerPopover({
         </div>
       </div>
       <div className="timer-popover-actions">
-        <button
+        <Button
           className="btn btn--sm btn-popover-save"
           onClick={handleSave}
           type="button"
         >
           Save
-        </button>
+        </Button>
         {allowUntracked ? (
-          <button
+          <Button
             className="btn btn--sm btn-popover-untracked"
             onClick={handleUntracked}
             type="button"
           >
             {untrackedLabel}
-          </button>
+          </Button>
         ) : (
-          <button 
+          <Button
             className="btn btn--sm btn-popover-cancel"
             onClick={handleCancel}
             type="button"
           >
             Cancel
-          </button>
+          </Button>
         )}
       </div>
-    </div>
+    </Popover>
   );
 }

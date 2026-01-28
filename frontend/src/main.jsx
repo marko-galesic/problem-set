@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import { CssBaseline } from '@mui/material';
+import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import App from './App';
 import SubmissionsPage from './components/SubmissionsPage';
+import theme from './theme';
 import './styles/App.css';
 
 function Root() {
@@ -47,7 +50,11 @@ function Root() {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Root />
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Root />
+      </ThemeProvider>
+    </StyledEngineProvider>
   </React.StrictMode>
 );
-

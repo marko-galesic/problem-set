@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
 
 export default function ProgressReportPopover({
   isOpen,
@@ -15,47 +16,45 @@ export default function ProgressReportPopover({
   const hasReport = Boolean(report);
 
   return (
-    <div className="progress-report-popover-overlay" onClick={onClose}>
-      <div
-        className="progress-report-popover"
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="progress-report-popover-header">
-          <span>Your Progress</span>
-          <button
-            className="btn btn--icon btn--ghost btn--muted progress-report-popover-close"
-            onClick={onClose}
-            aria-label="Close"
-            type="button"
-          >
-            x
-          </button>
-        </div>
-        <div className="progress-report-popover-content">
-          {isLoading && (
-            <div className="progress-report-popover-status">
-              Preparing your report...
-            </div>
-          )}
-          {!isLoading && error && (
-            <div className="progress-report-popover-error">
-              {error}
-            </div>
-          )}
-          {!isLoading && !error && hasReport && (
-            <div className="progress-report-popover-report">
-              <ReactMarkdown>{report}</ReactMarkdown>
-            </div>
-          )}
-          {!isLoading && !error && !hasReport && (
-            <div className="progress-report-popover-status">
-              No report yet. Reports are available after 4pm on days you submit.
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      maxWidth={false}
+      PaperProps={{ className: 'progress-report-popover' }}
+    >
+      <DialogTitle className="progress-report-popover-header">
+        <span>Your Progress</span>
+        <IconButton
+          className="btn btn--icon btn--ghost btn--muted progress-report-popover-close"
+          onClick={onClose}
+          aria-label="Close"
+          size="small"
+        >
+          ×
+        </IconButton>
+      </DialogTitle>
+      <DialogContent className="progress-report-popover-content">
+        {isLoading && (
+          <div className="progress-report-popover-status">
+            Preparing your report...
+          </div>
+        )}
+        {!isLoading && error && (
+          <div className="progress-report-popover-error">
+            {error}
+          </div>
+        )}
+        {!isLoading && !error && hasReport && (
+          <div className="progress-report-popover-report">
+            <ReactMarkdown>{report}</ReactMarkdown>
+          </div>
+        )}
+        {!isLoading && !error && !hasReport && (
+          <div className="progress-report-popover-status">
+            No report yet. Reports are available after 4pm on days you submit.
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }

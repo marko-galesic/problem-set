@@ -1,4 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Radio,
+  RadioGroup,
+  FormControlLabel
+} from '@mui/material';
 
 const GUIDANCE_OPTIONS = ['Guided', 'Independent', 'Minor'];
 
@@ -84,12 +95,6 @@ export default function SubmissionMetadataPopover({
   function handleKeyDown(event) {
     if (event.key === 'Enter') {
       handleSave();
-    } else if (event.key === 'Escape') {
-      if (showTimerInputs && onUntracked) {
-        handleUntracked();
-      } else if (onClose) {
-        onClose();
-      }
     }
   }
 
@@ -97,107 +102,114 @@ export default function SubmissionMetadataPopover({
     return null;
   }
 
-  return (
-    <div className="submission-metadata-popover-overlay" onClick={onClose}>
-      <div
-        className="submission-metadata-popover"
-        onClick={(event) => event.stopPropagation()}
-        onKeyDown={handleKeyDown}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="submission-metadata-popover-header">
-          <span>Submission Details</span>
-          <button
-            className="btn btn--icon btn--ghost btn--muted submission-metadata-popover-close"
-            onClick={onClose}
-            aria-label="Close"
-            type="button"
-          >
-            ×
-          </button>
-        </div>
-        <div className="submission-metadata-popover-content">
-          <div className="guidance-selection">
-            <div className="guidance-selection-label">Guidance</div>
-            <div className="guidance-options">
-              {GUIDANCE_OPTIONS.map(option => (
-                <label
-                  key={option}
-                  className={`guidance-option ${disabledGuidanceOptions.includes(option) ? 'is-disabled' : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="guidanceLevel"
-                    value={option}
-                    checked={guidanceLevel === option}
-                    onChange={() => setGuidanceLevel(option)}
-                    disabled={disabledGuidanceOptions.includes(option)}
-                  />
-                  <span>{option}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+  function handleDialogClose(event, reason) {
+    if (reason === 'escapeKeyDown' && showTimerInputs && onUntracked) {
+      handleUntracked();
+      return;
+    }
+    if (onClose) {
+      onClose();
+    }
+  }
 
-          {showTimerInputs && (
-            <div className="submission-timer-section">
-              <div className="submission-timer-label">Timer time</div>
-              <div className="submission-timer-inputs">
-                <div className="timer-input-group">
-                  <label>Hours</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={hours}
-                    onChange={(e) => setHours(e.target.value)}
-                    className="timer-input"
-                    autoFocus
-                  />
-                </div>
-                <div className="timer-input-separator">:</div>
-                <div className="timer-input-group">
-                  <label>Minutes</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={minutes}
-                    onChange={(e) => setMinutes(e.target.value)}
-                    className="timer-input"
-                  />
-                </div>
-                <div className="timer-input-separator">:</div>
-                <div className="timer-input-group">
-                  <label>Seconds</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={seconds}
-                    onChange={(e) => setSeconds(e.target.value)}
-                    className="timer-input"
-                  />
-                </div>
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={handleDialogClose}
+      maxWidth={false}
+      PaperProps={{ className: 'submission-metadata-popover', onKeyDown: handleKeyDown }}
+    >
+      <DialogTitle className="submission-metadata-popover-header">
+        <span>Submission Details</span>
+        <IconButton
+          className="btn btn--icon btn--ghost btn--muted submission-metadata-popover-close"
+          onClick={onClose}
+          aria-label="Close"
+          size="small"
+        >
+          ×
+        </IconButton>
+      </DialogTitle>
+      <DialogContent className="submission-metadata-popover-content">
+        <div className="guidance-selection">
+          <div className="guidance-selection-label">Guidance</div>
+          <RadioGroup
+            className="guidance-options"
+            row
+            name="guidanceLevel"
+            value={guidanceLevel}
+            onChange={(event) => setGuidanceLevel(event.target.value)}
+          >
+            {GUIDANCE_OPTIONS.map((option) => (
+              <FormControlLabel
+                key={option}
+                value={option}
+                control={<Radio />}
+                label={option}
+                disabled={disabledGuidanceOptions.includes(option)}
+                className={`guidance-option ${disabledGuidanceOptions.includes(option) ? 'is-disabled' : ''}`}
+              />
+            ))}
+          </RadioGroup>
+        </div>
+
+        {showTimerInputs && (
+          <div className="submission-timer-section">
+            <div className="submission-timer-label">Timer time</div>
+            <div className="submission-timer-inputs">
+              <div className="timer-input-group">
+                <label>Hours</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={hours}
+                  onChange={(e) => setHours(e.target.value)}
+                  className="timer-input"
+                  autoFocus
+                />
+              </div>
+              <div className="timer-input-separator">:</div>
+              <div className="timer-input-group">
+                <label>Minutes</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={minutes}
+                  onChange={(e) => setMinutes(e.target.value)}
+                  className="timer-input"
+                />
+              </div>
+              <div className="timer-input-separator">:</div>
+              <div className="timer-input-group">
+                <label>Seconds</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={seconds}
+                  onChange={(e) => setSeconds(e.target.value)}
+                  className="timer-input"
+                />
               </div>
             </div>
-          )}
-        </div>
-        <div className="submission-metadata-popover-actions">
-          <button className="btn btn--sm btn-popover-save" onClick={handleSave} type="button">
-            Save
-          </button>
-          {showTimerInputs ? (
-            <button className="btn btn--sm btn-popover-untracked" onClick={handleUntracked} type="button">
-              Untracked
-            </button>
-          ) : (
-            <button className="btn btn--sm btn-popover-cancel" onClick={onClose} type="button">
-              Cancel
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+          </div>
+        )}
+      </DialogContent>
+      <DialogActions className="submission-metadata-popover-actions">
+        <Button className="btn btn--sm btn-popover-save" onClick={handleSave} type="button">
+          Save
+        </Button>
+        {showTimerInputs ? (
+          <Button className="btn btn--sm btn-popover-untracked" onClick={handleUntracked} type="button">
+            Untracked
+          </Button>
+        ) : (
+          <Button className="btn btn--sm btn-popover-cancel" onClick={onClose} type="button">
+            Cancel
+          </Button>
+        )}
+      </DialogActions>
+    </Dialog>
   );
 }
