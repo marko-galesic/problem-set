@@ -1,4 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import {
+  Button,
+  Tab,
+  Tabs,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow
+} from '@mui/material';
 import RecommendationPromptPopover from './RecommendationPromptPopover';
 import LanguageSwitchPopover from './LanguageSwitchPopover';
 import TopicFitnessCriteriaPopover from './TopicFitnessCriteriaPopover';
@@ -677,14 +688,14 @@ export default function SubmissionsPage() {
               </option>
             ))}
           </select>
-          <button
+          <Button
             className="btn btn--sm submissions-page-button"
             type="button"
             onClick={handleExportCsv}
             disabled={totalSubmissions === 0 || isExporting}
           >
             {isExporting ? 'Exporting...' : 'Export CSV'}
-          </button>
+          </Button>
           <a className="submissions-page-link" href="/" rel="noreferrer">
             Back to editor
           </a>
@@ -698,13 +709,13 @@ export default function SubmissionsPage() {
               <p>Based on your submission history</p>
             </div>
             {recommendation[selectedLanguage] && (
-              <button
+              <Button
                 className="btn btn--outline btn--xs recommendation-toggle"
                 type="button"
                 onClick={() => setRecommendationExpanded((prev) => !prev)}
               >
                 {recommendationExpanded ? 'Hide details' : 'Show details'}
-              </button>
+              </Button>
             )}
           </div>
           <div className="recommendation-panel-body">
@@ -733,13 +744,13 @@ export default function SubmissionsPage() {
                   <div className="recommendation-details">
                     {recommendation[selectedLanguage].systemPrompt ||
                     recommendation[selectedLanguage].userPrompt ? (
-                      <button
+                      <Button
                         type="button"
                         className="btn btn--link recommendation-justification"
                         onClick={() => setIsPromptPopoverOpen(true)}
                       >
                         {recommendation[selectedLanguage].explanation}
-                      </button>
+                      </Button>
                     ) : (
                       <div className="recommendation-justification">
                         {recommendation[selectedLanguage].explanation}
@@ -762,48 +773,39 @@ export default function SubmissionsPage() {
                 <h2>Topic Fitness &amp; Submissions</h2>
                 <p>{topicFitnessSubtitle}</p>
               </div>
-              <div className="topic-fitness-tabs" role="tablist" aria-label="Topic fitness views">
-                <button
-                  type="button"
+              <Tabs
+                className="topic-fitness-tabs"
+                value={activeTopicTab}
+                onChange={(event, newValue) => handleTopicTabChange(newValue)}
+                aria-label="Topic fitness views"
+                TabIndicatorProps={{ style: { display: 'none' } }}
+              >
+                <Tab
                   id="topic-fitness-tab"
-                  role="tab"
-                  aria-selected={isFitnessTab}
                   aria-controls="topic-fitness-panel"
-                  tabIndex={isFitnessTab ? 0 : -1}
                   className={`topic-fitness-tab${isFitnessTab ? ' is-active' : ''}`}
-                  onClick={() => handleTopicTabChange('fitness')}
-                >
-                  Topic fitness
-                </button>
-                <button
-                  type="button"
+                  label="Topic fitness"
+                  value="fitness"
+                />
+                <Tab
                   id="topic-activity-tab"
-                  role="tab"
-                  aria-selected={isActivityTab}
                   aria-controls="topic-fitness-activity-panel"
-                  tabIndex={isActivityTab ? 0 : -1}
                   className={`topic-fitness-tab${isActivityTab ? ' is-active' : ''}`}
-                  onClick={() => handleTopicTabChange('activity')}
-                >
-                  7-day activity
-                </button>
-                <button
-                  type="button"
+                  label="7-day activity"
+                  value="activity"
+                />
+                <Tab
                   id="topic-submissions-tab"
-                  role="tab"
-                  aria-selected={isSubmissionsTab}
                   aria-controls="topic-fitness-submissions-panel"
-                  tabIndex={isSubmissionsTab ? 0 : -1}
                   className={`topic-fitness-tab${isSubmissionsTab ? ' is-active' : ''}`}
-                  onClick={() => handleTopicTabChange('submissions')}
-                >
-                  Submissions
-                </button>
-              </div>
+                  label="Submissions"
+                  value="submissions"
+                />
+              </Tabs>
             </div>
             <div className="topic-fitness-header-actions">
               {isFitnessTab && (
-                <button
+                <Button
                   className="btn btn--outline btn--xs topic-fitness-criteria-button"
                   type="button"
                   onClick={() => setIsCriteriaPopoverOpen((prev) => !prev)}
@@ -812,7 +814,7 @@ export default function SubmissionsPage() {
                   aria-controls="topic-fitness-criteria-popover"
                 >
                   Show criteria
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -833,28 +835,28 @@ export default function SubmissionsPage() {
                   <div className="topic-fitness-status">No topic data yet.</div>
                 )}
                 {!topicFitnessLoading && !topicFitnessError && topicFitness.length > 0 && (
-                  <div className="topic-fitness-table-wrapper">
-                    <table className="topic-fitness-table">
-                      <thead>
-                        <tr>
-                          <th>Topic</th>
-                          <th>Easy</th>
-                          <th>Medium</th>
-                          <th>Hard</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                  <TableContainer className="topic-fitness-table-wrapper">
+                    <Table className="topic-fitness-table" size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Topic</TableCell>
+                          <TableCell>Easy</TableCell>
+                          <TableCell>Medium</TableCell>
+                          <TableCell>Hard</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
                         {topicFitness.map((entry) => (
-                          <tr key={entry.topic}>
-                            <td>{entry.topic}</td>
-                            <td>{renderDifficultyCell(entry, 'easy')}</td>
-                            <td>{renderDifficultyCell(entry, 'medium')}</td>
-                            <td>{renderDifficultyCell(entry, 'hard')}</td>
-                          </tr>
+                          <TableRow key={entry.topic}>
+                            <TableCell>{entry.topic}</TableCell>
+                            <TableCell>{renderDifficultyCell(entry, 'easy')}</TableCell>
+                            <TableCell>{renderDifficultyCell(entry, 'medium')}</TableCell>
+                            <TableCell>{renderDifficultyCell(entry, 'hard')}</TableCell>
+                          </TableRow>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
                 )}
               </div>
             )}
@@ -871,64 +873,64 @@ export default function SubmissionsPage() {
                 )}
                 {!loading && !error && submissions.length > 0 && (
                   <>
-                    <div className="submissions-page-table-wrapper">
-                      <table className="submissions-page-table">
-                        <thead>
-                          <tr>
-                            <th>Problem Title</th>
-                            <th>Difficulty</th>
-                            <th>Submitted</th>
-                            <th>Avg Runtime</th>
-                            <th>Timer Time</th>
-                            <th>Submit Attempts</th>
-                            <th>Guidance</th>
-                            <th>Tech Bar Label</th>
-                          </tr>
-                        </thead>
-                        <tbody>
+                    <TableContainer className="submissions-page-table-wrapper">
+                      <Table className="submissions-page-table" size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell>Problem Title</TableCell>
+                            <TableCell>Difficulty</TableCell>
+                            <TableCell>Submitted</TableCell>
+                            <TableCell>Avg Runtime</TableCell>
+                            <TableCell>Timer Time</TableCell>
+                            <TableCell>Submit Attempts</TableCell>
+                            <TableCell>Guidance</TableCell>
+                            <TableCell>Tech Bar Label</TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
                           {submissions.map((submission) => {
                             const challenge = challengeMap[submission.challenge] || {};
                             const title = challenge.name || submission.challenge || 'Unknown Challenge';
                             const difficulty = challenge.difficulty ?? UNKNOWN_DIFFICULTY;
                             return (
-                              <tr key={submission.id || `${submission.challenge}-${submission.date}`}>
-                                <td>{title}</td>
-                                <td>{difficulty}</td>
-                                <td>{formatDate(submission.date)}</td>
-                                <td>{submission.avgTime ?? 'N/A'}ms</td>
-                                <td>{formatTime(submission.timerTime)}</td>
-                                <td>{formatAttempts(submission.submitAttempts)}</td>
-                                <td>{submission.guidanceLevel ?? 'Independent'}</td>
-                                <td>{submission.techBarLabel ?? 'None'}</td>
-                              </tr>
+                              <TableRow key={submission.id || `${submission.challenge}-${submission.date}`}>
+                                <TableCell>{title}</TableCell>
+                                <TableCell>{difficulty}</TableCell>
+                                <TableCell>{formatDate(submission.date)}</TableCell>
+                                <TableCell>{submission.avgTime ?? 'N/A'}ms</TableCell>
+                                <TableCell>{formatTime(submission.timerTime)}</TableCell>
+                                <TableCell>{formatAttempts(submission.submitAttempts)}</TableCell>
+                                <TableCell>{submission.guidanceLevel ?? 'Independent'}</TableCell>
+                                <TableCell>{submission.techBarLabel ?? 'None'}</TableCell>
+                              </TableRow>
                             );
                           })}
-                        </tbody>
-                      </table>
-                    </div>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
                     <div className="submissions-page-pagination">
-                      <button
+                      <Button
                         className="btn btn--outline btn--sm"
                         type="button"
                         onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                         disabled={isFirstPage}
                       >
                         Previous
-                      </button>
+                      </Button>
                       <div className="submissions-page-pagination-meta">
                         <span>
                           Page {page} of {pageCount}
                         </span>
                         <span>{totalSubmissions} total</span>
                       </div>
-                      <button
+                      <Button
                         className="btn btn--outline btn--sm"
                         type="button"
                         onClick={() => setPage((prev) => prev + 1)}
                         disabled={isLastPage || !hasMore}
                       >
                         Next
-                      </button>
+                      </Button>
                     </div>
                   </>
                 )}

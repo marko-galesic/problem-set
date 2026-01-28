@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button, IconButton, Tab, Tabs } from '@mui/material';
 
 export default function TestResults({
   results,
@@ -12,6 +13,9 @@ export default function TestResults({
   extraRunTestIds = []
 }) {
   const [selectedTestIndex, setSelectedTestIndex] = useState(0);
+  const handleTabChange = (event, newValue) => {
+    setSelectedTestIndex(newValue);
+  };
 
   if (!results || results.length === 0) {
     return null;
@@ -20,14 +24,14 @@ export default function TestResults({
   if (!isExpanded) {
     return (
       <div className="test-results collapsed">
-        <button 
+        <IconButton 
           className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Show test results"
           type="button"
         >
           ▶
-        </button>
+        </IconButton>
       </div>
     );
   }
@@ -64,35 +68,45 @@ export default function TestResults({
               Avg time: {avgTime}ms
             </span>
           )}
-          <button 
+          <IconButton 
             className="btn btn--icon btn--ghost btn-sidebar-toggle"
             onClick={onToggle}
             title="Hide test results"
             type="button"
           >
             ◀
-          </button>
+          </IconButton>
         </div>
       </div>
 
       <div className="test-tabs-container">
-        <div className="test-tabs">
+        <Tabs
+          value={selectedTestIndex}
+          onChange={handleTabChange}
+          className="test-tabs"
+          variant="scrollable"
+          scrollButtons={false}
+          TabIndicatorProps={{ style: { display: 'none' } }}
+          aria-label="Test results"
+        >
           {results.map((result, index) => (
-            <button
+            <Tab
               key={index}
               className={`test-tab ${result.passed ? 'passed' : 'failed'} ${index === selectedTestIndex ? 'active' : ''}`}
-              onClick={() => setSelectedTestIndex(index)}
-              type="button"
-            >
-              <span className="test-tab-icon">
-                {result.passed ? '✓' : '✗'}
-              </span>
-              <span className="test-tab-label">
-                Test {index + 1}: {result.testCase.name}
-              </span>
-            </button>
+              label={
+                <>
+                  <span className="test-tab-icon">
+                    {result.passed ? '✓' : '✗'}
+                  </span>
+                  <span className="test-tab-label">
+                    Test {index + 1}: {result.testCase.name}
+                  </span>
+                </>
+              }
+              value={index}
+            />
           ))}
-        </div>
+        </Tabs>
 
         <div className={`test-case-content ${selectedResult.passed ? 'passed' : 'failed'}`}>
           <div className="test-case-header">
@@ -111,14 +125,14 @@ export default function TestResults({
                 </span>
               )}
               {showUseTestCase && (
-                <button
+                <Button
                   className={`btn btn--xs btn-use-test-case${isAlreadyInRun ? ' added' : ''}`}
                   onClick={() => onUseTestCase(selectedResult.testCase)}
                   disabled={isAlreadyInRun}
                   type="button"
                 >
                   {useTestCaseLabel}
-                </button>
+                </Button>
               )}
             </div>
           </div>

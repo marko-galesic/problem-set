@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@mui/material';
 import Timer from './Timer';
 
 export default function Header({ 
@@ -52,7 +53,7 @@ export default function Header({
         />
       </div>
       <div className="header-actions">
-        <button
+        <Button
           onClick={onProgress}
           disabled={isRunning || isProgressDisabled}
           className="btn btn-progress"
@@ -60,8 +61,8 @@ export default function Header({
           title={progressTitle || 'View your daily progress report'}
         >
           Your Progress
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onGuide}
           disabled={isRunning}
           className="btn btn-guide"
@@ -69,8 +70,8 @@ export default function Header({
           title="Open guided chat"
         >
           Guide me
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={onBugHunt}
           disabled={isRunning || isBugHuntLoading}
           className="btn btn-bug"
@@ -78,7 +79,7 @@ export default function Header({
           title="Ask GPT-5 where the bug is"
         >
           {isBugHuntLoading ? 'Checking...' : "Where's the bug?"}
-        </button>
+        </Button>
         <a
           className="header-link"
           href="/#/submissions"
@@ -88,15 +89,15 @@ export default function Header({
         >
           Submissions
         </a>
-        <button 
+        <Button 
           onClick={onToggleMaximize}
           className="btn btn-maximize"
           type="button"
           title={isMaximized ? 'Restore layout' : 'Maximize editor'}
         >
           {isMaximized ? '⊟' : '⊞'}
-        </button>
-        <button 
+        </Button>
+        <Button 
           onClick={onReset}
           disabled={isRunning}
           className="btn btn-reset"
@@ -104,23 +105,23 @@ export default function Header({
           title="Reset to template"
         >
           Reset
-        </button>
-        <button 
+        </Button>
+        <Button 
           onClick={onRun} 
           disabled={isRunning}
           className="btn btn-run"
           type="button"
         >
           {isRunningRun ? 'Running...' : 'Run'}
-        </button>
-        <button 
+        </Button>
+        <Button 
           onClick={onSubmit} 
           disabled={isRunning}
           className="btn btn-submit"
           type="button"
         >
           {isRunningSubmit ? 'Submitting...' : 'Submit'}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { IconButton } from '@mui/material';
 import Header from './components/Header';
 import CodeEditor from './components/CodeEditor';
 import TestResults from './components/TestResults';
@@ -1320,7 +1321,7 @@ function App() {
                 <div className="test-results-minimized-bar">
                   <div className="test-cases-preview-header">
                     <h2>{testResults ? 'Test Results' : 'Test Cases'}</h2>
-                    <button
+                    <IconButton
                       className="btn btn--icon-sm btn--ghost btn-minimize-testcases"
                       type="button"
                       onClick={(e) => {
@@ -1330,7 +1331,7 @@ function App() {
                       title={testResults ? 'Restore test results' : 'Restore test cases'}
                     >
                       ▲
-                    </button>
+                    </IconButton>
                   </div>
                 </div>
               </div>

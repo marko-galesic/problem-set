@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
+import { IconButton, Tab, Tabs } from '@mui/material';
 
 export default function TestCasesPreview({ testCases, isRunning, actionType, isExpanded, onToggle }) {
   const [selectedTestIndex, setSelectedTestIndex] = useState(0);
+  const handleTabChange = (event, newValue) => {
+    setSelectedTestIndex(newValue);
+  };
 
   if (!isExpanded) {
     return (
       <div className="test-cases-preview collapsed">
-        <button 
+        <IconButton 
           className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Show test cases"
           type="button"
         >
           ▶
-        </button>
+        </IconButton>
       </div>
     );
   }
@@ -24,14 +28,14 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
         <div className="test-tabs-container">
           <div className="test-tabs-header">
             <div className="test-tabs-spacer"></div>
-            <button 
+            <IconButton 
               className="btn btn--icon btn--ghost btn-sidebar-toggle"
               onClick={onToggle}
               title="Hide test cases"
               type="button"
             >
               ◀
-            </button>
+            </IconButton>
           </div>
           <p className="no-results">Loading test cases...</p>
         </div>
@@ -45,28 +49,36 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
     <div className="test-cases-preview">
       <div className="test-tabs-container">
         <div className="test-tabs-header">
-          <div className="test-tabs">
+          <Tabs
+            value={selectedTestIndex}
+            onChange={handleTabChange}
+            className="test-tabs"
+            variant="scrollable"
+            scrollButtons={false}
+            TabIndicatorProps={{ style: { display: 'none' } }}
+            aria-label="Test cases"
+          >
             {testCases.map((testCase, index) => (
-              <button
+              <Tab
                 key={testCase.id || index}
                 className={`test-tab ${index === selectedTestIndex ? 'active' : ''}`}
-                onClick={() => setSelectedTestIndex(index)}
-                type="button"
-              >
-                <span className="test-tab-label">
-                  Test {index + 1}: {testCase.name}
-                </span>
-              </button>
+                label={
+                  <span className="test-tab-label">
+                    Test {index + 1}: {testCase.name}
+                  </span>
+                }
+                value={index}
+              />
             ))}
-          </div>
-          <button 
+          </Tabs>
+          <IconButton 
             className="btn btn--icon btn--ghost btn-sidebar-toggle"
             onClick={onToggle}
             title="Hide test cases"
             type="button"
           >
             ◀
-          </button>
+          </IconButton>
         </div>
 
         <div className="test-case-content">

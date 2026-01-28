@@ -1,17 +1,18 @@
 import React from 'react';
+import { IconButton } from '@mui/material';
 
 export default function DescriptionPanel({ isExpanded, onToggle, description }) {
   if (!isExpanded) {
     return (
       <div className="description-panel collapsed">
-        <button 
+        <IconButton 
           className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Show description"
           type="button"
         >
           ▶
-        </button>
+        </IconButton>
       </div>
     );
   }
@@ -20,14 +21,14 @@ export default function DescriptionPanel({ isExpanded, onToggle, description }) 
     <div className="description-panel">
       <div className="description-header">
         <h2>Problem Description</h2>
-        <button 
+        <IconButton 
           className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Hide description"
           type="button"
         >
           ◀
-        </button>
+        </IconButton>
       </div>
       <div className="description-content">
         <div 

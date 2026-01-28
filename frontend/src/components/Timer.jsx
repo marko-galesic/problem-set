@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { IconButton } from '@mui/material';
 import TimerPopover from './TimerPopover';
 import TimerAutoStartPopover from './TimerAutoStartPopover';
 
@@ -253,7 +254,7 @@ const Timer = forwardRef(function Timer(props, ref) {
   return (
     <div className={`timer-container ${isVisible ? '' : 'timer-hidden'}`}>
       <div className="timer-icon-wrapper">
-        <button
+        <IconButton
           className="btn btn--icon-sm btn--ghost btn-timer-icon"
           onClick={handleToggleVisibility}
           title={isVisible ? 'Hide timer' : 'Show timer'}
@@ -263,7 +264,7 @@ const Timer = forwardRef(function Timer(props, ref) {
           <span className={`timer-icon ${isRunning ? 'pulsing' : ''}`}>
             ⏱️
           </span>
-        </button>
+        </IconButton>
       </div>
       <div className="timer-display">
         <span 
@@ -276,22 +277,22 @@ const Timer = forwardRef(function Timer(props, ref) {
         </span>
       </div>
       <div className="timer-controls">
-        <button 
+        <IconButton 
           className="btn btn--icon-sm btn--ghost btn-timer-action"
           onClick={handleStartPause}
           title={isRunning ? 'Pause' : 'Start'}
           type="button"
         >
           {isRunning ? '⏸' : '▶'}
-        </button>
-        <button 
+        </IconButton>
+        <IconButton 
           className="btn btn--icon-sm btn--ghost btn-timer-reset"
           onClick={handleReset}
           title="Reset"
           type="button"
         >
           ↻
-        </button>
+        </IconButton>
       </div>
       <TimerPopover
         isOpen={isPopoverOpen}

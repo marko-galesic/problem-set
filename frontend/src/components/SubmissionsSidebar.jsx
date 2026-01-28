@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { IconButton } from '@mui/material';
 import TimerPopover from './TimerPopover';
 import SolutionPopover from './SolutionPopover';
 
@@ -72,14 +73,14 @@ export default function SubmissionsSidebar({ isExpanded, onToggle, submissions, 
   if (!isExpanded) {
     return (
       <div className="submissions-sidebar collapsed">
-        <button 
+        <IconButton 
           className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Show submissions"
           type="button"
         >
           ▶
-        </button>
+        </IconButton>
       </div>
     );
   }
@@ -88,14 +89,14 @@ export default function SubmissionsSidebar({ isExpanded, onToggle, submissions, 
     <div className="submissions-sidebar">
       <div className="submissions-sidebar-header">
         <h2>Submissions</h2>
-        <button 
+        <IconButton 
           className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Hide submissions"
           type="button"
         >
           ◀
-        </button>
+        </IconButton>
       </div>
       <div className="submissions-sidebar-content">
         {submissions.length === 0 ? (
@@ -151,7 +152,7 @@ export default function SubmissionsSidebar({ isExpanded, onToggle, submissions, 
                     </span>
                   </div>
                 </div>
-                <button
+                <IconButton
                   className="btn btn--icon btn--danger-ghost btn-delete-submission"
                   onClick={(event) => {
                     event.stopPropagation();
@@ -161,7 +162,7 @@ export default function SubmissionsSidebar({ isExpanded, onToggle, submissions, 
                   type="button"
                 >
                   ×
-                </button>
+                </IconButton>
                 <TimerPopover
                   isOpen={openPopoverId === submission.id}
                   onClose={handlePopoverClose}

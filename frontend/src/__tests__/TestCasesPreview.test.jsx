@@ -56,10 +56,10 @@ describe('TestCasesPreview', () => {
     expect(screen.getByText(/running/i)).toBeInTheDocument();
     expect(screen.getByText('nums=[1,2]')).toBeInTheDocument();
 
-    const secondTab = screen.getByRole('button', { name: /test 2: beta/i });
+    const secondTab = screen.getByRole('tab', { name: /test 2: beta/i });
     fireEvent.click(secondTab);
 
     expect(screen.getByText('nums=[3,4]')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /test 2: beta/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /test 2: beta/i })).toBeInTheDocument();
   });
 });

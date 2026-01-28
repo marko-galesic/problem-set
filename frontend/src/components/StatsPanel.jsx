@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@mui/material';
 import { getImplementations, getAverageTime, clearImplementations } from '../utils/storage';
 
 export default function StatsPanel({ refreshTrigger }) {
@@ -26,9 +27,9 @@ export default function StatsPanel({ refreshTrigger }) {
     <div className="stats-panel">
       <div className="stats-header">
         <h2>Statistics</h2>
-        <button onClick={handleClear} className="btn btn--xs btn-clear" type="button">
+        <Button onClick={handleClear} className="btn btn--xs btn-clear" type="button">
           Clear All
-        </button>
+        </Button>
       </div>
       
       <div className="stats-summary">
