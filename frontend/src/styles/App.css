@@ -2959,9 +2959,10 @@ body {
 
 .topic-fitness-chart-bar {
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: end;
+  justify-items: center;
   gap: 8px;
 }
 
@@ -2971,19 +2972,10 @@ body {
   color: #1b1b1b;
 }
 
-.topic-fitness-chart-track {
-  flex: 1;
+.topic-fitness-chart-column {
   width: 100%;
-  display: flex;
-  align-items: flex-end;
-  background-color: #edf2f7;
-  border-radius: 999px;
-  padding: 4px;
-}
-
-.topic-fitness-chart-fill {
-  width: 100%;
-  border-radius: 999px;
+  max-width: 28px;
+  border-radius: 6px 6px 2px 2px;
   background: linear-gradient(180deg, #5aa8ff 0%, #0066cc 100%);
   transition: height 0.3s ease;
 }

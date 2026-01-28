@@ -972,12 +972,10 @@ export default function SubmissionsPage() {
                         return (
                           <div key={day.key} className="topic-fitness-chart-bar">
                             <div className="topic-fitness-chart-count">{day.count}</div>
-                            <div className="topic-fitness-chart-track">
-                              <div
-                                className="topic-fitness-chart-fill"
-                                style={{ height: `${height}%` }}
-                              />
-                            </div>
+                            <div
+                              className="topic-fitness-chart-column"
+                              style={{ height: `${height}%` }}
+                            />
                             <div className="topic-fitness-chart-label">{day.label}</div>
                           </div>
                         );
