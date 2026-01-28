@@ -197,33 +197,58 @@ function App() {
     }));
   }
 
-  async function loadAllSubmissions() {
-    if (!Array.isArray(challenges) || challenges.length === 0) {
+  function getLocalDayRange(date) {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+    return { from: start.toISOString(), to: end.toISOString() };
+  }
+
+  async function loadAllSubmissions({ from, to } = {}) {
+    const submissions = [];
+    let page = 1;
+    const limit = 200;
+    let hasMore = true;
+    const challengeNameMap = Array.isArray(challenges)
+      ? new Map(challenges.map((challenge) => [challenge.id, challenge.name]))
+      : new Map();
+
+    try {
+      while (hasMore) {
+        const params = new URLSearchParams({
+          scope: 'all',
+          page: String(page),
+          limit: String(limit)
+        });
+        if (from) {
+          params.set('from', from);
+        }
+        if (to) {
+          params.set('to', to);
+        }
+
+        const response = await fetch(`/api/submissions?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error('Failed to load submissions');
+        }
+        const data = await response.json();
+        const batch = Array.isArray(data.submissions) ? data.submissions : [];
+        submissions.push(...batch);
+        hasMore = Boolean(data.hasMore);
+        page += 1;
+        if (page > 2000) {
+          hasMore = false;
+        }
+      }
+    } catch (error) {
       return [];
     }
-    const submissionsByChallenge = await Promise.all(
-      challenges.map(async (challenge) => {
-        const challengeId = challenge?.id;
-        if (!challengeId) {
-          return [];
-        }
-        try {
-          const response = await fetch(`/api/submissions?challenge=${challengeId}`);
-          if (!response.ok) {
-            throw new Error('Failed to load submissions');
-          }
-          const data = await response.json();
-          return (data.submissions || []).map((submission) => ({
-            ...submission,
-            challenge: submission.challenge ?? challengeId,
-            challengeName: submission.challengeName ?? challenge?.name
-          }));
-        } catch (error) {
-          return [];
-        }
-      })
-    );
-    return submissionsByChallenge.flat();
+
+    return submissions.map((submission) => ({
+      ...submission,
+      challengeName: submission.challengeName ?? challengeNameMap.get(submission.challenge)
+    }));
   }
 
   async function prepareProgressReport(submissions, signature, dateKey) {
@@ -277,7 +302,8 @@ function App() {
       return { eligible: false, submissions: [], signature: '', dateKey: getLocalDateKey(now) };
     }
 
-    const allSubmissions = await loadAllSubmissions();
+    const { from, to } = getLocalDayRange(now);
+    const allSubmissions = await loadAllSubmissions({ from, to });
     const todaysSubmissions = allSubmissions.filter((submission) => isSameLocalDay(submission?.date, now));
     const signature = buildProgressSignature(todaysSubmissions);
     const dateKey = getLocalDateKey(now);

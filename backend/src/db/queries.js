@@ -216,6 +216,8 @@ export function getAllSubmissions() {
       avg_time,
       timer_time,
       date,
+      tech_bar_status,
+      tech_bar_label,
       submit_attempts,
       guidance_level,
       language
@@ -223,6 +225,74 @@ export function getAllSubmissions() {
     ORDER BY date DESC
   `);
   return stmt.all();
+}
+
+export function getSubmissionsPage({ limit = 50, offset = 0, language = null, from = null, to = null } = {}) {
+  const db = getDatabase();
+  const conditions = [];
+  const params = [];
+
+  if (language) {
+    conditions.push('LOWER(language) = ?');
+    params.push(language.toLowerCase());
+  }
+  if (from) {
+    conditions.push('date >= ?');
+    params.push(from);
+  }
+  if (to) {
+    conditions.push('date <= ?');
+    params.push(to);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const stmt = db.prepare(`
+    SELECT 
+      id,
+      challenge_id,
+      avg_time,
+      timer_time,
+      date,
+      tech_bar_status,
+      tech_bar_label,
+      submit_attempts,
+      guidance_level,
+      language
+    FROM submissions
+    ${whereClause}
+    ORDER BY date DESC
+    LIMIT ?
+    OFFSET ?
+  `);
+  return stmt.all(...params, limit, offset);
+}
+
+export function getSubmissionsCount({ language = null, from = null, to = null } = {}) {
+  const db = getDatabase();
+  const conditions = [];
+  const params = [];
+
+  if (language) {
+    conditions.push('LOWER(language) = ?');
+    params.push(language.toLowerCase());
+  }
+  if (from) {
+    conditions.push('date >= ?');
+    params.push(from);
+  }
+  if (to) {
+    conditions.push('date <= ?');
+    params.push(to);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const stmt = db.prepare(`
+    SELECT COUNT(*) as count
+    FROM submissions
+    ${whereClause}
+  `);
+  const row = stmt.get(...params);
+  return row?.count ?? 0;
 }
 
 export function getSubmissionById(submissionId) {

@@ -25,6 +25,8 @@ import {
   setCompanyTiers,
   getSubmissions as getSubmissionsFromDb,
   getAllSubmissions,
+  getSubmissionsPage,
+  getSubmissionsCount,
   getSubmissionById as getSubmissionByIdFromDb,
   insertSubmission as insertSubmissionToDb,
   deleteSubmission as deleteSubmissionFromDb,
@@ -46,6 +48,8 @@ const GLOBAL_LANGUAGE_PREFERENCE_KEY = '__global__';
 const TECH_BAR_LABELS = new Set(['not_met', 'met', 'exceeds']);
 const TECH_BAR_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const techBarDescriptionCache = new Map();
+const DEFAULT_SUBMISSIONS_PAGE_SIZE = 50;
+const MAX_SUBMISSIONS_PAGE_SIZE = 200;
 
 // Challenge configuration
 export const CHALLENGES = {
@@ -1441,6 +1445,40 @@ function normalizeLanguage(value) {
   return 'java';
 }
 
+function parsePositiveInt(value, fallback) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+  return parsed;
+}
+
+function normalizeLanguageFilter(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim().toLowerCase();
+  if (!trimmed || trimmed === 'all') {
+    return null;
+  }
+  return normalizeLanguage(trimmed);
+}
+
+function normalizeDateFilter(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const parsed = Date.parse(trimmed);
+  if (Number.isNaN(parsed)) {
+    return null;
+  }
+  return trimmed;
+}
+
 function stripHtml(html) {
   if (!html) {
     return '';
@@ -2179,6 +2217,125 @@ app.get('/api/challenges', (req, res) => {
 // Get submissions endpoint - returns submissions for a challenge
 app.get('/api/submissions', async (req, res) => {
   try {
+    const scope = typeof req.query.scope === 'string' ? req.query.scope.trim().toLowerCase() : '';
+    if (scope === 'all') {
+      const page = parsePositiveInt(req.query.page, 1);
+      const rawLimit = parsePositiveInt(req.query.limit, DEFAULT_SUBMISSIONS_PAGE_SIZE);
+      const limit = Math.min(MAX_SUBMISSIONS_PAGE_SIZE, rawLimit);
+      const offset = (page - 1) * limit;
+      const language = normalizeLanguageFilter(req.query.language);
+      const from = normalizeDateFilter(req.query.from);
+      const to = normalizeDateFilter(req.query.to);
+
+      // Try database first
+      try {
+        const submissions = getSubmissionsPage({ limit, offset, language, from, to });
+        const total = getSubmissionsCount({ language, from, to });
+        const formattedSubmissions = submissions.map(sub => ({
+          id: sub.id,
+          challenge: sub.challenge_id,
+          avgTime: sub.avg_time,
+          timerTime: sub.timer_time,
+          date: sub.date,
+          submitAttempts: sub.submit_attempts ?? null,
+          techBarStatus: sub.tech_bar_status ?? 'pending',
+          techBarLabel: sub.tech_bar_label ?? null,
+          guidanceLevel: sub.guidance_level ?? 'Independent',
+          language: normalizeLanguage(sub.language)
+        }));
+
+        return res.json({
+          submissions: formattedSubmissions,
+          page,
+          limit,
+          total,
+          hasMore: offset + formattedSubmissions.length < total
+        });
+      } catch (dbError) {
+        // Fallback to file-based if database fails
+        const dataDir = join(__dirname, '../../data');
+        const folders = await readdir(dataDir);
+        const allSubmissions = [];
+
+        for (const folder of folders) {
+          const folderPath = join(dataDir, folder);
+          try {
+            const stats = await stat(folderPath);
+            if (!stats.isDirectory()) {
+              continue;
+            }
+          } catch {
+            continue;
+          }
+
+          const submissionsPath = join(folderPath, 'submissions.json');
+          try {
+            const submissionsContent = await readFile(submissionsPath, 'utf8');
+            const submissions = JSON.parse(submissionsContent);
+            if (!Array.isArray(submissions)) {
+              continue;
+            }
+            submissions.forEach(submission => {
+              if (!submission || typeof submission !== 'object') {
+                return;
+              }
+              const normalized = {
+                ...submission,
+                challenge: submission.challenge ?? folder,
+                submitAttempts: submission.submitAttempts ?? null,
+                techBarStatus: submission.techBarStatus ?? 'pending',
+                techBarLabel: submission.techBarLabel ?? null,
+                guidanceLevel: submission.guidanceLevel ?? 'Independent',
+                language: normalizeLanguage(submission.language)
+              };
+              allSubmissions.push(normalized);
+            });
+          } catch (error) {
+            if (error.code === 'ENOENT') {
+              continue;
+            }
+            throw error;
+          }
+        }
+
+        const fromMs = from ? Date.parse(from) : null;
+        const toMs = to ? Date.parse(to) : null;
+        const filtered = allSubmissions.filter(submission => {
+          if (language && normalizeLanguage(submission.language) !== language) {
+            return false;
+          }
+          if (fromMs || toMs) {
+            if (!submission.date) {
+              return false;
+            }
+            const submittedAt = Date.parse(submission.date);
+            if (Number.isNaN(submittedAt)) {
+              return false;
+            }
+            if (fromMs && submittedAt < fromMs) {
+              return false;
+            }
+            if (toMs && submittedAt > toMs) {
+              return false;
+            }
+          }
+          return true;
+        });
+
+        filtered.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+        const total = filtered.length;
+        const paged = filtered.slice(offset, offset + limit);
+
+        return res.json({
+          submissions: paged,
+          page,
+          limit,
+          total,
+          hasMore: offset + paged.length < total
+        });
+      }
+    }
+
     const challengeId = req.query.challenge || DEFAULT_CHALLENGE;
     getChallenge(challengeId); // Validate challenge exists
     

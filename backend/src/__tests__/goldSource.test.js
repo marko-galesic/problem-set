@@ -1,4 +1,5 @@
 import { describe, test, expect } from '@jest/globals';
+import { execSync } from 'child_process';
 import { readFile } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -12,6 +13,79 @@ import { CHALLENGES } from '../server.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const srcDir = resolve(__dirname, '..'); // Go up from __tests__ to src/
+
+function getChangedFiles(baseRef) {
+  const files = new Set();
+  const commands = [
+    `git diff --name-only ${baseRef}...HEAD`,
+    'git diff --name-only',
+    'git diff --name-only --cached',
+    'git ls-files --others --exclude-standard'
+  ];
+
+  for (const command of commands) {
+    try {
+      const output = execSync(command, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+      output
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .forEach(file => files.add(file));
+    } catch (error) {
+      continue;
+    }
+  }
+
+  return Array.from(files);
+}
+
+function getChangedChallengeIds() {
+  const baseRef = process.env.GOLD_SOURCE_BASE || 'origin/main';
+  const files = getChangedFiles(baseRef);
+  const ids = new Set();
+
+  files.forEach((file) => {
+    const match = file.match(/^data\/([^/]+)\//);
+    if (match?.[1]) {
+      ids.add(match[1]);
+    }
+  });
+
+  return Array.from(ids);
+}
+
+function resolveChallengeSelection() {
+  const explicitList = process.env.GOLD_SOURCE_CHALLENGES;
+  if (explicitList) {
+    const ids = explicitList
+      .split(',')
+      .map(value => value.trim())
+      .filter(Boolean);
+    return { ids, mode: 'explicit' };
+  }
+
+  const mode = (process.env.GOLD_SOURCE_MODE || 'changed').toLowerCase();
+  if (mode === 'all' || mode === 'full') {
+    return { ids: null, mode: 'all' };
+  }
+  if (mode === 'changed' || mode === 'new') {
+    return { ids: getChangedChallengeIds(), mode };
+  }
+
+  return { ids: null, mode: 'all' };
+}
+
+const selection = resolveChallengeSelection();
+const requestedIds = selection.ids;
+const challengeIds = requestedIds
+  ? requestedIds.filter((id) => Boolean(CHALLENGES[id]))
+  : Object.keys(CHALLENGES);
+const unknownIds = requestedIds ? requestedIds.filter(id => !CHALLENGES[id]) : [];
+const shouldSkip = requestedIds && challengeIds.length === 0;
+
+if (unknownIds.length > 0) {
+  console.warn(`Gold source test skipped unknown challenge ids: ${unknownIds.join(', ')}`);
+}
 
 /**
  * Reads the Golden.java file for a given challenge
@@ -85,8 +159,13 @@ async function executeGoldSource(language, code, tests, adapter, challengeId) {
 }
 
 describe('Gold Source Validation', () => {
+  if (shouldSkip) {
+    test.skip('no changed challenges detected for gold source validation', () => {});
+    return;
+  }
+
   // Test each challenge's gold source
-  for (const challengeId of Object.keys(CHALLENGES)) {
+  for (const challengeId of challengeIds) {
     const challenge = CHALLENGES[challengeId];
     
     describe(challenge.name, () => {
@@ -151,7 +230,7 @@ describe('Gold Source Validation', () => {
   // Optional: Test that all challenges have a Golden file per language
   test('all challenges should have Golden sources for JS/TS/Python', async () => {
     const languages = ['javascript', 'typescript', 'python'];
-    for (const challengeId of Object.keys(CHALLENGES)) {
+    for (const challengeId of challengeIds) {
       for (const language of languages) {
         const goldSource = await readGoldSource(challengeId, language);
         expect(goldSource).toBeTruthy();

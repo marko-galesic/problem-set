@@ -3124,6 +3124,22 @@ body {
   overflow-x: auto;
 }
 
+.submissions-page-pagination {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.submissions-page-pagination-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 12px;
+  color: #666666;
+}
+
 .submissions-page-table {
   width: 100%;
   border-collapse: collapse;
