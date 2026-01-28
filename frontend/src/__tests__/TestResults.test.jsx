@@ -68,9 +68,9 @@ describe('TestResults', () => {
     expect(screen.getByText('1 / 2 tests passed')).toBeInTheDocument();
     expect(screen.getByText('Total time: 12ms')).toBeInTheDocument();
     expect(screen.getByText('Avg time: 6ms')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: /test 1: case a/i })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: /test 1/i })).toBeInTheDocument();
 
-    const secondTab = screen.getByRole('tab', { name: /test 2: case b/i });
+    const secondTab = screen.getByRole('tab', { name: /test 2/i });
     fireEvent.click(secondTab);
 
     expect(screen.getByText('Mismatch')).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe('TestResults', () => {
       />
     );
 
-    const secondTab = screen.getByRole('tab', { name: /test 2: case b/i });
+    const secondTab = screen.getByRole('tab', { name: /test 2/i });
     fireEvent.click(secondTab);
 
     const useButton = screen.getByRole('button', { name: /use this test case/i });
@@ -115,7 +115,7 @@ describe('TestResults', () => {
       />
     );
 
-    const secondTab = screen.getByRole('tab', { name: /test 2: case b/i });
+    const secondTab = screen.getByRole('tab', { name: /test 2/i });
     fireEvent.click(secondTab);
 
     const useButton = screen.getByRole('button', { name: /already in run/i });

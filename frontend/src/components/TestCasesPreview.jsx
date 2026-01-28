@@ -64,7 +64,7 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
                 className={`test-tab ${index === selectedTestIndex ? 'active' : ''}`}
                 label={
                   <span className="test-tab-label">
-                    Test {index + 1}: {testCase.name}
+                    Test {index + 1}
                   </span>
                 }
                 value={index}

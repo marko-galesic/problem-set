@@ -99,7 +99,7 @@ export default function TestResults({
                     {result.passed ? '✓' : '✗'}
                   </span>
                   <span className="test-tab-label">
-                    Test {index + 1}: {result.testCase.name}
+                    Test {index + 1}
                   </span>
                 </>
               }
