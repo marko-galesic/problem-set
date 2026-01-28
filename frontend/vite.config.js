@@ -14,11 +14,8 @@ export default defineConfig({
       functions: 80,
       branches: 80,
       statements: 80,
-      include: [
-        'src/components/DescriptionPanel.jsx',
-        'src/components/TestCasesPreview.jsx',
-        'src/components/TestResults.jsx'
-      ]
+      include: ['src/**/*.{js,jsx}'],
+      exclude: ['src/**/__tests__/**', 'src/setupTests.js']
     }
   },
   server: {
