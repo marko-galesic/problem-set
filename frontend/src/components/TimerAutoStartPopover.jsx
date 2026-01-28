@@ -13,9 +13,10 @@ export default function TimerAutoStartPopover({ isOpen, onConfirm, onDismiss }) 
         <div className="timer-autostart-popover-header">
           <span>Start timer?</span>
           <button
-            className="timer-autostart-popover-close"
+            className="btn btn--icon btn--ghost btn--muted timer-autostart-popover-close"
             onClick={onDismiss}
             aria-label="Close"
+            type="button"
           >
             ×
           </button>
@@ -26,10 +27,10 @@ export default function TimerAutoStartPopover({ isOpen, onConfirm, onDismiss }) 
           </p>
         </div>
         <div className="timer-autostart-popover-actions">
-          <button className="btn-popover-save" onClick={onConfirm}>
+          <button className="btn btn--sm btn-popover-save" onClick={onConfirm} type="button">
             Start timer at 1:00
           </button>
-          <button className="btn-popover-cancel" onClick={onDismiss}>
+          <button className="btn btn--sm btn-popover-cancel" onClick={onDismiss} type="button">
             Not now
           </button>
         </div>

@@ -16,9 +16,10 @@ export default function GuideConfirmPopover({ isOpen, onClose, onConfirm }) {
         <div className="guide-confirm-popover-header">
           <span>Guide me</span>
           <button
-            className="guide-confirm-popover-close"
+            className="btn btn--icon btn--ghost btn--muted guide-confirm-popover-close"
             onClick={onClose}
             aria-label="Close"
+            type="button"
           >
             x
           </button>
@@ -33,10 +34,10 @@ export default function GuideConfirmPopover({ isOpen, onClose, onConfirm }) {
           <p>Do you want to continue?</p>
         </div>
         <div className="guide-confirm-popover-actions">
-          <button className="btn-popover-save" onClick={onConfirm}>
+          <button className="btn btn--sm btn-popover-save" onClick={onConfirm} type="button">
             Continue
           </button>
-          <button className="btn-popover-cancel" onClick={onClose}>
+          <button className="btn btn--sm btn-popover-cancel" onClick={onClose} type="button">
             Cancel
           </button>
         </div>

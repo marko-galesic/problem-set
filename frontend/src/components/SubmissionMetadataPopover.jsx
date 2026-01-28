@@ -109,9 +109,10 @@ export default function SubmissionMetadataPopover({
         <div className="submission-metadata-popover-header">
           <span>Submission Details</span>
           <button
-            className="submission-metadata-popover-close"
+            className="btn btn--icon btn--ghost btn--muted submission-metadata-popover-close"
             onClick={onClose}
             aria-label="Close"
+            type="button"
           >
             ×
           </button>
@@ -183,15 +184,15 @@ export default function SubmissionMetadataPopover({
           )}
         </div>
         <div className="submission-metadata-popover-actions">
-          <button className="btn-popover-save" onClick={handleSave}>
+          <button className="btn btn--sm btn-popover-save" onClick={handleSave} type="button">
             Save
           </button>
           {showTimerInputs ? (
-            <button className="btn-popover-untracked" onClick={handleUntracked}>
+            <button className="btn btn--sm btn-popover-untracked" onClick={handleUntracked} type="button">
               Untracked
             </button>
           ) : (
-            <button className="btn-popover-cancel" onClick={onClose}>
+            <button className="btn btn--sm btn-popover-cancel" onClick={onClose} type="button">
               Cancel
             </button>
           )}

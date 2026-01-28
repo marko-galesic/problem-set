@@ -5,9 +5,10 @@ export default function DescriptionPanel({ isExpanded, onToggle, description }) 
     return (
       <div className="description-panel collapsed">
         <button 
-          className="btn-sidebar-toggle"
+          className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Show description"
+          type="button"
         >
           ▶
         </button>
@@ -20,9 +21,10 @@ export default function DescriptionPanel({ isExpanded, onToggle, description }) 
       <div className="description-header">
         <h2>Problem Description</h2>
         <button 
-          className="btn-sidebar-toggle"
+          className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Hide description"
+          type="button"
         >
           ◀
         </button>
@@ -36,4 +38,3 @@ export default function DescriptionPanel({ isExpanded, onToggle, description }) 
     </div>
   );
 }
-

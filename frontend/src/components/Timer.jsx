@@ -254,10 +254,11 @@ const Timer = forwardRef(function Timer(props, ref) {
     <div className={`timer-container ${isVisible ? '' : 'timer-hidden'}`}>
       <div className="timer-icon-wrapper">
         <button
-          className="btn-timer-icon"
+          className="btn btn--icon-sm btn--ghost btn-timer-icon"
           onClick={handleToggleVisibility}
           title={isVisible ? 'Hide timer' : 'Show timer'}
           aria-label={isVisible ? 'Hide timer' : 'Show timer'}
+          type="button"
         >
           <span className={`timer-icon ${isRunning ? 'pulsing' : ''}`}>
             ⏱️
@@ -276,16 +277,18 @@ const Timer = forwardRef(function Timer(props, ref) {
       </div>
       <div className="timer-controls">
         <button 
-          className="btn-timer-action"
+          className="btn btn--icon-sm btn--ghost btn-timer-action"
           onClick={handleStartPause}
           title={isRunning ? 'Pause' : 'Start'}
+          type="button"
         >
           {isRunning ? '⏸' : '▶'}
         </button>
         <button 
-          className="btn-timer-reset"
+          className="btn btn--icon-sm btn--ghost btn-timer-reset"
           onClick={handleReset}
           title="Reset"
+          type="button"
         >
           ↻
         </button>

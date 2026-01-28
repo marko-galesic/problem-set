@@ -484,7 +484,7 @@ export default function SubmissionsPage() {
             ))}
           </select>
           <button
-            className="submissions-page-button"
+            className="btn btn--sm submissions-page-button"
             type="button"
             onClick={handleExportCsv}
             disabled={submissions.length === 0}
@@ -505,7 +505,7 @@ export default function SubmissionsPage() {
             </div>
             {recommendation[selectedLanguage] && (
               <button
-                className="recommendation-toggle"
+                className="btn btn--outline btn--xs recommendation-toggle"
                 type="button"
                 onClick={() => setRecommendationExpanded((prev) => !prev)}
               >
@@ -541,7 +541,7 @@ export default function SubmissionsPage() {
                     recommendation[selectedLanguage].userPrompt ? (
                       <button
                         type="button"
-                        className="recommendation-justification"
+                        className="btn btn--link recommendation-justification"
                         onClick={() => setIsPromptPopoverOpen(true)}
                       >
                         {recommendation[selectedLanguage].explanation}
@@ -602,7 +602,7 @@ export default function SubmissionsPage() {
             <div className="topic-fitness-header-actions">
               {isFitnessTab && (
                 <button
-                  className="topic-fitness-criteria-button"
+                  className="btn btn--outline btn--xs topic-fitness-criteria-button"
                   type="button"
                   onClick={() => setIsCriteriaPopoverOpen((prev) => !prev)}
                   aria-haspopup="dialog"

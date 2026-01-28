@@ -18,7 +18,7 @@ export default function TopicFitnessCriteriaPopover({ isOpen, onClose, legend = 
         <div className="topic-fitness-criteria-header">
           <span>Timer time goals</span>
           <button
-            className="topic-fitness-criteria-close"
+            className="btn btn--icon btn--ghost btn--muted topic-fitness-criteria-close"
             onClick={onClose}
             aria-label="Close"
             type="button"

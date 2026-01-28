@@ -24,9 +24,10 @@ export default function BugAnswerPopover({
         <div className="bug-answer-popover-header">
           <span>Where&apos;s the bug?</span>
           <button
-            className="bug-answer-popover-close"
+            className="btn btn--icon btn--ghost btn--muted bug-answer-popover-close"
             onClick={onClose}
             aria-label="Close"
+            type="button"
           >
             ×
           </button>

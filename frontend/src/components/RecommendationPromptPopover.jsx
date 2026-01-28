@@ -21,9 +21,10 @@ export default function RecommendationPromptPopover({
         <div className="recommendation-prompt-popover-header">
           <span>Recommendation Prompts</span>
           <button
-            className="recommendation-prompt-popover-close"
+            className="btn btn--icon btn--ghost btn--muted recommendation-prompt-popover-close"
             onClick={onClose}
             aria-label="Close"
+            type="button"
           >
             ×
           </button>

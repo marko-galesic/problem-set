@@ -25,9 +25,10 @@ export default function ProgressReportPopover({
         <div className="progress-report-popover-header">
           <span>Your Progress</span>
           <button
-            className="progress-report-popover-close"
+            className="btn btn--icon btn--ghost btn--muted progress-report-popover-close"
             onClick={onClose}
             aria-label="Close"
+            type="button"
           >
             x
           </button>

@@ -26,9 +26,10 @@ export default function LanguageSwitchPopover({
         <div className="language-switch-popover-header">
           <span>{headerText}</span>
           <button
-            className="language-switch-popover-close"
+            className="btn btn--icon btn--ghost btn--muted language-switch-popover-close"
             onClick={onClose}
             aria-label="Close"
+            type="button"
           >
             x
           </button>

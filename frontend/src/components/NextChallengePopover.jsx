@@ -29,9 +29,10 @@ export default function NextChallengePopover({
         <div className="next-challenge-popover-header">
           <span>Next Challenge</span>
           <button
-            className="next-challenge-popover-close"
+            className="btn btn--icon btn--ghost btn--muted next-challenge-popover-close"
             onClick={onClose}
             aria-label="Close"
+            type="button"
           >
             ×
           </button>
@@ -65,7 +66,7 @@ export default function NextChallengePopover({
         {!isLoading && !error && showContinue && (
           <div className="next-challenge-popover-actions">
             <button
-              className="next-challenge-continue"
+              className="btn btn--sm next-challenge-continue"
               type="button"
               onClick={onContinue}
             >

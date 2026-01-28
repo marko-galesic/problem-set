@@ -56,6 +56,7 @@ export default function Header({
           onClick={onProgress}
           disabled={isRunning || isProgressDisabled}
           className="btn btn-progress"
+          type="button"
           title={progressTitle || 'View your daily progress report'}
         >
           Your Progress
@@ -64,6 +65,7 @@ export default function Header({
           onClick={onGuide}
           disabled={isRunning}
           className="btn btn-guide"
+          type="button"
           title="Open guided chat"
         >
           Guide me
@@ -72,6 +74,7 @@ export default function Header({
           onClick={onBugHunt}
           disabled={isRunning || isBugHuntLoading}
           className="btn btn-bug"
+          type="button"
           title="Ask GPT-5 where the bug is"
         >
           {isBugHuntLoading ? 'Checking...' : "Where's the bug?"}
@@ -88,6 +91,7 @@ export default function Header({
         <button 
           onClick={onToggleMaximize}
           className="btn btn-maximize"
+          type="button"
           title={isMaximized ? 'Restore layout' : 'Maximize editor'}
         >
           {isMaximized ? '⊟' : '⊞'}
@@ -96,6 +100,7 @@ export default function Header({
           onClick={onReset}
           disabled={isRunning}
           className="btn btn-reset"
+          type="button"
           title="Reset to template"
         >
           Reset
@@ -104,6 +109,7 @@ export default function Header({
           onClick={onRun} 
           disabled={isRunning}
           className="btn btn-run"
+          type="button"
         >
           {isRunningRun ? 'Running...' : 'Run'}
         </button>
@@ -111,6 +117,7 @@ export default function Header({
           onClick={onSubmit} 
           disabled={isRunning}
           className="btn btn-submit"
+          type="button"
         >
           {isRunningSubmit ? 'Submitting...' : 'Submit'}
         </button>

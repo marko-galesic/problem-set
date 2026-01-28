@@ -172,23 +172,26 @@ export default function TimerPopover({
         </div>
       </div>
       <div className="timer-popover-actions">
-        <button 
-          className="btn-popover-save"
+        <button
+          className="btn btn--sm btn-popover-save"
           onClick={handleSave}
+          type="button"
         >
           Save
         </button>
         {allowUntracked ? (
           <button
-            className="btn-popover-untracked"
+            className="btn btn--sm btn-popover-untracked"
             onClick={handleUntracked}
+            type="button"
           >
             {untrackedLabel}
           </button>
         ) : (
           <button 
-            className="btn-popover-cancel"
+            className="btn btn--sm btn-popover-cancel"
             onClick={handleCancel}
+            type="button"
           >
             Cancel
           </button>

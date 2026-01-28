@@ -21,9 +21,10 @@ export default function TestResults({
     return (
       <div className="test-results collapsed">
         <button 
-          className="btn-sidebar-toggle"
+          className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Show test results"
+          type="button"
         >
           ▶
         </button>
@@ -64,9 +65,10 @@ export default function TestResults({
             </span>
           )}
           <button 
-            className="btn-sidebar-toggle"
+            className="btn btn--icon btn--ghost btn-sidebar-toggle"
             onClick={onToggle}
             title="Hide test results"
+            type="button"
           >
             ◀
           </button>
@@ -80,6 +82,7 @@ export default function TestResults({
               key={index}
               className={`test-tab ${result.passed ? 'passed' : 'failed'} ${index === selectedTestIndex ? 'active' : ''}`}
               onClick={() => setSelectedTestIndex(index)}
+              type="button"
             >
               <span className="test-tab-icon">
                 {result.passed ? '✓' : '✗'}
@@ -109,9 +112,10 @@ export default function TestResults({
               )}
               {showUseTestCase && (
                 <button
-                  className={`btn btn-use-test-case${isAlreadyInRun ? ' added' : ''}`}
+                  className={`btn btn--xs btn-use-test-case${isAlreadyInRun ? ' added' : ''}`}
                   onClick={() => onUseTestCase(selectedResult.testCase)}
                   disabled={isAlreadyInRun}
+                  type="button"
                 >
                   {useTestCaseLabel}
                 </button>

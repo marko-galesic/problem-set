@@ -46,9 +46,10 @@ export default function GuideChatPopover({
         <div className="guide-chat-popover-header">
           <span>Guide me</span>
           <button
-            className="guide-chat-popover-close"
+            className="btn btn--icon btn--ghost btn--muted guide-chat-popover-close"
             onClick={onClose}
             aria-label="Close"
+            type="button"
           >
             x
           </button>
@@ -107,6 +108,7 @@ export default function GuideChatPopover({
               className="btn btn-guide-send"
               onClick={onSend}
               disabled={!canSend}
+              type="button"
             >
               Send
             </button>

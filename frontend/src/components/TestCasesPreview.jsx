@@ -7,9 +7,10 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
     return (
       <div className="test-cases-preview collapsed">
         <button 
-          className="btn-sidebar-toggle"
+          className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Show test cases"
+          type="button"
         >
           ▶
         </button>
@@ -24,9 +25,10 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
           <div className="test-tabs-header">
             <div className="test-tabs-spacer"></div>
             <button 
-              className="btn-sidebar-toggle"
+              className="btn btn--icon btn--ghost btn-sidebar-toggle"
               onClick={onToggle}
               title="Hide test cases"
+              type="button"
             >
               ◀
             </button>
@@ -49,6 +51,7 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
                 key={testCase.id || index}
                 className={`test-tab ${index === selectedTestIndex ? 'active' : ''}`}
                 onClick={() => setSelectedTestIndex(index)}
+                type="button"
               >
                 <span className="test-tab-label">
                   Test {index + 1}: {testCase.name}
@@ -57,9 +60,10 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
             ))}
           </div>
           <button 
-            className="btn-sidebar-toggle"
+            className="btn btn--icon btn--ghost btn-sidebar-toggle"
             onClick={onToggle}
             title="Hide test cases"
+            type="button"
           >
             ◀
           </button>

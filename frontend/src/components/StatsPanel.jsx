@@ -26,7 +26,9 @@ export default function StatsPanel({ refreshTrigger }) {
     <div className="stats-panel">
       <div className="stats-header">
         <h2>Statistics</h2>
-        <button onClick={handleClear} className="btn-clear">Clear All</button>
+        <button onClick={handleClear} className="btn btn--xs btn-clear" type="button">
+          Clear All
+        </button>
       </div>
       
       <div className="stats-summary">
@@ -70,4 +72,3 @@ export default function StatsPanel({ refreshTrigger }) {
     </div>
   );
 }
-

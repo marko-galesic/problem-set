@@ -73,9 +73,10 @@ export default function SubmissionsSidebar({ isExpanded, onToggle, submissions, 
     return (
       <div className="submissions-sidebar collapsed">
         <button 
-          className="btn-sidebar-toggle"
+          className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Show submissions"
+          type="button"
         >
           ▶
         </button>
@@ -88,9 +89,10 @@ export default function SubmissionsSidebar({ isExpanded, onToggle, submissions, 
       <div className="submissions-sidebar-header">
         <h2>Submissions</h2>
         <button 
-          className="btn-sidebar-toggle"
+          className="btn btn--icon btn--ghost btn-sidebar-toggle"
           onClick={onToggle}
           title="Hide submissions"
+          type="button"
         >
           ◀
         </button>
@@ -150,12 +152,13 @@ export default function SubmissionsSidebar({ isExpanded, onToggle, submissions, 
                   </div>
                 </div>
                 <button
-                  className="btn-delete-submission"
+                  className="btn btn--icon btn--danger-ghost btn-delete-submission"
                   onClick={(event) => {
                     event.stopPropagation();
                     onDelete && onDelete(submission.id);
                   }}
                   title="Delete submission"
+                  type="button"
                 >
                   ×
                 </button>
@@ -179,4 +182,3 @@ export default function SubmissionsSidebar({ isExpanded, onToggle, submissions, 
     </div>
   );
 }
-

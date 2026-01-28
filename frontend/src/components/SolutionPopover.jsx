@@ -10,7 +10,12 @@ export default function SolutionPopover({ isOpen, onClose, solution }) {
       <div className="solution-popover" onClick={(event) => event.stopPropagation()}>
         <div className="solution-popover-header">
           <span>Submission Solution</span>
-          <button className="solution-popover-close" onClick={onClose} aria-label="Close">
+          <button
+            className="btn btn--icon btn--ghost btn--muted solution-popover-close"
+            onClick={onClose}
+            aria-label="Close"
+            type="button"
+          >
             ×
           </button>
         </div>

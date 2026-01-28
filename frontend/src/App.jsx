@@ -1294,8 +1294,9 @@ function App() {
                 <div className="test-results-minimized-bar">
                   <div className="test-cases-preview-header">
                     <h2>{testResults ? 'Test Results' : 'Test Cases'}</h2>
-                    <button 
-                      className="btn-minimize-testcases"
+                    <button
+                      className="btn btn--icon-sm btn--ghost btn-minimize-testcases"
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleToggleTestCasesMinimize();
