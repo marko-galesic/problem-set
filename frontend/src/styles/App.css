@@ -708,6 +708,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
+  position: relative;
 }
 
 .test-cases-preview.collapsed {
@@ -1005,10 +1006,12 @@ body {
   padding: 0;
 }
 
-.test-tabs-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+.test-cases-toggle-middle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  z-index: 2;
 }
 
 .test-tabs-header {

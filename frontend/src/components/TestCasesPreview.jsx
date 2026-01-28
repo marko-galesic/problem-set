@@ -22,20 +22,22 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
     );
   }
 
+  const collapseButton = (
+    <IconButton 
+      className="btn btn--icon btn--ghost btn-sidebar-toggle test-cases-toggle-middle"
+      onClick={onToggle}
+      title="Hide test cases"
+      type="button"
+    >
+      ◀
+    </IconButton>
+  );
+
   if (!testCases || testCases.length === 0) {
     return (
       <div className="test-cases-preview">
+        {collapseButton}
         <div className="test-tabs-container">
-          <div className="test-tabs-toolbar">
-            <IconButton 
-              className="btn btn--icon btn--ghost btn-sidebar-toggle"
-              onClick={onToggle}
-              title="Hide test cases"
-              type="button"
-            >
-              ◀
-            </IconButton>
-          </div>
           <p className="no-results">Loading test cases...</p>
         </div>
       </div>
@@ -46,17 +48,8 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
 
   return (
     <div className="test-cases-preview">
+      {collapseButton}
       <div className="test-tabs-container">
-        <div className="test-tabs-toolbar">
-          <IconButton 
-            className="btn btn--icon btn--ghost btn-sidebar-toggle"
-            onClick={onToggle}
-            title="Hide test cases"
-            type="button"
-          >
-            ◀
-          </IconButton>
-        </div>
         <div className="test-tabs-header">
           <Tabs
             value={selectedTestIndex}
