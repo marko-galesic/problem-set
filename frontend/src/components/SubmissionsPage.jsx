@@ -777,18 +777,6 @@ export default function SubmissionsPage() {
                 </button>
                 <button
                   type="button"
-                  id="topic-submissions-tab"
-                  role="tab"
-                  aria-selected={isSubmissionsTab}
-                  aria-controls="topic-fitness-submissions-panel"
-                  tabIndex={isSubmissionsTab ? 0 : -1}
-                  className={`topic-fitness-tab${isSubmissionsTab ? ' is-active' : ''}`}
-                  onClick={() => handleTopicTabChange('submissions')}
-                >
-                  Submissions
-                </button>
-                <button
-                  type="button"
                   id="topic-activity-tab"
                   role="tab"
                   aria-selected={isActivityTab}
@@ -798,6 +786,18 @@ export default function SubmissionsPage() {
                   onClick={() => handleTopicTabChange('activity')}
                 >
                   7-day activity
+                </button>
+                <button
+                  type="button"
+                  id="topic-submissions-tab"
+                  role="tab"
+                  aria-selected={isSubmissionsTab}
+                  aria-controls="topic-fitness-submissions-panel"
+                  tabIndex={isSubmissionsTab ? 0 : -1}
+                  className={`topic-fitness-tab${isSubmissionsTab ? ' is-active' : ''}`}
+                  onClick={() => handleTopicTabChange('submissions')}
+                >
+                  Submissions
                 </button>
               </div>
             </div>
