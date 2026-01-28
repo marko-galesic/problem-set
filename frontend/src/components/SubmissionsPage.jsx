@@ -39,6 +39,8 @@ const FITNESS_GRADE_BANDS = [
   { min: 0, grade: 'E', status: 'not met', tone: 'e' }
 ];
 
+const ACTIVITY_WINDOW_DAYS = 7;
+
 function createLanguageMap(defaultValue) {
   return LANGUAGE_OPTIONS.reduce((acc, option) => {
     acc[option.id] = defaultValue;
@@ -81,6 +83,52 @@ function formatAttempts(value) {
   return String(value);
 }
 
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getStartOfLocalDay(date = new Date()) {
+  const start = new Date(date);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function buildRecentDayBuckets(days) {
+  const today = getStartOfLocalDay(new Date());
+  const buckets = [];
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - offset);
+    buckets.push({
+      date,
+      key: getLocalDateKey(date),
+      label: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+      count: 0
+    });
+  }
+  return buckets;
+}
+
+function buildSubmissionTrend(submissions, days) {
+  const buckets = buildRecentDayBuckets(days);
+  const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
+  (submissions || []).forEach((submission) => {
+    const parsed = new Date(submission?.date);
+    if (Number.isNaN(parsed.getTime())) {
+      return;
+    }
+    const key = getLocalDateKey(parsed);
+    const bucket = bucketMap.get(key);
+    if (bucket) {
+      bucket.count += 1;
+    }
+  });
+  return buckets;
+}
+
 function buildCsvRow(values) {
   return values
     .map((value) => {
@@ -105,6 +153,9 @@ export default function SubmissionsPage() {
   const [topicFitness, setTopicFitness] = useState([]);
   const [topicFitnessLoading, setTopicFitnessLoading] = useState(false);
   const [topicFitnessError, setTopicFitnessError] = useState(null);
+  const [activityData, setActivityData] = useState([]);
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [activityError, setActivityError] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('java');
   const [recommendationLoading, setRecommendationLoading] = useState(createLanguageMap(false));
   const [recommendationError, setRecommendationError] = useState(createLanguageMap(null));
@@ -424,6 +475,45 @@ export default function SubmissionsPage() {
   }, [page, pageSize, selectedLanguage]);
 
   useEffect(() => {
+    if (activeTopicTab !== 'activity') {
+      return undefined;
+    }
+    let isMounted = true;
+
+    async function loadActivity() {
+      setActivityLoading(true);
+      setActivityError(null);
+      try {
+        const start = getStartOfLocalDay(new Date());
+        start.setDate(start.getDate() - (ACTIVITY_WINDOW_DAYS - 1));
+        const recentSubmissions = await fetchAllSubmissions({
+          language: selectedLanguage,
+          from: start.toISOString()
+        });
+        if (!isMounted) {
+          return;
+        }
+        setActivityData(buildSubmissionTrend(recentSubmissions, ACTIVITY_WINDOW_DAYS));
+      } catch (loadError) {
+        if (isMounted) {
+          setActivityError(loadError.message || 'Failed to load submission activity.');
+          setActivityData(buildRecentDayBuckets(ACTIVITY_WINDOW_DAYS));
+        }
+      } finally {
+        if (isMounted) {
+          setActivityLoading(false);
+        }
+      }
+    }
+
+    loadActivity();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTopicTab, selectedLanguage]);
+
+  useEffect(() => {
     let isMounted = true;
 
     async function loadRecommendations() {
@@ -555,6 +645,14 @@ export default function SubmissionsPage() {
   );
   const isFitnessTab = activeTopicTab === 'fitness';
   const isSubmissionsTab = activeTopicTab === 'submissions';
+  const isActivityTab = activeTopicTab === 'activity';
+  const topicFitnessSubtitle = isFitnessTab
+    ? 'Weighted scores across your submissions'
+    : isActivityTab
+      ? 'Daily submission counts for the last 7 days'
+      : 'Chronological list for the selected language';
+  const activityTotal = activityData.reduce((sum, day) => sum + day.count, 0);
+  const activityMax = activityData.reduce((max, day) => Math.max(max, day.count), 0);
   const pageCount = Math.max(1, Math.ceil(totalSubmissions / pageSize));
   const isFirstPage = page <= 1;
   const isLastPage = page >= pageCount;
@@ -662,11 +760,7 @@ export default function SubmissionsPage() {
             <div className="topic-fitness-header-main">
               <div className="topic-fitness-header-text">
                 <h2>Topic Fitness &amp; Submissions</h2>
-                <p>
-                  {isFitnessTab
-                    ? 'Weighted scores across your submissions'
-                    : 'Chronological list for the selected language'}
-                </p>
+                <p>{topicFitnessSubtitle}</p>
               </div>
               <div className="topic-fitness-tabs" role="tablist" aria-label="Topic fitness views">
                 <button
@@ -692,6 +786,18 @@ export default function SubmissionsPage() {
                   onClick={() => handleTopicTabChange('submissions')}
                 >
                   Submissions
+                </button>
+                <button
+                  type="button"
+                  id="topic-activity-tab"
+                  role="tab"
+                  aria-selected={isActivityTab}
+                  aria-controls="topic-fitness-activity-panel"
+                  tabIndex={isActivityTab ? 0 : -1}
+                  className={`topic-fitness-tab${isActivityTab ? ' is-active' : ''}`}
+                  onClick={() => handleTopicTabChange('activity')}
+                >
+                  7-day activity
                 </button>
               </div>
             </div>
@@ -825,6 +931,64 @@ export default function SubmissionsPage() {
                       </button>
                     </div>
                   </>
+                )}
+              </div>
+            )}
+            {isActivityTab && (
+              <div
+                role="tabpanel"
+                id="topic-fitness-activity-panel"
+                aria-labelledby="topic-activity-tab"
+              >
+                {activityLoading && (
+                  <div className="topic-fitness-status">Loading submission activity...</div>
+                )}
+                {activityError && !activityLoading && (
+                  <div className="topic-fitness-error">{activityError}</div>
+                )}
+                {!activityLoading && !activityError && activityData.length === 0 && (
+                  <div className="topic-fitness-status">No activity data available.</div>
+                )}
+                {!activityLoading && !activityError && activityData.length > 0 && (
+                  <div className="topic-fitness-activity">
+                    <div className="topic-fitness-activity-summary">
+                      <div>
+                        <div className="topic-fitness-activity-title">Last 7 days</div>
+                        <div className="topic-fitness-activity-subtitle">
+                          Total submissions: {activityTotal}
+                        </div>
+                      </div>
+                      <div className="topic-fitness-activity-average">
+                        Avg per day: {(activityTotal / ACTIVITY_WINDOW_DAYS).toFixed(1)}
+                      </div>
+                    </div>
+                    <div
+                      className="topic-fitness-chart"
+                      role="img"
+                      aria-label="Submissions per day for the last 7 days"
+                    >
+                      {activityData.map((day) => {
+                        const height = activityMax > 0 ? (day.count / activityMax) * 100 : 0;
+                        return (
+                          <div key={day.key} className="topic-fitness-chart-bar">
+                            <div className="topic-fitness-chart-count">{day.count}</div>
+                            <div className="topic-fitness-chart-track">
+                              <div
+                                className="topic-fitness-chart-fill"
+                                style={{ height: `${height}%` }}
+                              />
+                            </div>
+                            <div className="topic-fitness-chart-label">{day.label}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {activityTotal === 0 && (
+                      <div className="topic-fitness-status">
+                        No submissions in the last 7 days.
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
