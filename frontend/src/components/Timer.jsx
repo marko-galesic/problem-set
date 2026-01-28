@@ -130,7 +130,6 @@ const Timer = forwardRef(function Timer(props, ref) {
     }
 
     autoStartActiveRef.current = true;
-    setIsRunning(true);
     if (autoStartTimeoutRef.current) {
       clearTimeout(autoStartTimeoutRef.current);
     }
@@ -139,7 +138,6 @@ const Timer = forwardRef(function Timer(props, ref) {
         return;
       }
       autoStartActiveRef.current = false;
-      setIsRunning(false);
       showAutoStartPrompt();
     }, AUTO_START_DELAY_MS);
   }
@@ -303,7 +301,6 @@ const Timer = forwardRef(function Timer(props, ref) {
         isOpen={isAutoStartPopoverOpen}
         onConfirm={handleAutoStartConfirm}
         onDismiss={handleAutoStartDismiss}
-        triggerRef={timerDisplayRef}
       />
     </div>
   );
