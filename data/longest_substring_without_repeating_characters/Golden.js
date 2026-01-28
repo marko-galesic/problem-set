@@ -1,4 +1,4 @@
-class LongestSubstringWithoutRepeatingCharacters {
+class LongestSubstring {
   lengthOfLongestSubstring(s) {
     let left = 0;
     let maxLen = 0;

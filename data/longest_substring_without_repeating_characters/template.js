@@ -1,4 +1,4 @@
-class LongestSubstringWithoutRepeatingCharacters {
+class LongestSubstring {
   lengthOfLongestSubstring(s) {
     return null;
   }
