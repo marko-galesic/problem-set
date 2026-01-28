@@ -164,27 +164,6 @@ export default function CodeEditor({ code, onChange, language, onTyping }) {
       ]
     });
 
-    // Add autocomplete suggestions
-    monaco.languages.registerCompletionItemProvider('java', {
-      provideCompletionItems: () => {
-        return {
-          suggestions: [
-            {
-              label: 'twoSum',
-              kind: monaco.languages.CompletionItemKind.Method,
-              insertText: 'twoSum(int[] nums, int target)',
-              documentation: 'Find indices of two numbers that add to target'
-            },
-            {
-              label: 'TwoSum',
-              kind: monaco.languages.CompletionItemKind.Class,
-              insertText: 'TwoSum',
-              documentation: 'Class for implementing Two Sum'
-            }
-          ]
-        };
-      }
-    });
   }
 
   return (
@@ -224,8 +203,19 @@ export default function CodeEditor({ code, onChange, language, onTyping }) {
             automaticLayout: true,
             tabSize: 4,
             wordWrap: 'on',
-            suggestOnTriggerCharacters: true,
-            quickSuggestions: true
+            suggestOnTriggerCharacters: false,
+            quickSuggestions: false,
+            wordBasedSuggestions: 'off',
+            tabCompletion: 'off',
+            inlineSuggest: { enabled: false },
+            parameterHints: { enabled: false },
+            hover: { enabled: false },
+            acceptSuggestionOnEnter: 'off',
+            suggest: {
+              showWords: false,
+              showStatusBar: false,
+              preview: false
+            }
           }}
         />
       </div>
