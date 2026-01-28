@@ -237,14 +237,14 @@ describe('Python Executor', () => {
       'TEST_1_STDOUT:'
     ].join('\n');
 
-    const stderr = [
+    const errorOutput = [
       'ERROR in test 0 (method invocation): ValueError: bad input',
       'stack line',
       'ERROR in test 1 (method invocation): TypeError: fail',
       'more info'
     ].join('\n');
 
-    mockSpawnWithOutput({ stdout: output, stderr, exitCode: 0 });
+    mockSpawnWithOutput({ stderr: [errorOutput, output].join('\n'), exitCode: 0 });
     readdirMock.mockResolvedValue(['Fallback_runner.py', 'notes.txt']);
 
     const result = await executePythonCode('class Fallback:\n    pass', testCases, createAdapter(), 'parse_challenge');

@@ -1061,8 +1061,8 @@ ${testCases.map((tc, idx) => `                        case ${idx}: expected = ge
         }
         
         // Always output results, even if there were errors
-        System.out.print(results.toString());
-        System.out.flush();
+        System.err.print(results.toString());
+        System.err.flush();
     }
     
 ${adapter.generateInputHelpers(testCases)}
@@ -1185,9 +1185,10 @@ ${adapter.generateInputHelpers(testCases)}
 
     const totalTime = Date.now() - startTime;
 
-    // Parse results - combine stdout and stderr for debugging, but parse from stdout
-    const output = executionResult.stdout || '';
+    // Parse results - prefer the stream that contains TEST_* lines
+    const stdout = executionResult.stdout || '';
     const stderr = executionResult.stderr || '';
+    const output = selectTestOutput(stdout, stderr);
     
     const results = await parseTestResults(output, testCases, stderr);
 
@@ -1230,24 +1231,48 @@ ${adapter.generateInputHelpers(testCases)}
   }
 }
 
+const TEST_RESULT_LINE = /^TEST_\d+_(ACTUAL|EXPECTED|RESULT|TIME|STDOUT):/;
+
+function selectTestOutput(stdout, stderr) {
+  const hasTestLines = (value) => value && value.split(/\r?\n/).some(line => TEST_RESULT_LINE.test(line));
+  if (hasTestLines(stderr)) {
+    return stderr;
+  }
+  if (hasTestLines(stdout)) {
+    return stdout;
+  }
+  return stderr || stdout || '';
+}
+
+function stripTestResultLines(text = '') {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+  return text
+    .split(/\r?\n/)
+    .filter(line => !TEST_RESULT_LINE.test(line))
+    .join('\n');
+}
+
 async function parseTestResults(output, testCases, stderr = '') {
   const results = [];
   
   // Parse stderr to extract exception information per test
   const testErrors = {};
+  const errorText = stripTestResultLines(stderr);
   
   // Extract ERROR lines from stderr: "ERROR in test X (method invocation): ..."
   // Note: Java code uses 1-based test numbers (test 1, test 2, etc.) but we use 0-based indices
   for (let i = 0; i < testCases.length; i++) {
     const javaTestNumber = i + 1; // Convert 0-based index to 1-based test number
     const errorStartPattern = `ERROR in test ${javaTestNumber} (method invocation):`;
-    const errorStartIndex = stderr.indexOf(errorStartPattern);
+    const errorStartIndex = errorText.indexOf(errorStartPattern);
     if (errorStartIndex !== -1) {
       // Find the next ERROR line or end of stderr
       const nextErrorPattern = `ERROR in test ${javaTestNumber + 1} (method invocation):`;
-      const nextErrorIndex = stderr.indexOf(nextErrorPattern, errorStartIndex + 1);
-      const errorEndIndex = nextErrorIndex !== -1 ? nextErrorIndex : stderr.length;
-      const errorSection = stderr.substring(errorStartIndex, errorEndIndex);
+      const nextErrorIndex = errorText.indexOf(nextErrorPattern, errorStartIndex + 1);
+      const errorEndIndex = nextErrorIndex !== -1 ? nextErrorIndex : errorText.length;
+      const errorSection = errorText.substring(errorStartIndex, errorEndIndex);
       // Clean up: remove debug logs from the error message
       const cleanedError = errorSection
         .split('\n')

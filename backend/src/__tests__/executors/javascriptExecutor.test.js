@@ -137,7 +137,7 @@ describe('JavaScript Executor', () => {
       'TEST_0_STDOUT:hello'
     ].join('\n');
 
-    const { spawnMock } = createSpawnMock({ stdout: output });
+    const { spawnMock } = createSpawnMock({ stderr: output });
     const executeJavaScriptCode = await loadExecutor({ spawnMock, fsMocks });
 
     const result = await executeJavaScriptCode(

@@ -314,11 +314,11 @@ function main() {
 
   for (let i = 0; i < results.length; i++) {
     const result = results[i];
-    console.log(\`TEST_\${i}_ACTUAL:\${result.actualStr}\`);
-    console.log(\`TEST_\${i}_EXPECTED:\${result.expectedStr}\`);
-    console.log(\`TEST_\${i}_RESULT:\${result.passed ? 'PASS' : 'FAIL'}\`);
-    console.log(\`TEST_\${i}_TIME:\${result.durationMs}\`);
-    console.log(\`TEST_\${i}_STDOUT:\${result.stdoutValue || ''}\`);
+    console.error(\`TEST_\${i}_ACTUAL:\${result.actualStr}\`);
+    console.error(\`TEST_\${i}_EXPECTED:\${result.expectedStr}\`);
+    console.error(\`TEST_\${i}_RESULT:\${result.passed ? 'PASS' : 'FAIL'}\`);
+    console.error(\`TEST_\${i}_TIME:\${result.durationMs}\`);
+    console.error(\`TEST_\${i}_STDOUT:\${result.stdoutValue || ''}\`);
   }
 }
 
@@ -414,11 +414,11 @@ function main() {
 
   for (let i = 0; i < results.length; i++) {
     const result = results[i];
-    console.log(\`TEST_\${i}_ACTUAL:\${result.actualStr}\`);
-    console.log(\`TEST_\${i}_EXPECTED:\${result.expectedStr}\`);
-    console.log(\`TEST_\${i}_RESULT:\${result.passed ? 'PASS' : 'FAIL'}\`);
-    console.log(\`TEST_\${i}_TIME:\${result.durationMs}\`);
-    console.log(\`TEST_\${i}_STDOUT:\${result.stdoutValue || ''}\`);
+    console.error(\`TEST_\${i}_ACTUAL:\${result.actualStr}\`);
+    console.error(\`TEST_\${i}_EXPECTED:\${result.expectedStr}\`);
+    console.error(\`TEST_\${i}_RESULT:\${result.passed ? 'PASS' : 'FAIL'}\`);
+    console.error(\`TEST_\${i}_TIME:\${result.durationMs}\`);
+    console.error(\`TEST_\${i}_STDOUT:\${result.stdoutValue || ''}\`);
   }
 }
 
@@ -466,8 +466,9 @@ main();
       };
     }
 
-    const output = executionResult.stdout || '';
+    const stdout = executionResult.stdout || '';
     const stderr = executionResult.stderr || '';
+    const output = selectTestOutput(stdout, stderr);
     const totalTime = Date.now() - startTime;
     const results = await parseTestResults(output, testCases, stderr);
 
@@ -504,18 +505,42 @@ main();
   }
 }
 
+const TEST_RESULT_LINE = /^TEST_\d+_(ACTUAL|EXPECTED|RESULT|TIME|STDOUT):/;
+
+function selectTestOutput(stdout, stderr) {
+  const hasTestLines = (value) => value && value.split(/\r?\n/).some(line => TEST_RESULT_LINE.test(line));
+  if (hasTestLines(stderr)) {
+    return stderr;
+  }
+  if (hasTestLines(stdout)) {
+    return stdout;
+  }
+  return stderr || stdout || '';
+}
+
+function stripTestResultLines(text = '') {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+  return text
+    .split(/\r?\n/)
+    .filter(line => !TEST_RESULT_LINE.test(line))
+    .join('\n');
+}
+
 async function parseTestResults(output, testCases, stderr = '') {
   const results = [];
   const testErrors = {};
+  const errorText = stripTestResultLines(stderr);
 
   for (let i = 0; i < testCases.length; i++) {
     const errorStartPattern = `ERROR in test ${i} (method invocation):`;
-    const errorStartIndex = stderr.indexOf(errorStartPattern);
+    const errorStartIndex = errorText.indexOf(errorStartPattern);
     if (errorStartIndex !== -1) {
       const nextErrorPattern = `ERROR in test ${i + 1} (method invocation):`;
-      const nextErrorIndex = stderr.indexOf(nextErrorPattern, errorStartIndex + 1);
-      const errorEndIndex = nextErrorIndex !== -1 ? nextErrorIndex : stderr.length;
-      const errorSection = stderr.substring(errorStartIndex, errorEndIndex);
+      const nextErrorIndex = errorText.indexOf(nextErrorPattern, errorStartIndex + 1);
+      const errorEndIndex = nextErrorIndex !== -1 ? nextErrorIndex : errorText.length;
+      const errorSection = errorText.substring(errorStartIndex, errorEndIndex);
       testErrors[i] = errorSection.trim();
     }
   }

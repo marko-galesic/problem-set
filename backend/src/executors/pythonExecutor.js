@@ -285,11 +285,11 @@ ${invocationIndented}
         results.append((actual_str, expected_str, passed, duration_ms, stdout_value))
 
     for i, (actual_str, expected_str, passed, duration_ms, stdout_value) in enumerate(results):
-        print(f"TEST_{i}_ACTUAL:{actual_str}")
-        print(f"TEST_{i}_EXPECTED:{expected_str}")
-        print(f"TEST_{i}_RESULT:{'PASS' if passed else 'FAIL'}")
-        print(f"TEST_{i}_TIME:{duration_ms}")
-        print(f"TEST_{i}_STDOUT:{stdout_value}")
+        print(f"TEST_{i}_ACTUAL:{actual_str}", file=sys.stderr)
+        print(f"TEST_{i}_EXPECTED:{expected_str}", file=sys.stderr)
+        print(f"TEST_{i}_RESULT:{'PASS' if passed else 'FAIL'}", file=sys.stderr)
+        print(f"TEST_{i}_TIME:{duration_ms}", file=sys.stderr)
+        print(f"TEST_{i}_STDOUT:{stdout_value}", file=sys.stderr)
 
 
 if __name__ == "__main__":
@@ -328,8 +328,9 @@ if __name__ == "__main__":
       };
     }
 
-    const output = executionResult.stdout || '';
+    const stdout = executionResult.stdout || '';
     const stderr = executionResult.stderr || '';
+    const output = selectTestOutput(stdout, stderr);
     const totalTime = Date.now() - startTime;
     const results = await parseTestResults(output, testCases, stderr);
 
@@ -378,18 +379,42 @@ export const __testUtils = {
   hasClassDefinition
 };
 
+const TEST_RESULT_LINE = /^TEST_\d+_(ACTUAL|EXPECTED|RESULT|TIME|STDOUT):/;
+
+function selectTestOutput(stdout, stderr) {
+  const hasTestLines = (value) => value && value.split(/\r?\n/).some(line => TEST_RESULT_LINE.test(line));
+  if (hasTestLines(stderr)) {
+    return stderr;
+  }
+  if (hasTestLines(stdout)) {
+    return stdout;
+  }
+  return stderr || stdout || '';
+}
+
+function stripTestResultLines(text = '') {
+  if (!text || typeof text !== 'string') {
+    return '';
+  }
+  return text
+    .split(/\r?\n/)
+    .filter(line => !TEST_RESULT_LINE.test(line))
+    .join('\n');
+}
+
 async function parseTestResults(output, testCases, stderr = '') {
   const results = [];
   const testErrors = {};
+  const errorText = stripTestResultLines(stderr);
 
   for (let i = 0; i < testCases.length; i++) {
     const errorStartPattern = `ERROR in test ${i} (method invocation):`;
-    const errorStartIndex = stderr.indexOf(errorStartPattern);
+    const errorStartIndex = errorText.indexOf(errorStartPattern);
     if (errorStartIndex !== -1) {
       const nextErrorPattern = `ERROR in test ${i + 1} (method invocation):`;
-      const nextErrorIndex = stderr.indexOf(nextErrorPattern, errorStartIndex + 1);
-      const errorEndIndex = nextErrorIndex !== -1 ? nextErrorIndex : stderr.length;
-      const errorSection = stderr.substring(errorStartIndex, errorEndIndex);
+      const nextErrorIndex = errorText.indexOf(nextErrorPattern, errorStartIndex + 1);
+      const errorEndIndex = nextErrorIndex !== -1 ? nextErrorIndex : errorText.length;
+      const errorSection = errorText.substring(errorStartIndex, errorEndIndex);
       testErrors[i] = errorSection.trim();
     }
   }

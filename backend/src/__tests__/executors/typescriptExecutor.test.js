@@ -125,7 +125,7 @@ describe('TypeScript Executor', () => {
       'TEST_0_STDOUT:ok'
     ].join('\n');
 
-    const { spawnMock } = createSpawnMock({ stdout: output });
+    const { spawnMock } = createSpawnMock({ stderr: output });
     const executeTypeScriptCode = await loadExecutor({
       spawnMock,
       fsMocks,
@@ -168,7 +168,7 @@ describe('TypeScript Executor', () => {
       'TEST_0_STDOUT:ok'
     ].join('\n');
 
-    const { spawnMock } = createSpawnMock({ stdout: output, stderr: 'warn' });
+    const { spawnMock } = createSpawnMock({ stderr: [output, 'warn'].join('\n') });
     const executeTypeScriptCode = await loadExecutor({
       spawnMock,
       fsMocks,
