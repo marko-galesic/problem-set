@@ -1009,6 +1009,8 @@ body {
 
 .test-tabs-header .test-tabs {
   flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .test-tabs-spacer {
@@ -1020,10 +1022,12 @@ body {
   padding-bottom: 0;
   margin-bottom: 0;
   min-height: 0;
+  min-width: 0;
 }
 
 .test-tabs .MuiTabs-scroller {
   overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .test-tabs .MuiTabs-flexContainer {
