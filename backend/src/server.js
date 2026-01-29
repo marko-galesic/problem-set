@@ -52,7 +52,7 @@ const TECH_BAR_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const techBarDescriptionCache = new Map();
 const DEFAULT_SUBMISSIONS_PAGE_SIZE = 50;
 const MAX_SUBMISSIONS_PAGE_SIZE = 200;
-const RECOMMENDATION_CACHE_VERSION = 'v1';
+const RECOMMENDATION_CACHE_VERSION = 'v2-submission-count';
 
 // Challenge configuration
 export const CHALLENGES = {
@@ -1832,15 +1832,13 @@ function getOpenAiClient() {
   return new OpenAI({ apiKey });
 }
 
-function buildRecommendationCacheKey({ model, systemPrompt, userPrompt }) {
+function buildRecommendationCacheKey({ model, submissionsCount }) {
   const hash = createHash('sha256');
   hash.update(RECOMMENDATION_CACHE_VERSION);
   hash.update('\n');
   hash.update(model || '');
   hash.update('\n');
-  hash.update(systemPrompt || '');
-  hash.update('\n');
-  hash.update(userPrompt || '');
+  hash.update(String(Number.isFinite(submissionsCount) ? submissionsCount : 0));
   return hash.digest('hex');
 }
 
@@ -2521,7 +2519,8 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       JSON.stringify(Array.isArray(challenges) ? challenges : [])
     ].join('\n\n');
 
-    const historyHash = buildRecommendationCacheKey({ model, systemPrompt, userPrompt });
+    const submissionsCount = sanitizedSubmissions.length;
+    const historyHash = buildRecommendationCacheKey({ model, submissionsCount });
     let cachedRecommendation = null;
     try {
       cachedRecommendation = getNextChallengeRecommendationFromDb(historyHash);

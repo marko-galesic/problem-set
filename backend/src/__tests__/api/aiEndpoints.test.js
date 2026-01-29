@@ -111,7 +111,7 @@ describe('AI-assisted endpoints', () => {
     expect(response.body).toHaveProperty('userPrompt');
   });
 
-  test('uses cached recommendation when history is unchanged', async () => {
+  test('uses cached recommendation when submission count is unchanged', async () => {
     mockCreate.mockResolvedValueOnce({
       choices: [
         {
@@ -150,7 +150,20 @@ describe('AI-assisted endpoints', () => {
       throw new Error('AI should not be called for cached recommendation');
     });
 
-    const secondResponse = await client.post('/api/recommend-next-challenge', payload);
+    const secondResponse = await client.post('/api/recommend-next-challenge', {
+      submissions: [
+        {
+          id: 'sub-2',
+          challenge: 'valid_parentheses',
+          timerTime: 1200,
+          date: new Date().toISOString(),
+          solution: 'ignored',
+          techBarStatus: 'pending',
+          techBarLabel: 'label'
+        }
+      ],
+      challenges: []
+    });
     expect(secondResponse.status).toBe(200);
     expect(secondResponse.body).toHaveProperty('name', 'Two Sum');
     expect(secondResponse.body).toHaveProperty('difficulty', 'easy');
