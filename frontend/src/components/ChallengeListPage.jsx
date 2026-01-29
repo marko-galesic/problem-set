@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 25;
 const FALLBACK_DIFFICULTY = 'Not set';
 const MAX_SUBMISSIONS_PAGES = 50;
 const SUBMISSIONS_PAGE_SIZE = 200;
@@ -313,7 +313,7 @@ export default function ChallengeListPage() {
 
                 return (
                   <li key={challenge.id} className="challenge-row">
-                    <div className="challenge-row-title">
+                    <div className="challenge-row-name">
                       <a
                         className="challenge-row-link"
                         href={`/?challenge=${challenge.id}`}
@@ -329,12 +329,9 @@ export default function ChallengeListPage() {
                         <span className="challenge-row-status-placeholder" aria-hidden="true" />
                       )}
                     </div>
-                    <div className="challenge-row-meta">
-                      <span className="challenge-row-topics">Topics: {topicLabel}</span>
-                      <span className="challenge-row-separator">•</span>
-                      <span className={`challenge-row-difficulty difficulty-${normalizedDifficulty || 'unknown'}`}>
-                        Difficulty: {difficultyLabel}
-                      </span>
+                    <div className="challenge-row-topics">Topics: {topicLabel}</div>
+                    <div className={`challenge-row-difficulty difficulty-${normalizedDifficulty || 'unknown'}`}>
+                      Difficulty: {difficultyLabel}
                     </div>
                   </li>
                 );
