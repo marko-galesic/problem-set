@@ -1079,6 +1079,14 @@ body {
   flex: 0 0 auto;
 }
 
+.test-tabs .MuiTab-root.test-tab {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-width: max-content;
+  flex: 0 0 auto;
+}
+
 .test-tab .MuiTab-wrapper {
   flex-direction: row;
   align-items: center;
