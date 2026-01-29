@@ -49,7 +49,7 @@ exports[`adapter outputs (characterization) java adapters groupAnagrams 1`] = `
 {
   "adapterPath": "./adapters/groupAnagramsAdapter.js",
   "defaultClassName": "GroupAnagrams",
-  "expectedCode": "        String[][] expected = new String[][] { new String[] { "ate", "eat", "tea" }, new String[] { "bat" }, new String[] { "nat", "tan" } };
+  "expectedCode": "        String[][] expected = new String[][] { new String[] { "bat" }, new String[] { "nat", "tan" }, new String[] { "ate", "eat", "tea" } };
 ",
   "extractInput": {
     "strs": [
@@ -71,16 +71,49 @@ exports[`adapter outputs (characterization) java adapters groupAnagrams 1`] = `
                     actual = solver.groupAnagrams(strs);",
   "name": "groupAnagrams",
   "returnType": "String[][]",
-  "serializer": "    // Serialize a String[][] to a JSON-like representation
-    private static String serializeStringMatrix(String[][] matrix) {
+  "serializer": "    // Serialize String[][] with canonical anagram grouping order
+    private static String serializeGroupAnagrams(String[][] matrix) {
         if (matrix == null) return "null";
         if (matrix.length == 0) return "[]";
 
+        List<String[]> normalized = new ArrayList<>();
+        for (String[] row : matrix) {
+            if (row == null) {
+                normalized.add(null);
+                continue;
+            }
+            String[] copy = Arrays.copyOf(row, row.length);
+            Arrays.sort(copy, (a, b) -> {
+                if (a == null && b == null) return 0;
+                if (a == null) return -1;
+                if (b == null) return 1;
+                return a.compareTo(b);
+            });
+            normalized.add(copy);
+        }
+
+        normalized.sort((a, b) -> {
+            if (a == null && b == null) return 0;
+            if (a == null) return -1;
+            if (b == null) return 1;
+            int len = Math.min(a.length, b.length);
+            for (int i = 0; i < len; i++) {
+                String sa = a[i];
+                String sb = b[i];
+                if (sa == null && sb == null) continue;
+                if (sa == null) return -1;
+                if (sb == null) return 1;
+                int cmp = sa.compareTo(sb);
+                if (cmp != 0) return cmp;
+            }
+            return Integer.compare(a.length, b.length);
+        });
+
         StringBuilder sb = new StringBuilder();
         sb.append("[");
-        for (int i = 0; i < matrix.length; i++) {
+        for (int i = 0; i < normalized.size(); i++) {
             if (i > 0) sb.append(", ");
-            String[] row = matrix[i];
+            String[] row = normalized.get(i);
             if (row == null) {
                 sb.append("null");
                 continue;
@@ -107,7 +140,7 @@ exports[`adapter outputs (characterization) java adapters groupAnagrams 1`] = `
         sb.append("]");
         return sb.toString();
     }",
-  "serializerMethod": "serializeStringMatrix",
+  "serializerMethod": "serializeGroupAnagrams",
   "testCaseFile": "groupAnagramsTests.js",
 }
 `;
@@ -633,7 +666,7 @@ exports[`adapter outputs (characterization) javascript adapters groupAnagrams 1`
 {
   "adapterPath": "./adapters/javascript/groupAnagramsAdapter.js",
   "defaultClassName": "GroupAnagrams",
-  "expectedCode": "  const expected = [["ate","eat","tea"],["bat"],["nat","tan"]];
+  "expectedCode": "  const expected = [["bat"],["nat","tan"],["ate","eat","tea"]];
 ",
   "extractInput": {
     "strs": [
@@ -653,21 +686,55 @@ exports[`adapter outputs (characterization) javascript adapters groupAnagrams 1`
           actual = solver.groupAnagrams(strs);",
   "name": "groupAnagrams",
   "returnType": "string[][]",
-  "serializer": "function serializeStringMatrix(matrix) {
+  "serializer": "function compareGroupAnagramValues(a, b) {
+  if (a === null && b === null) return 0;
+  if (a === null) return -1;
+  if (b === null) return 1;
+  if (a < b) return -1;
+  if (a > b) return 1;
+  return 0;
+}
+
+function compareGroupAnagramRows(a, b) {
+  if (!Array.isArray(a) && !Array.isArray(b)) return 0;
+  if (!Array.isArray(a)) return -1;
+  if (!Array.isArray(b)) return 1;
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const cmp = compareGroupAnagramValues(a[i], b[i]);
+    if (cmp !== 0) return cmp;
+  }
+  return a.length - b.length;
+}
+
+function normalizeGroupAnagrams(matrix) {
+  if (!Array.isArray(matrix)) return null;
+  const normalized = matrix.map((row) => {
+    if (!Array.isArray(row)) return null;
+    const items = row.map((value) => (value === null || value === undefined ? null : String(value)));
+    items.sort(compareGroupAnagramValues);
+    return items;
+  });
+  normalized.sort(compareGroupAnagramRows);
+  return normalized;
+}
+
+function serializeGroupAnagrams(matrix) {
   if (matrix === null || matrix === undefined) return "null";
   if (!Array.isArray(matrix)) return "null";
   if (matrix.length === 0) return "[]";
-  const rows = matrix.map((row) => {
+  const normalized = normalizeGroupAnagrams(matrix);
+  const rows = normalized.map((row) => {
     if (!Array.isArray(row)) return "null";
     const items = row.map((value) => {
-      if (value === null || value === undefined) return "null";
+      if (value === null) return "null";
       return JSON.stringify(String(value));
     });
     return "[" + items.join(", ") + "]";
   });
   return "[" + rows.join(", ") + "]";
 }",
-  "serializerMethod": "serializeStringMatrix",
+  "serializerMethod": "serializeGroupAnagrams",
   "testCaseFile": "groupAnagramsTests.js",
 }
 `;
@@ -1129,7 +1196,7 @@ exports[`adapter outputs (characterization) python adapters groupAnagrams 1`] = 
 {
   "adapterPath": "./adapters/python/groupAnagramsAdapter.js",
   "defaultClassName": "GroupAnagrams",
-  "expectedCode": "    expected = [["ate", "eat", "tea"], ["bat"], ["nat", "tan"]]
+  "expectedCode": "    expected = [["bat"], ["nat", "tan"], ["ate", "eat", "tea"]]
 ",
   "extractInput": {
     "strs": [
@@ -1151,7 +1218,28 @@ exports[`adapter outputs (characterization) python adapters groupAnagrams 1`] = 
 actual = solver.groupAnagrams(strs)",
   "name": "groupAnagrams",
   "returnType": "list[list[str]]",
-  "serializer": "def serialize_string_matrix(matrix):
+  "serializer": "def normalize_group_anagrams(matrix):
+    if not isinstance(matrix, list):
+        return None
+    normalized = []
+    for row in matrix:
+        if not isinstance(row, list):
+            normalized.append(None)
+            continue
+        items = [None if value is None else str(value) for value in row]
+        items.sort(key=lambda value: (value is not None, value or ""))
+        normalized.append(items)
+
+    def group_key(group):
+        if group is None:
+            return (0, ())
+        return (1, tuple((0, "") if value is None else (1, value) for value in group))
+
+    normalized.sort(key=group_key)
+    return normalized
+
+
+def serialize_group_anagrams(matrix):
     if matrix is None:
         return "null"
     if not isinstance(matrix, list):
@@ -1160,8 +1248,9 @@ actual = solver.groupAnagrams(strs)",
         return "[]"
 
     import json
+    normalized = normalize_group_anagrams(matrix)
     rows = []
-    for row in matrix:
+    for row in normalized:
         if row is None:
             rows.append("null")
             continue
@@ -1174,7 +1263,7 @@ actual = solver.groupAnagrams(strs)",
         rows.append("[" + ", ".join(items) + "]")
     return "[" + ", ".join(rows) + "]"
 ",
-  "serializerMethod": "serialize_string_matrix",
+  "serializerMethod": "serialize_group_anagrams",
   "testCaseFile": "groupAnagramsTests.js",
 }
 `;

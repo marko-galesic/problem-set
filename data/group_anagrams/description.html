@@ -1,27 +1,32 @@
 <p>
-  Implement a function <code>groupAnagrams</code> that groups strings that are anagrams of each other.
+  Given an array of strings <code>strs</code>, group the anagrams together. You can return the answer in any order.
 </p>
 
 <h3>Method Signature</h3>
 <pre><code>public String[][] groupAnagrams(String[] strs)</code></pre>
 
-<h3>Requirements</h3>
+<h3>Examples</h3>
+<p><strong>Example 1</strong></p>
+<pre><code>Input: strs = ["eat","tea","tan","ate","nat","bat"]
+Output: [["bat"],["nat","tan"],["ate","eat","tea"]]</code></pre>
+<p>
+  <strong>Explanation:</strong>
+  There is no string in <code>strs</code> that can be rearranged to form <code>"bat"</code>.
+  The strings <code>"nat"</code> and <code>"tan"</code> are anagrams.
+  The strings <code>"ate"</code>, <code>"eat"</code>, and <code>"tea"</code> are anagrams.
+</p>
+
+<p><strong>Example 2</strong></p>
+<pre><code>Input: strs = [""]
+Output: [[""]]</code></pre>
+
+<p><strong>Example 3</strong></p>
+<pre><code>Input: strs = ["a"]
+Output: [["a"]]</code></pre>
+
+<h3>Constraints</h3>
 <ul>
-  <li>Strings that are anagrams must appear in the same group.</li>
-  <li>Sort each group lexicographically.</li>
-  <li>Sort the list of groups lexicographically by their string lists.</li>
+  <li><code>1 &lt;= strs.length &lt;= 10^4</code></li>
+  <li><code>0 &lt;= strs[i].length &lt;= 100</code></li>
+  <li><code>strs[i]</code> consists of lowercase English letters.</li>
 </ul>
-
-<h3>Example</h3>
-<p><strong>Input:</strong></p>
-<pre><code>strs = ["eat", "tea", "tan", "ate", "nat", "bat"]</code></pre>
-
-<p><strong>Output:</strong></p>
-<pre><code>[["ate", "eat", "tea"], ["bat"], ["nat", "tan"]]</code></pre>
-
-<h3>Additional Example</h3>
-<p><strong>Input:</strong></p>
-<pre><code>strs = ["ab", "ba", "ab", "abc", "bca", "cab"]</code></pre>
-
-<p><strong>Output:</strong></p>
-<pre><code>[["ab", "ab", "ba"], ["abc", "bca", "cab"]]</code></pre>

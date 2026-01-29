@@ -8,8 +8,4 @@ class GroupAnagrams:
             key = "".join(sorted(s))
             groups.setdefault(key, []).append(s)
 
-        result = list(groups.values())
-        for group in result:
-            group.sort()
-        result.sort()
-        return result
+        return list(groups.values())

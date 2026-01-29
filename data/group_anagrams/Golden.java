@@ -14,26 +14,10 @@ class GroupAnagrams {
             groups.computeIfAbsent(key, k -> new ArrayList<>()).add(s);
         }
 
-        List<List<String>> orderedGroups = new ArrayList<>();
+        String[][] result = new String[groups.size()][];
+        int idx = 0;
         for (List<String> group : groups.values()) {
-            Collections.sort(group);
-            orderedGroups.add(group);
-        }
-
-        Collections.sort(orderedGroups, (a, b) -> {
-            int min = Math.min(a.size(), b.size());
-            for (int i = 0; i < min; i++) {
-                int cmp = a.get(i).compareTo(b.get(i));
-                if (cmp != 0) {
-                    return cmp;
-                }
-            }
-            return Integer.compare(a.size(), b.size());
-        });
-
-        String[][] result = new String[orderedGroups.size()][];
-        for (int i = 0; i < orderedGroups.size(); i++) {
-            result[i] = orderedGroups.get(i).toArray(new String[0]);
+            result[idx++] = group.toArray(new String[0]);
         }
         return result;
     }
