@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { CssBaseline } from '@mui/material';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import App from './App';
+import ChallengeListPage from './components/ChallengeListPage';
 import SubmissionsPage from './components/SubmissionsPage';
 import theme from './theme';
 import './styles/App.css';
@@ -43,6 +44,9 @@ function Root() {
 
   if (hash === '#/submissions') {
     return <SubmissionsPage />;
+  }
+  if (hash === '#/challenges') {
+    return <ChallengeListPage />;
   }
 
   return <App />;

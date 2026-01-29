@@ -12,8 +12,6 @@ export default function Header({
   isRunningSubmit, 
   isMaximized,
   currentChallenge,
-  challenges,
-  onChallengeChange,
   currentLanguage,
   timerRef,
   timerInitialState,
@@ -28,21 +26,15 @@ export default function Header({
   return (
     <div className="header">
       <div className="header-left">
-        {challenges && challenges.length > 0 && (
-          <select
-            value={currentChallenge || 'two_sum'}
-            onChange={(e) => onChallengeChange && onChallengeChange(e.target.value)}
-            className="challenge-select"
-            disabled={isRunning}
-            title="Select challenge"
-          >
-            {challenges.map(challenge => (
-              <option key={challenge.id} value={challenge.id}>
-                {challenge.name}
-              </option>
-            ))}
-          </select>
-        )}
+        <a
+          className="header-link"
+          href="/#/challenges"
+          target="_blank"
+          rel="noreferrer"
+          title="Browse challenges in a new tab"
+        >
+          Challenges
+        </a>
         <Timer 
           key={`${currentChallenge}_${currentLanguage}`}
           ref={timerRef}

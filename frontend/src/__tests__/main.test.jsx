@@ -8,6 +8,9 @@ vi.mock('../App', () => ({
 vi.mock('../components/SubmissionsPage', () => ({
   default: () => <div>submissions-view</div>
 }));
+vi.mock('../components/ChallengeListPage', () => ({
+  default: () => <div>challenge-list-view</div>
+}));
 
 const loadMain = async () => {
   await import('../main.jsx');
@@ -35,5 +38,15 @@ describe('main', () => {
     await loadMain();
 
     expect(await screen.findByText('submissions-view')).toBeInTheDocument();
+  });
+
+  it('renders challenge list for hash route', async () => {
+    vi.resetModules();
+    document.body.innerHTML = '<div id="root"></div>';
+    window.location.hash = '#/challenges';
+
+    await loadMain();
+
+    expect(await screen.findByText('challenge-list-view')).toBeInTheDocument();
   });
 });

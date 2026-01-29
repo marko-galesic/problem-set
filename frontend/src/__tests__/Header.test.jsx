@@ -14,7 +14,6 @@ describe('Header', () => {
       onSubmit: vi.fn(),
       onReset: vi.fn(),
       onToggleMaximize: vi.fn(),
-      onChallengeChange: vi.fn(),
       onBugHunt: vi.fn(),
       onGuide: vi.fn(),
       onProgress: vi.fn()
@@ -46,9 +45,7 @@ describe('Header', () => {
     expect(handlers.onGuide).toHaveBeenCalled();
     expect(handlers.onProgress).toHaveBeenCalled();
     expect(handlers.onBugHunt).toHaveBeenCalled();
-
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'two_sum' } });
-    expect(handlers.onChallengeChange).toHaveBeenCalledWith('two_sum');
+    expect(screen.getByRole('link', { name: /challenges/i })).toHaveAttribute('href', '/#/challenges');
   });
 
   it('disables actions while running', () => {

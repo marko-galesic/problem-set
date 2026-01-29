@@ -10,11 +10,9 @@ vi.mock('../components/Header', () => ({
     onSubmit,
     onReset,
     onToggleMaximize,
-    onChallengeChange,
     onBugHunt,
     onGuide,
-    onProgress,
-    challenges = []
+    onProgress
   }) => (
     <div>
       <button type="button" onClick={onRun}>run</button>
@@ -24,14 +22,7 @@ vi.mock('../components/Header', () => ({
       <button type="button" onClick={onBugHunt}>bug</button>
       <button type="button" onClick={onGuide}>guide</button>
       <button type="button" onClick={onProgress}>progress</button>
-      <select onChange={(e) => onChallengeChange(e.target.value)}>
-        {challenges.map((challenge) => (
-          <option key={challenge.id} value={challenge.id}>
-            {challenge.name}
-          </option>
-        ))}
-        <option value="alt">Alt</option>
-      </select>
+      <a href="/#/challenges">Challenges</a>
     </div>
   )
 }));
@@ -336,8 +327,6 @@ describe('App', () => {
 
     expect(await screen.findByText('editor')).toBeInTheDocument();
     expect(await screen.findByText('submissions:1')).toBeInTheDocument();
-
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'alt' } });
 
     fireEvent.click(screen.getByText('toggle-description'));
     const resizeButtons = await screen.findAllByText('resize');

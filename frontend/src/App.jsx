@@ -40,6 +40,15 @@ const DEFAULT_CODE = {
 const UNTRACKED_TIMER_VALUE = -1;
 const PROGRESS_REPORT_CACHE_KEY = 'daily_progress_report_v1';
 
+function getInitialChallengeId() {
+  if (typeof window === 'undefined') {
+    return 'two_sum';
+  }
+  const params = new URLSearchParams(window.location.search);
+  const candidate = params.get('challenge');
+  return candidate || 'two_sum';
+}
+
 function getLocalDateKey(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -111,7 +120,7 @@ function buildProgressSignature(submissions) {
 }
 
 function App() {
-  const [currentChallenge, setCurrentChallenge] = useState('two_sum');
+  const [currentChallenge, setCurrentChallenge] = useState(getInitialChallengeId);
   const [challenges, setChallenges] = useState([]);
   const [description, setDescription] = useState('');
   const [code, setCode] = useState(DEFAULT_CODE.java);
@@ -380,6 +389,16 @@ function App() {
     }
     fetchChallenges();
   }, []);
+
+  useEffect(() => {
+    if (!challenges || challenges.length === 0) {
+      return;
+    }
+    const exists = challenges.some((challenge) => challenge.id === currentChallenge);
+    if (!exists) {
+      setCurrentChallenge(challenges[0].id);
+    }
+  }, [challenges, currentChallenge]);
 
   useEffect(() => {
     if (nextChallengeBootstrapRef.current || !languageReady || challenges.length === 0) {
@@ -1257,8 +1276,6 @@ function App() {
         isRunningSubmit={runningAction === 'submit'}
         isMaximized={isEditorMaximized}
         currentChallenge={currentChallenge}
-        challenges={challenges}
-        onChallengeChange={handleChallengeChange}
         currentLanguage={currentLanguage}
         timerRef={timerRef}
         timerInitialState={timerInitialState}
