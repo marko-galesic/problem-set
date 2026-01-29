@@ -159,6 +159,19 @@ function createSchema(database) {
     )
   `);
 
+  // Next challenge recommendation cache
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS next_challenge_recommendations (
+      history_hash TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      difficulty TEXT NOT NULL,
+      explanation TEXT NOT NULL,
+      model TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Create indexes for better query performance
   database.exec(`
     CREATE INDEX IF NOT EXISTS idx_submissions_challenge_date 
@@ -169,9 +182,12 @@ function createSchema(database) {
 
     CREATE INDEX IF NOT EXISTS idx_challenges_folder 
     ON challenges(folder);
-    
+
     CREATE INDEX IF NOT EXISTS idx_challenge_tree_parent 
     ON challenge_tree(parent_id);
+
+    CREATE INDEX IF NOT EXISTS idx_next_challenge_recommendations_updated
+    ON next_challenge_recommendations(updated_at DESC);
   `);
 }
 

@@ -526,3 +526,53 @@ export function getFitnessHistory({ topic, difficulty, since, until, limit, lang
 
   return stmt.all(...values);
 }
+
+/**
+ * Next challenge recommendation cache queries
+ */
+
+export function getNextChallengeRecommendation(historyHash) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    SELECT
+      history_hash,
+      name,
+      difficulty,
+      explanation,
+      model,
+      created_at,
+      updated_at
+    FROM next_challenge_recommendations
+    WHERE history_hash = ?
+  `);
+  return stmt.get(historyHash);
+}
+
+export function upsertNextChallengeRecommendation(recommendation) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    INSERT INTO next_challenge_recommendations (
+      history_hash,
+      name,
+      difficulty,
+      explanation,
+      model,
+      created_at,
+      updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    ON CONFLICT(history_hash) DO UPDATE SET
+      name = excluded.name,
+      difficulty = excluded.difficulty,
+      explanation = excluded.explanation,
+      model = excluded.model,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+  return stmt.run(
+    recommendation.history_hash,
+    recommendation.name,
+    recommendation.difficulty,
+    recommendation.explanation,
+    recommendation.model
+  );
+}

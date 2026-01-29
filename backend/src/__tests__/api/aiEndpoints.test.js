@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeAll, beforeEach, afterAll, jest } from '@jest/globals';
 import { createAppTestClient } from '../utils/appTestClient.js';
+import { getDatabase } from '../../db/database.js';
 import { getSubmissionById } from '../../db/queries.js';
 
 const mockCreate = jest.fn();
@@ -48,6 +49,8 @@ describe('AI-assisted endpoints', () => {
 
   beforeEach(() => {
     mockCreate.mockReset();
+    const db = getDatabase();
+    db.prepare('DELETE FROM next_challenge_recommendations').run();
   });
 
   afterAll(() => {
@@ -106,6 +109,52 @@ describe('AI-assisted endpoints', () => {
     expect(response.body).toHaveProperty('explanation');
     expect(response.body).toHaveProperty('systemPrompt');
     expect(response.body).toHaveProperty('userPrompt');
+  });
+
+  test('uses cached recommendation when history is unchanged', async () => {
+    mockCreate.mockResolvedValueOnce({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              name: 'Two Sum',
+              difficulty: 'easy',
+              explanation: 'Solid foundation for hash map practice.'
+            })
+          }
+        }
+      ]
+    });
+
+    const payload = {
+      submissions: [
+        {
+          id: 'sub-1',
+          challenge: 'two_sum',
+          timerTime: -5,
+          date: 'invalid-date',
+          solution: 'ignored',
+          techBarStatus: 'pending',
+          techBarLabel: 'label'
+        }
+      ],
+      challenges: []
+    };
+
+    const firstResponse = await client.post('/api/recommend-next-challenge', payload);
+    expect(firstResponse.status).toBe(200);
+    expect(firstResponse.body).toHaveProperty('name', 'Two Sum');
+    expect(mockCreate).toHaveBeenCalledTimes(1);
+
+    mockCreate.mockImplementation(() => {
+      throw new Error('AI should not be called for cached recommendation');
+    });
+
+    const secondResponse = await client.post('/api/recommend-next-challenge', payload);
+    expect(secondResponse.status).toBe(200);
+    expect(secondResponse.body).toHaveProperty('name', 'Two Sum');
+    expect(secondResponse.body).toHaveProperty('difficulty', 'easy');
+    expect(mockCreate).toHaveBeenCalledTimes(1);
   });
 
   test('evaluates tech bar label asynchronously on submission', async () => {

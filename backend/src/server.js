@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import { readFile, readdir, unlink, stat, writeFile, mkdir } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { randomUUID } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import OpenAI from 'openai';
 import { executeJavaCode } from './executors/javaExecutor.js';
 import { executePythonCode } from './executors/pythonExecutor.js';
@@ -36,7 +36,9 @@ import {
   getLatestLanguagePreference as getLatestLanguagePreferenceFromDb,
   setLanguagePreference as setLanguagePreferenceInDb,
   insertFitnessSnapshot,
-  getFitnessHistory
+  getFitnessHistory,
+  getNextChallengeRecommendation as getNextChallengeRecommendationFromDb,
+  upsertNextChallengeRecommendation as upsertNextChallengeRecommendationToDb
 } from './db/queries.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,6 +52,7 @@ const TECH_BAR_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const techBarDescriptionCache = new Map();
 const DEFAULT_SUBMISSIONS_PAGE_SIZE = 50;
 const MAX_SUBMISSIONS_PAGE_SIZE = 200;
+const RECOMMENDATION_CACHE_VERSION = 'v1';
 
 // Challenge configuration
 export const CHALLENGES = {
@@ -1829,6 +1832,18 @@ function getOpenAiClient() {
   return new OpenAI({ apiKey });
 }
 
+function buildRecommendationCacheKey({ model, systemPrompt, userPrompt }) {
+  const hash = createHash('sha256');
+  hash.update(RECOMMENDATION_CACHE_VERSION);
+  hash.update('\n');
+  hash.update(model || '');
+  hash.update('\n');
+  hash.update(systemPrompt || '');
+  hash.update('\n');
+  hash.update(userPrompt || '');
+  return hash.digest('hex');
+}
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -2400,11 +2415,6 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       return res.status(400).json({ error: 'submissions must be an array' });
     }
 
-    const client = getOpenAiClient();
-    if (!client) {
-      return res.status(503).json({ error: 'Missing OPENAI_API_KEY' });
-    }
-
     const model = 'gpt-5';
     const systemPrompt = [
       'You are a coach recommending the next LeetCode challenge.',
@@ -2511,6 +2521,29 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       JSON.stringify(Array.isArray(challenges) ? challenges : [])
     ].join('\n\n');
 
+    const historyHash = buildRecommendationCacheKey({ model, systemPrompt, userPrompt });
+    let cachedRecommendation = null;
+    try {
+      cachedRecommendation = getNextChallengeRecommendationFromDb(historyHash);
+    } catch (dbError) {
+      console.warn('Failed to load cached recommendation from DB:', dbError.message);
+    }
+
+    if (cachedRecommendation?.name && cachedRecommendation?.difficulty && cachedRecommendation?.explanation) {
+      return res.json({
+        name: cachedRecommendation.name,
+        difficulty: cachedRecommendation.difficulty,
+        explanation: cachedRecommendation.explanation,
+        systemPrompt,
+        userPrompt
+      });
+    }
+
+    const client = getOpenAiClient();
+    if (!client) {
+      return res.status(503).json({ error: 'Missing OPENAI_API_KEY' });
+    }
+
     const response = await client.chat.completions.create({
       model,
       response_format: { type: 'json_object' },
@@ -2538,6 +2571,18 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
 
     if (!name || !difficulty || !explanation) {
       return res.status(502).json({ error: 'OpenAI response missing required fields' });
+    }
+
+    try {
+      upsertNextChallengeRecommendationToDb({
+        history_hash: historyHash,
+        name,
+        difficulty,
+        explanation,
+        model
+      });
+    } catch (dbError) {
+      console.warn('Failed to cache recommendation in DB:', dbError.message);
     }
 
     return res.json({
