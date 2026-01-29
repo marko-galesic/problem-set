@@ -1064,7 +1064,7 @@ body {
   gap: 8px;
   padding: 10px 16px;
   min-height: 0;
-  min-width: 0;
+  min-width: max-content;
   border: none;
   border-bottom: 3px solid transparent;
   background-color: transparent;
@@ -1076,12 +1076,14 @@ body {
   transition: all 0.2s;
   position: relative;
   margin-bottom: -2px;
+  flex: 0 0 auto;
 }
 
 .test-tab .MuiTab-wrapper {
   flex-direction: row;
   align-items: center;
   gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .test-tab:hover {
@@ -1122,7 +1124,8 @@ body {
 }
 
 .test-tab-label {
-  flex: 1;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .test-case-content {
