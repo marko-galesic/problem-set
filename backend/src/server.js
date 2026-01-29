@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import { readFile, readdir, unlink, stat, writeFile, mkdir } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { createHash, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import OpenAI from 'openai';
 import { executeJavaCode } from './executors/javaExecutor.js';
 import { executePythonCode } from './executors/pythonExecutor.js';
@@ -52,7 +52,6 @@ const TECH_BAR_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
 const techBarDescriptionCache = new Map();
 const DEFAULT_SUBMISSIONS_PAGE_SIZE = 50;
 const MAX_SUBMISSIONS_PAGE_SIZE = 200;
-const RECOMMENDATION_CACHE_VERSION = 'v2-submission-count';
 
 // Challenge configuration
 export const CHALLENGES = {
@@ -1832,14 +1831,8 @@ function getOpenAiClient() {
   return new OpenAI({ apiKey });
 }
 
-function buildRecommendationCacheKey({ model, submissionsCount }) {
-  const hash = createHash('sha256');
-  hash.update(RECOMMENDATION_CACHE_VERSION);
-  hash.update('\n');
-  hash.update(model || '');
-  hash.update('\n');
-  hash.update(String(Number.isFinite(submissionsCount) ? submissionsCount : 0));
-  return hash.digest('hex');
+function buildRecommendationCacheKey({ submissionsCount }) {
+  return String(Number.isFinite(submissionsCount) ? submissionsCount : 0);
 }
 
 // Health check
@@ -2520,7 +2513,7 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
     ].join('\n\n');
 
     const submissionsCount = sanitizedSubmissions.length;
-    const historyHash = buildRecommendationCacheKey({ model, submissionsCount });
+    const historyHash = buildRecommendationCacheKey({ submissionsCount });
     let cachedRecommendation = null;
     try {
       cachedRecommendation = getNextChallengeRecommendationFromDb(historyHash);
