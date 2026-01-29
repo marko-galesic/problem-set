@@ -506,6 +506,11 @@ body {
   --btn-hover-color: var(--btn-color);
   --btn-hover-border: var(--btn-border);
   --btn-active-bg: #c0c0c0;
+  --btn-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 1px 2px rgba(0, 0, 0, 0.12);
+  --btn-shadow-hover: 0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 2px 4px rgba(0, 0, 0, 0.16);
+  --btn-shadow-active: inset 0 1px 2px rgba(0, 0, 0, 0.2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -515,28 +520,33 @@ body {
   border-radius: 4px;
   background-color: var(--btn-bg);
   color: var(--btn-color);
+  box-shadow: var(--btn-shadow);
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   line-height: 1;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s,
+    box-shadow 0.2s, transform 0.1s;
 }
 
 .btn:hover:not(:disabled) {
   background-color: var(--btn-hover-bg);
   color: var(--btn-hover-color);
   border-color: var(--btn-hover-border);
+  box-shadow: var(--btn-shadow-hover);
 }
 
 .btn:active:not(:disabled) {
   background-color: var(--btn-active-bg);
   transform: translateY(1px);
+  box-shadow: var(--btn-shadow-active);
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .btn:focus-visible {
@@ -573,6 +583,9 @@ body {
   --btn-border: transparent;
   --btn-hover-bg: #e0e0e0;
   --btn-active-bg: #d0d0d0;
+  --btn-shadow: none;
+  --btn-shadow-hover: none;
+  --btn-shadow-active: none;
 }
 
 .btn--muted {
@@ -606,6 +619,9 @@ body {
   --btn-active-bg: transparent;
   --btn-color: #1a1a1a;
   --btn-hover-color: #0052a3;
+  --btn-shadow: none;
+  --btn-shadow-hover: none;
+  --btn-shadow-active: none;
   padding: 0;
   font-weight: 400;
   text-align: left;
@@ -629,19 +645,6 @@ body {
   --btn-color: #ffffff;
 }
 
-.btn-bug,
-.btn-guide {
-  --btn-bg: #eaf2ff;
-  --btn-hover-bg: #dbe9ff;
-  --btn-color: #1a4d8f;
-}
-
-.btn-progress {
-  --btn-bg: #e7f3ed;
-  --btn-hover-bg: #d7ece1;
-  --btn-color: #1e5e3b;
-}
-
 .btn-maximize {
   --btn-bg: #e0e0e0;
   --btn-hover-bg: #d0d0d0;
@@ -650,7 +653,10 @@ body {
   font-size: 16px;
 }
 
-.btn-reset {
+.btn-reset,
+.btn-progress,
+.btn-guide,
+.btn-bug {
   --btn-bg: #e0e0e0;
   --btn-hover-bg: #d0d0d0;
   --btn-color: #333333;
