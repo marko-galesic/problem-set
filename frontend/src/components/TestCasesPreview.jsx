@@ -63,11 +63,14 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
             {testCases.map((testCase, index) => (
               <Tab
                 key={testCase.id || index}
-                className={`test-tab ${index === selectedTestIndex ? 'active' : ''}`}
+                className={`test-tab passed ${index === selectedTestIndex ? 'active' : ''}`}
                 label={
-                  <span className="test-tab-label">
-                    Test {index + 1}
-                  </span>
+                  <>
+                    <span className="test-tab-icon">✓</span>
+                    <span className="test-tab-label">
+                      Test {index + 1}
+                    </span>
+                  </>
                 }
                 value={index}
               />
@@ -75,9 +78,10 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
           </Tabs>
         </div>
 
-        <div className="test-case-content">
+        <div className="test-case-content passed">
           <div className="test-case-header">
             <div className="test-case-left">
+              <span className="test-status-icon">✓</span>
               <span className="test-name">
                 Test {selectedTestIndex + 1}: {selectedTestCase.name}
               </span>
