@@ -137,7 +137,7 @@ function getCompletionSet(submissions) {
 function CompletionIcon() {
   return (
     <svg
-      className="challenge-card-check"
+      className="challenge-row-check"
       viewBox="0 0 20 20"
       width="20"
       height="20"
@@ -303,7 +303,7 @@ export default function ChallengeListPage() {
           <div className="challenge-list-empty">No challenges match these filters.</div>
         ) : (
           <>
-            <div className="challenge-list-grid">
+            <ul className="challenge-list-items">
               {pagedChallenges.map((challenge) => {
                 const normalizedDifficulty = normalizeDifficulty(challenge.difficulty);
                 const difficultyLabel = formatDifficulty(normalizedDifficulty || challenge.difficulty);
@@ -311,47 +311,47 @@ export default function ChallengeListPage() {
                 const isCompleted = completedChallenges.has(challenge.id);
 
                 return (
-                  <div key={challenge.id} className="challenge-card">
-                    <div className="challenge-card-header">
-                      <div className="challenge-card-title-row">
-                        <div className="challenge-card-title">
-                          <span className="challenge-card-name">{challenge.name}</span>
-                          {isCompleted ? (
-                            <span className="challenge-card-status" title="Completed" aria-label="Completed">
-                              <CompletionIcon />
-                            </span>
-                          ) : (
-                            <span className="challenge-card-status-placeholder" aria-hidden="true" />
-                          )}
-                        </div>
-                        <span className={`challenge-card-pill difficulty-${normalizedDifficulty || 'unknown'}`}>
-                          {difficultyLabel}
-                        </span>
-                      </div>
-                      <div className="challenge-card-subtitle">ID: {challenge.id}</div>
-                    </div>
-                    <div className="challenge-card-topics">
-                      {topics.length > 0 ? (
-                        topics.map((topic) => (
-                          <span key={`${challenge.id}-${topic}`} className="challenge-card-topic">
-                            {topic}
+                  <li key={challenge.id} className="challenge-row">
+                    <div className="challenge-row-main">
+                      <div className="challenge-row-title">
+                        <span className="challenge-row-name">{challenge.name}</span>
+                        {isCompleted ? (
+                          <span className="challenge-row-status" title="Completed" aria-label="Completed">
+                            <CompletionIcon />
                           </span>
-                        ))
-                      ) : (
-                        <span className="challenge-card-topic muted">No topics</span>
-                      )}
+                        ) : (
+                          <span className="challenge-row-status-placeholder" aria-hidden="true" />
+                        )}
+                      </div>
+                      <div className="challenge-row-subtitle">ID: {challenge.id}</div>
+                      <div className="challenge-row-topics">
+                        {topics.length > 0 ? (
+                          topics.map((topic) => (
+                            <span key={`${challenge.id}-${topic}`} className="challenge-row-topic">
+                              {topic}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="challenge-row-topic muted">No topics</span>
+                        )}
+                      </div>
                     </div>
-                    <a
-                      className="challenge-card-link"
-                      href={`/?challenge=${challenge.id}`}
-                      title={`Open ${challenge.name}`}
-                    >
-                      Open Challenge
-                    </a>
-                  </div>
+                    <div className="challenge-row-side">
+                      <span className={`challenge-row-pill difficulty-${normalizedDifficulty || 'unknown'}`}>
+                        {difficultyLabel}
+                      </span>
+                      <a
+                        className="challenge-row-link"
+                        href={`/?challenge=${challenge.id}`}
+                        title={`Open ${challenge.name}`}
+                      >
+                        Open Challenge
+                      </a>
+                    </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
 
             <div className="challenge-list-pagination">
               <div className="challenge-list-pagination-meta">
