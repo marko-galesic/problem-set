@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import SubmissionsPage from '../components/SubmissionsPage';
 
 vi.mock('../components/RecommendationPromptPopover', () => ({
@@ -133,5 +133,113 @@ describe('SubmissionsPage', () => {
     render(<SubmissionsPage />);
     fireEvent.click(await screen.findByRole('tab', { name: /submissions/i }));
     expect(await screen.findByText(/failed to load submissions/i)).toBeInTheDocument();
+  });
+
+  it('shows topic fitness grade popover with submissions and avg timer time', async () => {
+    const popoverFetch = vi.fn(async (input) => {
+      const url = typeof input === 'string' ? input : input.url;
+
+      if (url.startsWith('/api/challenges/metadata')) {
+        return {
+          ok: true,
+          json: async () => ({
+            challenges: [
+              {
+                id: 'two_sum',
+                name: 'Two Sum',
+                difficulty: 'Easy',
+                topics: ['Arrays']
+              }
+            ]
+          })
+        };
+      }
+
+      if (url.startsWith('/api/challenges')) {
+        return {
+          ok: true,
+          json: async () => ({ challenges: [{ id: 'two_sum', name: 'Two Sum' }] })
+        };
+      }
+
+      if (url.startsWith('/api/topic-fitness')) {
+        return {
+          ok: true,
+          json: async () => ({
+            topics: [
+              {
+                topic: 'Arrays',
+                easy: { fitness: 0.95, submissionCount: 2 },
+                medium: { fitness: 0, submissionCount: 0 },
+                hard: { fitness: 0, submissionCount: 0 }
+              }
+            ]
+          })
+        };
+      }
+
+      if (url.startsWith('/api/submissions?')) {
+        return {
+          ok: true,
+          json: async () => ({
+            submissions: [
+              {
+                id: 'sub-1',
+                challenge: 'two_sum',
+                date: new Date().toISOString(),
+                avgTime: 12,
+                timerTime: 60000,
+                submitAttempts: 1,
+                guidanceLevel: 'Independent',
+                techBarLabel: 'None',
+                language: 'java'
+              },
+              {
+                id: 'sub-2',
+                challenge: 'two_sum',
+                date: new Date().toISOString(),
+                avgTime: 18,
+                timerTime: 120000,
+                submitAttempts: 1,
+                guidanceLevel: 'Independent',
+                techBarLabel: 'None',
+                language: 'java'
+              }
+            ],
+            total: 2,
+            hasMore: false
+          })
+        };
+      }
+
+      if (url === '/api/recommend-next-challenge') {
+        return {
+          ok: true,
+          json: async () => ({
+            name: 'Next Challenge',
+            difficulty: 'Medium',
+            explanation: 'Keep going',
+            systemPrompt: 'sys',
+            userPrompt: 'user'
+          })
+        };
+      }
+
+      return { ok: true, json: async () => ({}) };
+    });
+
+    vi.stubGlobal('fetch', popoverFetch);
+
+    render(<SubmissionsPage />);
+
+    const grade = await screen.findByText('A', { selector: '.topic-fitness-grade' });
+    fireEvent.mouseEnter(grade);
+
+    expect(await screen.findByText(/avg timer time/i)).toBeInTheDocument();
+    expect(screen.getByText('01:30')).toBeInTheDocument();
+
+    const popover = await waitFor(() => document.querySelector('.topic-fitness-grade-popover'));
+    expect(popover).toBeTruthy();
+    expect(within(popover).getByText('2')).toBeInTheDocument();
   });
 });

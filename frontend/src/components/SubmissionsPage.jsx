@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Button,
+  Popover,
   Tab,
   Tabs,
   Table,
@@ -94,6 +95,85 @@ function formatAttempts(value) {
   return String(value);
 }
 
+function formatDifficultyLabel(value) {
+  if (!value) {
+    return '';
+  }
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+}
+
+function normalizeDifficultyLevel(value) {
+  if (!value) {
+    return null;
+  }
+  const normalized = String(value).trim().toLowerCase();
+  if (normalized === 'easy' || normalized === 'medium' || normalized === 'hard') {
+    return normalized;
+  }
+  return null;
+}
+
+function extractTopics(value) {
+  if (Array.isArray(value)) {
+    return value.filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(Boolean);
+      }
+    } catch (error) {
+      return [];
+    }
+  }
+  return [];
+}
+
+function getTopicTimerKey(topic, difficulty) {
+  return `${topic}::${difficulty}`;
+}
+
+function buildTopicTimerStats(allSubmissions, challengeMap) {
+  const stats = {};
+  (allSubmissions || []).forEach((submission) => {
+    const challenge = challengeMap?.[submission.challenge];
+    if (!challenge) {
+      return;
+    }
+    const difficulty = normalizeDifficultyLevel(challenge.difficulty);
+    if (!difficulty) {
+      return;
+    }
+    const topics = extractTopics(challenge.topics);
+    if (topics.length === 0) {
+      return;
+    }
+    const timerTime = Number(submission.timerTime);
+    const hasTrackedTimer = Number.isFinite(timerTime) && timerTime > 0;
+    topics.forEach((topic) => {
+      const key = getTopicTimerKey(topic, difficulty);
+      if (!stats[key]) {
+        stats[key] = { submissionCount: 0, timerSum: 0, timerCount: 0 };
+      }
+      stats[key].submissionCount += 1;
+      if (hasTrackedTimer) {
+        stats[key].timerSum += timerTime;
+        stats[key].timerCount += 1;
+      }
+    });
+  });
+
+  const averages = {};
+  Object.entries(stats).forEach(([key, stat]) => {
+    const avgTimerTime = stat.timerCount > 0
+      ? Math.round(stat.timerSum / stat.timerCount)
+      : -1;
+    averages[key] = { ...stat, avgTimerTime };
+  });
+  return averages;
+}
+
 function getLocalDateKey(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -167,6 +247,9 @@ export default function SubmissionsPage() {
   const [activityData, setActivityData] = useState([]);
   const [activityLoading, setActivityLoading] = useState(false);
   const [activityError, setActivityError] = useState(null);
+  const [topicTimerStats, setTopicTimerStats] = useState({});
+  const [topicTimerStatsLoading, setTopicTimerStatsLoading] = useState(false);
+  const [topicTimerStatsError, setTopicTimerStatsError] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('java');
   const [recommendationLoading, setRecommendationLoading] = useState(createLanguageMap(false));
   const [recommendationError, setRecommendationError] = useState(createLanguageMap(null));
@@ -177,6 +260,9 @@ export default function SubmissionsPage() {
   const [languagePopoverInfo, setLanguagePopoverInfo] = useState(null);
   const [isCriteriaPopoverOpen, setIsCriteriaPopoverOpen] = useState(false);
   const [activeTopicTab, setActiveTopicTab] = useState('fitness');
+  const [gradePopoverAnchorEl, setGradePopoverAnchorEl] = useState(null);
+  const [gradePopoverInfo, setGradePopoverInfo] = useState(null);
+  const gradePopoverCloseTimeoutRef = useRef(null);
 
   function getFitnessGrade(fitness) {
     const normalized = Math.max(0, Math.min(1, fitness));
@@ -184,6 +270,33 @@ export default function SubmissionsPage() {
       FITNESS_GRADE_BANDS.find((band) => normalized >= band.min) ||
       FITNESS_GRADE_BANDS[FITNESS_GRADE_BANDS.length - 1]
     );
+  }
+
+  function clearGradePopoverCloseTimer() {
+    if (gradePopoverCloseTimeoutRef.current) {
+      clearTimeout(gradePopoverCloseTimeoutRef.current);
+      gradePopoverCloseTimeoutRef.current = null;
+    }
+  }
+
+  function closeGradePopover() {
+    clearGradePopoverCloseTimer();
+    setGradePopoverAnchorEl(null);
+    setGradePopoverInfo(null);
+  }
+
+  function scheduleGradePopoverClose() {
+    clearGradePopoverCloseTimer();
+    gradePopoverCloseTimeoutRef.current = setTimeout(() => {
+      setGradePopoverAnchorEl(null);
+      setGradePopoverInfo(null);
+    }, 120);
+  }
+
+  function handleGradePopoverOpen(event, payload) {
+    clearGradePopoverCloseTimer();
+    setGradePopoverAnchorEl(event.currentTarget);
+    setGradePopoverInfo(payload);
   }
 
   function renderDifficultyCell(entry, level) {
@@ -201,10 +314,27 @@ export default function SubmissionsPage() {
     }
 
     const grade = getFitnessGrade(fitness);
+    const popoverPayload = {
+      topic: entry?.topic,
+      difficulty: level,
+      grade: grade.grade,
+      status: grade.status,
+      submissionCount
+    };
+
     return (
       <div className="topic-fitness-cell">
         <div className="topic-fitness-score" aria-label={`${grade.grade} ${grade.status}`}>
-          <span className={`topic-fitness-grade grade-${grade.tone}`}>{grade.grade}</span>
+          <span
+            className={`topic-fitness-grade grade-${grade.tone}`}
+            onMouseEnter={(event) => handleGradePopoverOpen(event, popoverPayload)}
+            onMouseLeave={scheduleGradePopoverClose}
+            onFocus={(event) => handleGradePopoverOpen(event, popoverPayload)}
+            onBlur={scheduleGradePopoverClose}
+            tabIndex={0}
+          >
+            {grade.grade}
+          </span>
           <span className="topic-fitness-separator" aria-hidden="true">
             /
           </span>
@@ -342,6 +472,7 @@ export default function SubmissionsPage() {
       return;
     }
     setPage(1);
+    closeGradePopover();
     setLanguagePopoverInfo({
       from: getLanguageLabel(currentLanguage),
       to: getLanguageLabel(nextLanguage)
@@ -353,6 +484,9 @@ export default function SubmissionsPage() {
   function handleTopicTabChange(nextTab) {
     if (nextTab === activeTopicTab) {
       return;
+    }
+    if (nextTab !== 'fitness') {
+      closeGradePopover();
     }
     setActiveTopicTab(nextTab);
     if (nextTab !== 'fitness') {
@@ -382,7 +516,8 @@ export default function SubmissionsPage() {
       return metadata.map((challenge) => ({
         id: challenge.id,
         name: challenge.name,
-        difficulty: challenge.difficulty
+        difficulty: challenge.difficulty,
+        topics: challenge.topics ?? []
       }));
     } catch (metadataError) {
       const fallbackResponse = await fetch('/api/challenges');
@@ -394,7 +529,8 @@ export default function SubmissionsPage() {
       return fallback.map((challenge) => ({
         id: challenge.id,
         name: challenge.name,
-        difficulty: UNKNOWN_DIFFICULTY
+        difficulty: UNKNOWN_DIFFICULTY,
+        topics: []
       }));
     }
   }
@@ -651,12 +787,74 @@ export default function SubmissionsPage() {
     };
   }, [selectedLanguage]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    if (activeTopicTab !== 'fitness') {
+      return undefined;
+    }
+
+    if (!challengeMap || Object.keys(challengeMap).length === 0) {
+      setTopicTimerStats({});
+      setTopicTimerStatsLoading(false);
+      setTopicTimerStatsError(null);
+      return undefined;
+    }
+
+    async function loadTopicTimerStats() {
+      setTopicTimerStatsLoading(true);
+      setTopicTimerStatsError(null);
+      try {
+        const allSubmissions = await fetchAllSubmissions({ language: selectedLanguage });
+        if (!isMounted) {
+          return;
+        }
+        setTopicTimerStats(buildTopicTimerStats(allSubmissions, challengeMap));
+      } catch (statsError) {
+        if (isMounted) {
+          setTopicTimerStats({});
+          setTopicTimerStatsError(statsError.message || 'Failed to load timer stats.');
+        }
+      } finally {
+        if (isMounted) {
+          setTopicTimerStatsLoading(false);
+        }
+      }
+    }
+
+    loadTopicTimerStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTopicTab, selectedLanguage, challengeMap]);
+
+  useEffect(() => () => clearGradePopoverCloseTimer(), []);
+
   const isRecommendationLoading = LANGUAGE_OPTIONS.some(
     option => recommendationLoading[option.id]
   );
   const isFitnessTab = activeTopicTab === 'fitness';
   const isSubmissionsTab = activeTopicTab === 'submissions';
   const isActivityTab = activeTopicTab === 'activity';
+  const gradePopoverKey = gradePopoverInfo
+    ? getTopicTimerKey(gradePopoverInfo.topic, gradePopoverInfo.difficulty)
+    : null;
+  const gradePopoverStats = gradePopoverKey ? topicTimerStats[gradePopoverKey] : null;
+  const gradePopoverAvgTimerTime = gradePopoverStats?.avgTimerTime;
+  const gradePopoverAvgTimerLabel = topicTimerStatsError
+    ? 'Unavailable'
+    : topicTimerStatsLoading
+      ? 'Loading...'
+      : gradePopoverAvgTimerTime === null || gradePopoverAvgTimerTime === undefined
+        ? 'N/A'
+        : formatTime(gradePopoverAvgTimerTime);
+  const gradePopoverTitle = gradePopoverInfo?.topic
+    ? `${gradePopoverInfo.topic} - ${formatDifficultyLabel(gradePopoverInfo.difficulty)}`
+    : '';
+  const gradePopoverSubtitle = gradePopoverInfo?.grade
+    ? `Grade ${gradePopoverInfo.grade}`
+    : '';
   const topicFitnessSubtitle = isFitnessTab
     ? 'Weighted scores across your submissions'
     : isActivityTab
@@ -995,6 +1193,38 @@ export default function SubmissionsPage() {
           </div>
         </section>
       </main>
+      <Popover
+        open={Boolean(gradePopoverAnchorEl && gradePopoverInfo)}
+        anchorEl={gradePopoverAnchorEl}
+        onClose={closeGradePopover}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+        disableRestoreFocus
+        PaperProps={{
+          className: 'topic-fitness-grade-popover',
+          onMouseEnter: clearGradePopoverCloseTimer,
+          onMouseLeave: scheduleGradePopoverClose
+        }}
+      >
+        <div className="topic-fitness-grade-popover-header">
+          <div className="topic-fitness-grade-popover-title">{gradePopoverTitle}</div>
+          {gradePopoverSubtitle && (
+            <div className="topic-fitness-grade-popover-subtitle">{gradePopoverSubtitle}</div>
+          )}
+        </div>
+        <div className="topic-fitness-grade-popover-body">
+          <div className="topic-fitness-grade-popover-row">
+            <span className="topic-fitness-grade-popover-label">Submissions</span>
+            <span className="topic-fitness-grade-popover-value">
+              {gradePopoverInfo?.submissionCount ?? 0}
+            </span>
+          </div>
+          <div className="topic-fitness-grade-popover-row">
+            <span className="topic-fitness-grade-popover-label">Avg timer time</span>
+            <span className="topic-fitness-grade-popover-value">{gradePopoverAvgTimerLabel}</span>
+          </div>
+        </div>
+      </Popover>
       <TopicFitnessCriteriaPopover
         isOpen={isCriteriaPopoverOpen}
         onClose={() => setIsCriteriaPopoverOpen(false)}
