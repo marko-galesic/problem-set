@@ -3,6 +3,88 @@ function getStorageKey(challenge, key, language) {
   return `${challenge}_${langPrefix}${key}`;
 }
 
+const NEXT_CHALLENGE_CACHE_KEY = 'next_challenge_recommendation_v1';
+
+function normalizeLanguageKey(value) {
+  if (typeof value !== 'string') {
+    return 'java';
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'python') {
+    return 'python';
+  }
+  if (normalized === 'javascript' || normalized === 'js') {
+    return 'javascript';
+  }
+  if (normalized === 'typescript' || normalized === 'ts') {
+    return 'typescript';
+  }
+  return 'java';
+}
+
+function readNextChallengeCache() {
+  const raw = localStorage.getItem(NEXT_CHALLENGE_CACHE_KEY);
+  if (!raw) {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      return parsed;
+    }
+  } catch (error) {
+    return {};
+  }
+  return {};
+}
+
+function writeNextChallengeCache(cache) {
+  localStorage.setItem(NEXT_CHALLENGE_CACHE_KEY, JSON.stringify(cache));
+}
+
+export function getNextChallengeRecommendation(language = 'java') {
+  const key = normalizeLanguageKey(language);
+  const cache = readNextChallengeCache();
+  const entry = cache[key];
+  if (!entry || typeof entry !== 'object') {
+    return null;
+  }
+  return entry;
+}
+
+export function saveNextChallengeRecommendation(language, recommendation) {
+  if (!recommendation || typeof recommendation !== 'object') {
+    return null;
+  }
+  const key = normalizeLanguageKey(language);
+  const cache = readNextChallengeCache();
+  const cachedAt = typeof recommendation.cachedAt === 'string'
+    ? recommendation.cachedAt
+    : new Date().toISOString();
+  const entry = {
+    ...recommendation,
+    language: key,
+    cachedAt
+  };
+  cache[key] = entry;
+  writeNextChallengeCache(cache);
+  return entry;
+}
+
+export function clearNextChallengeRecommendation(language) {
+  if (!language) {
+    localStorage.removeItem(NEXT_CHALLENGE_CACHE_KEY);
+    return;
+  }
+  const key = normalizeLanguageKey(language);
+  const cache = readNextChallengeCache();
+  if (!cache[key]) {
+    return;
+  }
+  delete cache[key];
+  writeNextChallengeCache(cache);
+}
+
 export function saveImplementation(code, avgTime, testCount, passed, challenge = 'two_sum', language = 'java') {
   const implementations = getImplementations(challenge, language);
   

@@ -153,7 +153,9 @@ vi.mock('../utils/storage', () => ({
   incrementSubmitAttempts: vi.fn(() => 1),
   resetSubmitAttempts: vi.fn(),
   getLanguagePreference: vi.fn(async () => 'java'),
-  saveLanguagePreference: vi.fn(async () => 'java')
+  saveLanguagePreference: vi.fn(async () => 'java'),
+  getNextChallengeRecommendation: vi.fn(() => null),
+  saveNextChallengeRecommendation: vi.fn()
 }));
 
 function createFetchMock(overrides = {}) {

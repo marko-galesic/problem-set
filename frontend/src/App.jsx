@@ -6,7 +6,7 @@ import TestResults from './components/TestResults';
 import TestCasesPreview from './components/TestCasesPreview';
 import DescriptionPanel from './components/DescriptionPanel';
 import ResizableDivider from './components/ResizableDivider';
-import { saveImplementation, getDividerPosition, saveDividerPosition, getEditorMaximized, saveEditorMaximized, getVerticalDividerPosition, saveVerticalDividerPosition, saveCurrentCode, getCurrentCode, saveSubmission, getSubmissions, deleteSubmission, updateSubmission, saveTimerState, getTimerState, incrementSubmitAttempts, resetSubmitAttempts, getLanguagePreference, saveLanguagePreference } from './utils/storage';
+import { saveImplementation, getDividerPosition, saveDividerPosition, getEditorMaximized, saveEditorMaximized, getVerticalDividerPosition, saveVerticalDividerPosition, saveCurrentCode, getCurrentCode, saveSubmission, getSubmissions, deleteSubmission, updateSubmission, saveTimerState, getTimerState, incrementSubmitAttempts, resetSubmitAttempts, getLanguagePreference, saveLanguagePreference, getNextChallengeRecommendation, saveNextChallengeRecommendation } from './utils/storage';
 import SubmissionsSidebar from './components/SubmissionsSidebar';
 import SubmissionMetadataPopover from './components/SubmissionMetadataPopover';
 import BugAnswerPopover from './components/BugAnswerPopover';
@@ -116,6 +116,7 @@ function App() {
   const [description, setDescription] = useState('');
   const [code, setCode] = useState(DEFAULT_CODE.java);
   const [currentLanguage, setCurrentLanguage] = useState('java');
+  const [languageReady, setLanguageReady] = useState(false);
   const [testResults, setTestResults] = useState(null);
   const [runningAction, setRunningAction] = useState(null); // 'run', 'submit', or null
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -129,6 +130,7 @@ function App() {
   const [verticalDividerPosition, setVerticalDividerPosition] = useState(40);
   const timerRef = useRef(null);
   const languageLoadRef = useRef(0);
+  const nextChallengeBootstrapRef = useRef(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [submissions, setSubmissions] = useState([]);
@@ -206,7 +208,25 @@ function App() {
     return { from: start.toISOString(), to: end.toISOString() };
   }
 
-  async function loadAllSubmissions({ from, to } = {}) {
+  function getRecentDateRange(days) {
+    const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    return { from: fromDate.toISOString() };
+  }
+
+  function findChallengeByName(name, list) {
+    if (!name) {
+      return null;
+    }
+    const normalized = String(name).trim().toLowerCase();
+    if (!normalized) {
+      return null;
+    }
+    return (list || []).find(
+      (challenge) => String(challenge?.name || '').trim().toLowerCase() === normalized
+    ) || null;
+  }
+
+  async function loadAllSubmissions({ from, to, language } = {}) {
     const submissions = [];
     let page = 1;
     const limit = 200;
@@ -222,6 +242,9 @@ function App() {
           page: String(page),
           limit: String(limit)
         });
+        if (language) {
+          params.set('language', normalizeLanguage(language));
+        }
         if (from) {
           params.set('from', from);
         }
@@ -358,6 +381,28 @@ function App() {
     fetchChallenges();
   }, []);
 
+  useEffect(() => {
+    if (nextChallengeBootstrapRef.current || !languageReady || challenges.length === 0) {
+      return;
+    }
+    const cached = getNextChallengeRecommendation(currentLanguage);
+    if (!cached) {
+      nextChallengeBootstrapRef.current = true;
+      return;
+    }
+    const matched = cached.challengeId
+      ? { id: cached.challengeId }
+      : findChallengeByName(cached.name, challenges);
+    if (!matched?.id) {
+      nextChallengeBootstrapRef.current = true;
+      return;
+    }
+    nextChallengeBootstrapRef.current = true;
+    if (matched.id !== currentChallenge) {
+      setCurrentChallenge(matched.id);
+    }
+  }, [languageReady, currentLanguage, challenges, currentChallenge]);
+
   async function fetchChallengesMetadata() {
     try {
       const response = await fetch('/api/challenges/metadata');
@@ -396,6 +441,7 @@ function App() {
         return;
       }
       setCurrentLanguage(normalizeLanguage(savedLanguage || 'java'));
+      setLanguageReady(true);
     }
 
     loadLanguagePreference();
@@ -782,30 +828,36 @@ function App() {
 
     try {
       const metadata = await fetchChallengesMetadata();
-      const submissionsByChallenge = await Promise.all(
-        metadata.map(async (challenge) => {
-          try {
-            const response = await fetch(`/api/submissions?challenge=${challenge.id}`);
-            if (!response.ok) {
-              throw new Error('Failed to load submissions');
-            }
-            const data = await response.json();
-            return (data.submissions || []).map((submission) => ({
-              ...submission,
-              challenge: submission.challenge ?? challenge.id
-            }));
-          } catch (submissionError) {
-            return [];
-          }
-        })
-      );
-
-      const allSubmissions = submissionsByChallenge.flat();
+      const { from } = getRecentDateRange(14);
+      const recentSubmissions = await loadAllSubmissions({
+        from,
+        language: currentLanguage
+      });
+      const submissionCount = Array.isArray(recentSubmissions) ? recentSubmissions.length : 0;
+      const cached = getNextChallengeRecommendation(currentLanguage);
+      if (
+        cached &&
+        cached.name &&
+        cached.difficulty &&
+        Number.isFinite(cached.submissionCount) &&
+        cached.submissionCount === submissionCount
+      ) {
+        const cachedMatch = cached.challengeId
+          ? { id: cached.challengeId }
+          : findChallengeByName(cached.name, metadata);
+        setNextChallengeRecommendation({
+          name: cached.name,
+          difficulty: cached.difficulty,
+          explanation: cached.explanation
+        });
+        setNextChallengeId(cachedMatch ? cachedMatch.id : null);
+        return;
+      }
       const response = await fetch('/api/recommend-next-challenge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          submissions: allSubmissions,
+          submissions: recentSubmissions,
           challenges: metadata
         })
       });
@@ -820,13 +872,14 @@ function App() {
         difficulty: data.difficulty,
         explanation: data.explanation
       };
-      const normalizedName = (data.name || '').trim().toLowerCase();
-      const matched = metadata.find(
-        (challenge) => (challenge.name || '').trim().toLowerCase() === normalizedName
-      );
-
+      const matched = findChallengeByName(data.name, metadata);
       setNextChallengeRecommendation(recommendation);
       setNextChallengeId(matched ? matched.id : null);
+      saveNextChallengeRecommendation(currentLanguage, {
+        ...recommendation,
+        challengeId: matched ? matched.id : null,
+        submissionCount
+      });
     } catch (error) {
       setNextChallengeError(error.message || 'Failed to load recommendation.');
     } finally {

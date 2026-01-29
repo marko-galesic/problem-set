@@ -14,6 +14,9 @@ import {
   getCurrentCode,
   saveLanguagePreference,
   getLanguagePreference,
+  getNextChallengeRecommendation,
+  saveNextChallengeRecommendation,
+  clearNextChallengeRecommendation,
   getSubmitAttempts,
   incrementSubmitAttempts,
   resetSubmitAttempts,
@@ -68,6 +71,18 @@ describe('storage utils', () => {
   it('saves and retrieves current code', () => {
     saveCurrentCode('hello', 'two_sum', 'python');
     expect(getCurrentCode('two_sum', 'python')).toBe('hello');
+  });
+
+  it('caches next challenge recommendations by language', () => {
+    const saved = saveNextChallengeRecommendation('JavaScript', {
+      name: 'Next Challenge',
+      difficulty: 'Easy',
+      submissionCount: 3
+    });
+    expect(saved.language).toBe('javascript');
+    expect(getNextChallengeRecommendation('js')?.name).toBe('Next Challenge');
+    clearNextChallengeRecommendation('javascript');
+    expect(getNextChallengeRecommendation('javascript')).toBeNull();
   });
 
   it('increments and resets submit attempts', () => {

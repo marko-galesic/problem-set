@@ -14,7 +14,7 @@ import {
 import RecommendationPromptPopover from './RecommendationPromptPopover';
 import LanguageSwitchPopover from './LanguageSwitchPopover';
 import TopicFitnessCriteriaPopover from './TopicFitnessCriteriaPopover';
-import { getLanguagePreference, saveLanguagePreference } from '../utils/storage';
+import { getLanguagePreference, saveLanguagePreference, saveNextChallengeRecommendation } from '../utils/storage';
 
 const UNKNOWN_DIFFICULTY = 'Not set';
 const TECH_BAR_LEGEND = [
@@ -218,6 +218,19 @@ function buildSubmissionTrend(submissions, days) {
     }
   });
   return buckets;
+}
+
+function findChallengeByName(name, challenges) {
+  if (!name) {
+    return null;
+  }
+  const normalized = String(name).trim().toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  return (challenges || []).find(
+    (challenge) => String(challenge?.name || '').trim().toLowerCase() === normalized
+  ) || null;
 }
 
 function buildCsvRow(values) {
@@ -683,10 +696,11 @@ export default function SubmissionsPage() {
             const summary = await fetchSubmissionPage({ page: 1, limit: 1, language });
             const total = Number.isFinite(summary.total) ? summary.total : 0;
             if (total <= 0) {
-              return { empty: true, payload: buildFallbackRecommendation(language) };
+              return { empty: true, payload: buildFallbackRecommendation(language), submissionCount: 0 };
             }
 
             const recentSubmissions = await fetchAllSubmissions({ language, from });
+            const submissionCount = recentSubmissions.length;
             const response = await fetch('/api/recommend-next-challenge', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -709,7 +723,8 @@ export default function SubmissionsPage() {
                 explanation: data.explanation,
                 systemPrompt: data.systemPrompt,
                 userPrompt: data.userPrompt
-              }
+              },
+              submissionCount
             };
           })
         );
@@ -727,9 +742,17 @@ export default function SubmissionsPage() {
           const language = LANGUAGE_OPTIONS[index]?.id;
           if (!language) return;
           if (result.status === 'fulfilled') {
-            nextRecommendation[language] = result.value.payload;
-            if (result.value.empty) {
+            const { payload, empty, submissionCount } = result.value;
+            nextRecommendation[language] = payload;
+            if (empty) {
               nextRecommendationEmpty[language] = true;
+            } else {
+              const matched = findChallengeByName(payload?.name, challengeMetadata);
+              saveNextChallengeRecommendation(language, {
+                ...payload,
+                challengeId: matched ? matched.id : null,
+                submissionCount
+              });
             }
           } else {
             nextRecommendationError[language] = result.reason?.message || 'Failed to load recommendation.';
