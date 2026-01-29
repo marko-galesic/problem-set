@@ -152,4 +152,15 @@ describe('Popovers', () => {
     expect(onConfirm).toHaveBeenCalledTimes(1);
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
+
+  it('confirms timer autostart popover on enter', () => {
+    const onConfirm = vi.fn();
+    const onDismiss = vi.fn();
+    render(<TimerAutoStartPopover isOpen={true} onConfirm={onConfirm} onDismiss={onDismiss} />);
+
+    fireEvent.keyDown(screen.getByRole('button', { name: /start timer/i }), { key: 'Enter', code: 'Enter' });
+
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(onDismiss).not.toHaveBeenCalled();
+  });
 });

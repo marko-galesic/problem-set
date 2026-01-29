@@ -6,10 +6,18 @@ export default function TimerAutoStartPopover({ isOpen, onConfirm, onDismiss }) 
     return null;
   }
 
+  function handleKeyDown(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      onConfirm();
+    }
+  }
+
   return (
     <Dialog
       open={isOpen}
       onClose={onDismiss}
+      onKeyDown={handleKeyDown}
       maxWidth={false}
       PaperProps={{ className: 'timer-autostart-popover', 'aria-live': 'polite' }}
     >
