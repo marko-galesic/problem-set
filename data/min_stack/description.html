@@ -1,0 +1,19 @@
+<p>Process a sequence of stack operations (push, pop, top, getMin) and return the outputs for each top/getMin call in order. Use -1 when the stack is empty.</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[] minStackOps(String[] ops, int[][] values)</code></pre>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>ops = ["push", "push", "getMin", "top"]
+values = [[2], [1], [], []]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>[1, 1]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>Each operation in ops aligns with the argument list in values.</li>
+  <li>For push, values[i] contains a single value. For pop/top/getMin, values[i] is empty.</li>
+  <li>Return outputs only for top and getMin operations.</li>
+</ul>

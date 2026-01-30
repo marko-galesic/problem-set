@@ -1168,4 +1168,334 @@ export const standardAdapterDefinitions = {
       },
     ]
   },
+  houseRobber: {
+    method: 'rob',
+    className: 'HouseRobber',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  jumpGame: {
+    method: 'canJump',
+    className: 'JumpGame',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  searchInsertPosition: {
+    method: 'searchInsert',
+    className: 'SearchInsertPosition',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'target',
+        type: 'int',
+        helperBase: 'Target',
+        javaArrayName: 'targets',
+      },
+    ]
+  },
+  search2dMatrix: {
+    method: 'searchMatrix',
+    className: 'Search2dMatrix',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'matrix',
+        type: 'intGrid',
+        helperBase: 'Matrix',
+      },
+      {
+        name: 'target',
+        type: 'int',
+        helperBase: 'Target',
+        javaArrayName: 'targets',
+      },
+    ]
+  },
+  mergeSortedArray: {
+    method: 'mergeSortedArray',
+    className: 'MergeSortedArray',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'nums1',
+        type: 'intArray',
+        helperBase: 'Nums1',
+      },
+      {
+        name: 'm',
+        type: 'int',
+        helperBase: 'M',
+        javaArrayName: 'ms',
+      },
+      {
+        name: 'nums2',
+        type: 'intArray',
+        helperBase: 'Nums2',
+      },
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  plusOne: {
+    method: 'plusOne',
+    className: 'PlusOne',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'digits',
+        type: 'intArray',
+        helperBase: 'Digits',
+      },
+    ]
+  },
+  addStrings: {
+    method: 'addStrings',
+    className: 'AddStrings',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 'num1',
+        type: 'string',
+        helperBase: 'Num1',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'num2',
+        type: 'string',
+        helperBase: 'Num2',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  multiplyStrings: {
+    method: 'multiplyStrings',
+    className: 'MultiplyStrings',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 'num1',
+        type: 'string',
+        helperBase: 'Num1',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'num2',
+        type: 'string',
+        helperBase: 'Num2',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  romanToInteger: {
+    method: 'romanToInt',
+    className: 'RomanToInteger',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  integerToRoman: {
+    method: 'intToRoman',
+    className: 'IntegerToRoman',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 'num',
+        type: 'int',
+        helperBase: 'Num',
+        javaArrayName: 'nums',
+      },
+    ]
+  },
+  longestPalindromicSubstring: {
+    method: 'longestPalindrome',
+    className: 'LongestPalindromicSubstring',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  palindromeNumber: {
+    method: 'isPalindrome',
+    className: 'PalindromeNumber',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'x',
+        type: 'int',
+        helperBase: 'X',
+        javaArrayName: 'xs',
+      },
+    ]
+  },
+  reverseBits: {
+    method: 'reverseBits',
+    className: 'ReverseBits',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  hammingDistance: {
+    method: 'hammingDistance',
+    className: 'HammingDistance',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'x',
+        type: 'int',
+        helperBase: 'X',
+        javaArrayName: 'xs',
+      },
+      {
+        name: 'y',
+        type: 'int',
+        helperBase: 'Y',
+        javaArrayName: 'ys',
+      },
+    ]
+  },
+  missingNumber: {
+    method: 'missingNumber',
+    className: 'MissingNumber',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  findPivotIndex: {
+    method: 'pivotIndex',
+    className: 'FindPivotIndex',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  rangeSumQueryImmutable: {
+    method: 'rangeSum',
+    className: 'RangeSumQueryImmutable',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'left',
+        type: 'int',
+        helperBase: 'Left',
+        javaArrayName: 'lefts',
+      },
+      {
+        name: 'right',
+        type: 'int',
+        helperBase: 'Right',
+        javaArrayName: 'rights',
+      },
+    ]
+  },
+  floodFill: {
+    method: 'floodFill',
+    className: 'FloodFill',
+    returnType: 'intMatrix',
+    inputs: [
+      {
+        name: 'image',
+        type: 'intGrid',
+        helperBase: 'Image',
+      },
+      {
+        name: 'sr',
+        type: 'int',
+        helperBase: 'Sr',
+        javaArrayName: 'srs',
+      },
+      {
+        name: 'sc',
+        type: 'int',
+        helperBase: 'Sc',
+        javaArrayName: 'scs',
+      },
+      {
+        name: 'color',
+        type: 'int',
+        helperBase: 'Color',
+        javaArrayName: 'colors',
+      },
+    ]
+  },
+  islandPerimeter: {
+    method: 'islandPerimeter',
+    className: 'IslandPerimeter',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      },
+    ]
+  },
+  minStack: {
+    method: 'minStackOps',
+    className: 'MinStack',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'ops',
+        type: 'stringArray',
+        helperBase: 'Ops',
+      },
+      {
+        name: 'values',
+        type: 'intGrid',
+        helperBase: 'Values',
+      },
+    ]
+  },
 };

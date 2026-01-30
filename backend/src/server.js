@@ -1553,6 +1553,156 @@ export const CHALLENGES = {
     testFile: './testCases/spiralMatrixTraversalTests.js',
     adapter: './adapters/spiralMatrixTraversalAdapter.js'
   },
+  house_robber: {
+    name: 'House Robber',
+    folder: 'house_robber',
+    testFile: './testCases/houseRobberTests.js',
+    adapter: './adapters/houseRobberAdapter.js'
+  },
+  jump_game: {
+    name: 'Jump Game',
+    folder: 'jump_game',
+    testFile: './testCases/jumpGameTests.js',
+    adapter: './adapters/jumpGameAdapter.js'
+  },
+  search_insert_position: {
+    name: 'Search Insert Position',
+    folder: 'search_insert_position',
+    testFile: './testCases/searchInsertPositionTests.js',
+    adapter: './adapters/searchInsertPositionAdapter.js'
+  },
+  search_2d_matrix: {
+    name: 'Search 2D Matrix',
+    folder: 'search_2d_matrix',
+    testFile: './testCases/search2dMatrixTests.js',
+    adapter: './adapters/search2dMatrixAdapter.js'
+  },
+  merge_sorted_array: {
+    name: 'Merge Sorted Array',
+    folder: 'merge_sorted_array',
+    testFile: './testCases/mergeSortedArrayTests.js',
+    adapter: './adapters/mergeSortedArrayAdapter.js'
+  },
+  plus_one: {
+    name: 'Plus One',
+    folder: 'plus_one',
+    testFile: './testCases/plusOneTests.js',
+    adapter: './adapters/plusOneAdapter.js'
+  },
+  add_strings: {
+    name: 'Add Strings',
+    folder: 'add_strings',
+    testFile: './testCases/addStringsTests.js',
+    adapter: './adapters/addStringsAdapter.js'
+  },
+  multiply_strings: {
+    name: 'Multiply Strings',
+    folder: 'multiply_strings',
+    testFile: './testCases/multiplyStringsTests.js',
+    adapter: './adapters/multiplyStringsAdapter.js'
+  },
+  roman_to_integer: {
+    name: 'Roman To Integer',
+    folder: 'roman_to_integer',
+    testFile: './testCases/romanToIntegerTests.js',
+    adapter: './adapters/romanToIntegerAdapter.js'
+  },
+  integer_to_roman: {
+    name: 'Integer To Roman',
+    folder: 'integer_to_roman',
+    testFile: './testCases/integerToRomanTests.js',
+    adapter: './adapters/integerToRomanAdapter.js'
+  },
+  longest_palindromic_substring: {
+    name: 'Longest Palindromic Substring',
+    folder: 'longest_palindromic_substring',
+    testFile: './testCases/longestPalindromicSubstringTests.js',
+    adapter: './adapters/longestPalindromicSubstringAdapter.js'
+  },
+  palindrome_number: {
+    name: 'Palindrome Number',
+    folder: 'palindrome_number',
+    testFile: './testCases/palindromeNumberTests.js',
+    adapter: './adapters/palindromeNumberAdapter.js'
+  },
+  reverse_bits: {
+    name: 'Reverse Bits',
+    folder: 'reverse_bits',
+    testFile: './testCases/reverseBitsTests.js',
+    adapter: './adapters/reverseBitsAdapter.js'
+  },
+  hamming_distance: {
+    name: 'Hamming Distance',
+    folder: 'hamming_distance',
+    testFile: './testCases/hammingDistanceTests.js',
+    adapter: './adapters/hammingDistanceAdapter.js'
+  },
+  missing_number: {
+    name: 'Missing Number',
+    folder: 'missing_number',
+    testFile: './testCases/missingNumberTests.js',
+    adapter: './adapters/missingNumberAdapter.js'
+  },
+  find_pivot_index: {
+    name: 'Find Pivot Index',
+    folder: 'find_pivot_index',
+    testFile: './testCases/findPivotIndexTests.js',
+    adapter: './adapters/findPivotIndexAdapter.js'
+  },
+  range_sum_query_immutable: {
+    name: 'Range Sum Query (Immutable)',
+    folder: 'range_sum_query_immutable',
+    testFile: './testCases/rangeSumQueryImmutableTests.js',
+    adapter: './adapters/rangeSumQueryImmutableAdapter.js'
+  },
+  flood_fill: {
+    name: 'Flood Fill',
+    folder: 'flood_fill',
+    testFile: './testCases/floodFillTests.js',
+    adapter: './adapters/floodFillAdapter.js'
+  },
+  island_perimeter: {
+    name: 'Island Perimeter',
+    folder: 'island_perimeter',
+    testFile: './testCases/islandPerimeterTests.js',
+    adapter: './adapters/islandPerimeterAdapter.js'
+  },
+  min_stack: {
+    name: 'Min Stack',
+    folder: 'min_stack',
+    testFile: './testCases/minStackTests.js',
+    adapter: './adapters/minStackAdapter.js'
+  },
+  max_depth_of_binary_tree: {
+    name: 'Max Depth Of Binary Tree',
+    folder: 'max_depth_of_binary_tree',
+    testFile: './testCases/maxDepthOfBinaryTreeTests.js',
+    adapter: './adapters/maxDepthOfBinaryTreeAdapter.js'
+  },
+  diameter_of_binary_tree: {
+    name: 'Diameter Of Binary Tree',
+    folder: 'diameter_of_binary_tree',
+    testFile: './testCases/diameterOfBinaryTreeTests.js',
+    adapter: './adapters/diameterOfBinaryTreeAdapter.js'
+  },
+  balanced_binary_tree: {
+    name: 'Balanced Binary Tree',
+    folder: 'balanced_binary_tree',
+    testFile: './testCases/balancedBinaryTreeTests.js',
+    adapter: './adapters/balancedBinaryTreeAdapter.js'
+  },
+  lowest_common_ancestor_binary_tree: {
+    name: 'Lowest Common Ancestor (Binary Tree)',
+    folder: 'lowest_common_ancestor_binary_tree',
+    testFile: './testCases/lowestCommonAncestorBinaryTreeTests.js',
+    adapter: './adapters/lowestCommonAncestorBinaryTreeAdapter.js'
+  },
+  binary_tree_inorder_traversal: {
+    name: 'Binary Tree Inorder Traversal',
+    folder: 'binary_tree_inorder_traversal',
+    testFile: './testCases/binaryTreeInorderTraversalTests.js',
+    adapter: './adapters/binaryTreeInorderTraversalAdapter.js'
+  },
 };
 
 // Helper function to get challenge config
