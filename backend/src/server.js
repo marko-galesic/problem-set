@@ -44,7 +44,8 @@ import {
 } from './db/queries.js';
 import {
   getChallengeAssetContent,
-  getChallengeTestCasesWithFallback
+  getChallengeTestCasesWithFallback,
+  loadTestCasesFromFile
 } from './db/challengeContent.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -2151,9 +2152,14 @@ app.post('/api/run', async (req, res) => {
       return res.status(400).json({ error: 'Code is required' });
     }
 
-    const { runTests, submitTests } = await loadTestCases(challenge, language);
-    const adapterPath = getLanguageAdapterPath(getChallenge(challenge), language, challenge);
-    const adapter = await loadAdapter(adapterPath);
+    const challengeRecord = getChallenge(challenge);
+    let runTests = [];
+    let submitTests = [];
+    if (process.env.MOCK_EXECUTION === '1') {
+      ({ runTests, submitTests } = await loadTestCasesFromFile(challengeRecord));
+    } else {
+      ({ runTests, submitTests } = await loadTestCases(challenge, language));
+    }
 
     // If testIds provided, filter to only those tests; otherwise use all runTests
     let testsToRun = runTests;
@@ -2203,6 +2209,9 @@ app.post('/api/run', async (req, res) => {
       return res.json(buildMockExecutionResult(testsToRun));
     }
 
+    const adapterPath = getLanguageAdapterPath(challengeRecord, language, challenge);
+    const adapter = await loadAdapter(adapterPath);
+
     let result;
     if (language === 'python') {
       result = await executePythonCode(code, testsToRun, adapter, challenge);
@@ -2236,9 +2245,13 @@ app.post('/api/submit', async (req, res) => {
       return res.status(400).json({ error: 'Code is required' });
     }
 
-    const { submitTests } = await loadTestCases(challenge, language);
-    const adapterPath = getLanguageAdapterPath(getChallenge(challenge), language, challenge);
-    const adapter = await loadAdapter(adapterPath);
+    const challengeRecord = getChallenge(challenge);
+    let submitTests = [];
+    if (process.env.MOCK_EXECUTION === '1') {
+      ({ submitTests } = await loadTestCasesFromFile(challengeRecord));
+    } else {
+      ({ submitTests } = await loadTestCases(challenge, language));
+    }
 
     if (process.env.MOCK_EXECUTION === '1') {
       if (code.includes('invalid syntax')) {
@@ -2262,6 +2275,9 @@ app.post('/api/submit', async (req, res) => {
       mockResult.passed = mockResult.results.every(r => r.passed);
       return res.json(mockResult);
     }
+
+    const adapterPath = getLanguageAdapterPath(challengeRecord, language, challenge);
+    const adapter = await loadAdapter(adapterPath);
 
     let result;
     if (language === 'python') {

@@ -1,4 +1,4 @@
-import { readFile } from 'fs/promises';
+import { readFile, appendFile, mkdir } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { initDatabase } from './database.js';
@@ -13,6 +13,8 @@ import {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const DATA_DIR = join(__dirname, '../../../data');
+const LOG_DIR = join(__dirname, '../../../logs');
+const LOG_PATH = join(LOG_DIR, 'challenge-source.log');
 const SRC_DIR = resolve(__dirname, '..');
 
 const LANGUAGE_EXTENSIONS = {
@@ -31,6 +33,38 @@ function normalizeLanguage(value) {
   if (normalized === 'javascript' || normalized === 'js') return 'javascript';
   if (normalized === 'typescript' || normalized === 'ts') return 'typescript';
   return 'java';
+}
+
+async function writeSourceLog(entry) {
+  if (process.env.DISABLE_CHALLENGE_SOURCE_LOG || process.env.NODE_ENV === 'test') {
+    return;
+  }
+  try {
+    await mkdir(LOG_DIR, { recursive: true });
+    const line = `${JSON.stringify({ ts: new Date().toISOString(), ...entry })}\n`;
+    await appendFile(LOG_PATH, line, 'utf8');
+  } catch {
+    // Ignore logging failures.
+  }
+}
+
+function logAssetSource({ challengeId, type, language, source }) {
+  return writeSourceLog({
+    kind: 'asset',
+    challengeId: challengeId || null,
+    type,
+    language: language || null,
+    source
+  });
+}
+
+function logTestCaseSource({ challengeId, mode, source }) {
+  return writeSourceLog({
+    kind: 'testcases',
+    challengeId: challengeId || null,
+    mode,
+    source
+  });
 }
 
 function resolveFolder(challengeId, folderOverride) {
@@ -128,6 +162,12 @@ export async function getChallengeAssetContent({
     const filePath = resolveAssetPath(resolvedFolder, type, normalizedLanguage);
     const fileContent = await readFileIfExists(filePath);
     if (fileContent) {
+      void logAssetSource({
+        challengeId,
+        type,
+        language: normalizedLanguage,
+        source: 'file'
+      });
       if (seed && challengeId && (await shouldSeedAsset(challengeId))) {
         try {
           upsertChallengeAsset({
@@ -149,6 +189,12 @@ export async function getChallengeAssetContent({
       initDatabase();
       const record = getChallengeAsset(challengeId, type, normalizedLanguage);
       if (record?.content) {
+        void logAssetSource({
+          challengeId,
+          type,
+          language: normalizedLanguage,
+          source: 'db'
+        });
         return record.content;
       }
     } catch {
@@ -161,6 +207,13 @@ export async function getChallengeAssetContent({
   if (!content) {
     return null;
   }
+
+  void logAssetSource({
+    challengeId,
+    type,
+    language: normalizedLanguage,
+    source: 'file'
+  });
 
   if (seed && challengeId && (await shouldSeedAsset(challengeId))) {
     try {
@@ -208,6 +261,8 @@ export async function getChallengeTestCasesWithFallback({
   const hasSubmitTests = dbSubmitTests.length > 0;
 
   if (hasRunTests && hasSubmitTests) {
+    void logTestCaseSource({ challengeId, mode: 'run', source: 'db' });
+    void logTestCaseSource({ challengeId, mode: 'submit', source: 'db' });
     return { runTests: dbRunTests, submitTests: dbSubmitTests };
   }
 
@@ -225,6 +280,11 @@ export async function getChallengeTestCasesWithFallback({
       // Ignore seed failures; return file-based test cases.
     }
   }
+
+  const runSource = hasRunTests ? 'db' : 'file';
+  const submitSource = hasSubmitTests ? 'db' : 'file';
+  void logTestCaseSource({ challengeId, mode: 'run', source: runSource });
+  void logTestCaseSource({ challengeId, mode: 'submit', source: submitSource });
 
   return {
     runTests: hasRunTests ? dbRunTests : runTests,
