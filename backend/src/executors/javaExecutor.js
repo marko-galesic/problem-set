@@ -5,6 +5,7 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { DEFAULT_CHALLENGE } from '../server.js';
+import { getChallengeAssetContent, getHelperAssetType } from '../db/challengeContent.js';
 
 const execAsync = promisify(exec);
 
@@ -327,8 +328,14 @@ function removeInnerClassIfTopLevelExists(code, className, hasTopLevel) {
 // Returns the class name or null if not found
 async function extractClassNameFromTemplate(challengeId) {
   try {
-    const templatePath = join(__dirname, '../../../data', challengeId, 'template.java');
-    const templateContent = await readFile(templatePath, 'utf8');
+    const templateContent = await getChallengeAssetContent({
+      challengeId,
+      type: 'template',
+      language: 'java'
+    });
+    if (!templateContent) {
+      return null;
+    }
     
     // Match: class ClassName { (allowing for whitespace/comments before)
     const classPattern = /^\s*(?:\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*\s*class\s+(\w+)\s*\{/m;
@@ -354,18 +361,18 @@ export async function executeJavaCode(userCode, testCases, adapter, challengeId 
   
   const TEMP_DIR = getTempDir(challengeId);
   
-  // Check if Node.java exists in data folder and copy it to temp directory
+  // Check if Node.java exists in data folder or DB and copy it to temp directory
   let hasTopLevelNode = false;
   let nodeJavaContent = null;
   try {
-    const { access } = await import('fs/promises');
-    const nodeJavaPath = join(__dirname, '../../../data', challengeId, 'Node.java');
-    // #region agent log
-    await writeLog({ location: 'javaExecutor.js:482', message: 'Checking Node.java existence', data: { nodeJavaPath, challengeId }, hypothesisId: 'A', sessionId: 'debug-session', runId: 'initial' });
-    // #endregion
-    await access(nodeJavaPath);
-    // Node.java exists, copy it to temp directory
-    nodeJavaContent = await readFile(nodeJavaPath, 'utf8');
+    nodeJavaContent = await getChallengeAssetContent({
+      challengeId,
+      type: getHelperAssetType('Node'),
+      language: 'java'
+    });
+    if (!nodeJavaContent) {
+      throw new Error('Node.java not found');
+    }
     const nodeJavaDestPath = join(TEMP_DIR, 'Node.java');
     // #region agent log
     await writeLog({ location: 'javaExecutor.js:487', message: 'Before copying Node.java', data: { nodeJavaDestPath, contentLength: nodeJavaContent.length }, hypothesisId: 'A', sessionId: 'debug-session', runId: 'initial' });
@@ -388,14 +395,17 @@ export async function executeJavaCode(userCode, testCases, adapter, challengeId 
     await writeLog({ event: 'node_java_copy_failed', challengeId, error: err.message });
   }
   
-  // Check if AttrResult.java exists in data folder and copy it to temp directory
+  // Check if AttrResult.java exists in data folder or DB and copy it to temp directory
   let hasTopLevelAttrResult = false;
   try {
-    const { access } = await import('fs/promises');
-    const attrResultJavaPath = join(__dirname, '../../../data', challengeId, 'AttrResult.java');
-    await access(attrResultJavaPath);
-    // AttrResult.java exists, copy it to temp directory
-    const attrResultJavaContent = await readFile(attrResultJavaPath, 'utf8');
+    const attrResultJavaContent = await getChallengeAssetContent({
+      challengeId,
+      type: getHelperAssetType('AttrResult'),
+      language: 'java'
+    });
+    if (!attrResultJavaContent) {
+      throw new Error('AttrResult.java not found');
+    }
     await writeFile(join(TEMP_DIR, 'AttrResult.java'), attrResultJavaContent, 'utf8');
     hasTopLevelAttrResult = true;
   } catch (err) {
@@ -403,14 +413,17 @@ export async function executeJavaCode(userCode, testCases, adapter, challengeId 
     hasTopLevelAttrResult = false;
   }
   
-  // Check if ListNode.java exists in data folder and copy it to temp directory
+  // Check if ListNode.java exists in data folder or DB and copy it to temp directory
   let hasTopLevelListNode = false;
   try {
-    const { access } = await import('fs/promises');
-    const listNodeJavaPath = join(__dirname, '../../../data', challengeId, 'ListNode.java');
-    await access(listNodeJavaPath);
-    // ListNode.java exists, copy it to temp directory
-    const listNodeJavaContent = await readFile(listNodeJavaPath, 'utf8');
+    const listNodeJavaContent = await getChallengeAssetContent({
+      challengeId,
+      type: getHelperAssetType('ListNode'),
+      language: 'java'
+    });
+    if (!listNodeJavaContent) {
+      throw new Error('ListNode.java not found');
+    }
     await writeFile(join(TEMP_DIR, 'ListNode.java'), listNodeJavaContent, 'utf8');
     hasTopLevelListNode = true;
   } catch (err) {
@@ -418,14 +431,17 @@ export async function executeJavaCode(userCode, testCases, adapter, challengeId 
     hasTopLevelListNode = false;
   }
 
-  // Check if TreeNode.java exists in data folder and copy it to temp directory
+  // Check if TreeNode.java exists in data folder or DB and copy it to temp directory
   let hasTopLevelTreeNode = false;
   try {
-    const { access } = await import('fs/promises');
-    const treeNodeJavaPath = join(__dirname, '../../../data', challengeId, 'TreeNode.java');
-    await access(treeNodeJavaPath);
-    // TreeNode.java exists, copy it to temp directory
-    const treeNodeJavaContent = await readFile(treeNodeJavaPath, 'utf8');
+    const treeNodeJavaContent = await getChallengeAssetContent({
+      challengeId,
+      type: getHelperAssetType('TreeNode'),
+      language: 'java'
+    });
+    if (!treeNodeJavaContent) {
+      throw new Error('TreeNode.java not found');
+    }
     await writeFile(join(TEMP_DIR, 'TreeNode.java'), treeNodeJavaContent, 'utf8');
     hasTopLevelTreeNode = true;
   } catch (err) {

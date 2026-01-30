@@ -46,6 +46,119 @@ export function insertChallenge(challenge) {
   );
 }
 
+export function getChallengeAsset(challengeId, type, language = '') {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    SELECT content
+    FROM challenge_assets
+    WHERE challenge_id = ? AND type = ? AND language = ?
+  `);
+  return stmt.get(challengeId, type, language);
+}
+
+export function upsertChallengeAsset({ challenge_id, type, language = '', content }) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    INSERT INTO challenge_assets (challenge_id, type, language, content, updated_at)
+    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(challenge_id, type, language)
+    DO UPDATE SET content = excluded.content, updated_at = CURRENT_TIMESTAMP
+  `);
+  return stmt.run(challenge_id, type, language, content);
+}
+
+export function getChallengeAdapterDefinition(challengeId) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    SELECT definition_json
+    FROM challenge_adapter_definitions
+    WHERE challenge_id = ?
+  `);
+  const row = stmt.get(challengeId);
+  if (!row?.definition_json) {
+    return null;
+  }
+  try {
+    return JSON.parse(row.definition_json);
+  } catch {
+    return null;
+  }
+}
+
+export function upsertChallengeAdapterDefinition(challengeId, definition) {
+  const db = getDatabase();
+  const payload = typeof definition === 'string' ? definition : JSON.stringify(definition);
+  const stmt = db.prepare(`
+    INSERT INTO challenge_adapter_definitions (challenge_id, definition_json, updated_at)
+    VALUES (?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(challenge_id)
+    DO UPDATE SET definition_json = excluded.definition_json, updated_at = CURRENT_TIMESTAMP
+  `);
+  return stmt.run(challengeId, payload);
+}
+
+export function getChallengeTestCases(challengeId, kind) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    SELECT test_case_json
+    FROM challenge_test_cases
+    WHERE challenge_id = ? AND kind = ?
+    ORDER BY order_index
+  `);
+  const rows = stmt.all(challengeId, kind);
+  return rows
+    .map(row => {
+      try {
+        return JSON.parse(row.test_case_json);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+}
+
+export function replaceChallengeTestCases(challengeId, kind, testCases) {
+  const db = getDatabase();
+  const transaction = db.transaction((challengeId, kind, testCases) => {
+    const deleteStmt = db.prepare('DELETE FROM challenge_test_cases WHERE challenge_id = ? AND kind = ?');
+    deleteStmt.run(challengeId, kind);
+
+    const insertStmt = db.prepare(`
+      INSERT INTO challenge_test_cases (
+        challenge_id,
+        kind,
+        order_index,
+        case_id,
+        name,
+        input,
+        test_case_json,
+        created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    `);
+
+    testCases.forEach((testCase, index) => {
+      const inputValue = testCase?.input;
+      const normalizedInput = inputValue === undefined
+        ? null
+        : (typeof inputValue === 'object' && inputValue !== null)
+          ? JSON.stringify(inputValue)
+          : String(inputValue);
+      insertStmt.run(
+        challengeId,
+        kind,
+        index,
+        Number.isFinite(testCase?.id) ? testCase.id : null,
+        typeof testCase?.name === 'string' ? testCase.name : null,
+        normalizedInput,
+        JSON.stringify(testCase)
+      );
+    });
+  });
+
+  return transaction(challengeId, kind, testCases);
+}
+
 export function updateChallengeMetadata(challengeId, metadata) {
   const db = getDatabase();
   const updates = [];

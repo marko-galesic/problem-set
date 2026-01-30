@@ -4,6 +4,9 @@
 
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { initDatabase } from '../db/database.js';
+import { getChallengeAdapterDefinition } from '../db/queries.js';
+import { createStandardAdapter } from './standardAdapterFactory.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -21,6 +24,22 @@ export async function loadAdapter(adapterPath) {
   }
 
   try {
+    if (adapterPath.startsWith('db-standard:')) {
+      const parts = adapterPath.split(':');
+      const challengeId = parts[1];
+      const language = parts[2] || 'java';
+
+      initDatabase();
+      const definition = getChallengeAdapterDefinition(challengeId);
+      if (!definition) {
+        throw new Error(`Missing adapter definition for ${challengeId}`);
+      }
+
+      const adapter = createStandardAdapter(definition, language);
+      adapterCache.set(adapterPath, adapter);
+      return adapter;
+    }
+
     // Resolve the adapter path relative to the server.js file location
     // adapterPath is like './adapters/challengeAdapter.js' relative to server.js (in src/)
     // We're in adapters/index.js, so we need to go up to src/ and then use the path

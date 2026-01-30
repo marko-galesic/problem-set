@@ -17,6 +17,8 @@ import {
   getAllChallenges,
   insertChallenge,
   updateChallengeMetadata,
+  getChallengeAdapterDefinition,
+  getChallengeTestCases,
   getPrerequisites,
   setPrerequisites,
   getChallengeTree,
@@ -40,6 +42,10 @@ import {
   getNextChallengeRecommendation as getNextChallengeRecommendationFromDb,
   upsertNextChallengeRecommendation as upsertNextChallengeRecommendationToDb
 } from './db/queries.js';
+import {
+  getChallengeAssetContent,
+  getChallengeTestCasesWithFallback
+} from './db/challengeContent.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -1562,9 +1568,15 @@ function getChallenge(challengeId) {
         testFile: dbChallenge.test_file,
         adapter: dbChallenge.adapter
       };
-      const testFilePath = join(__dirname, candidate.testFile || '');
-      const adapterPath = join(__dirname, candidate.adapter || '');
-      if (existsSync(testFilePath) && existsSync(adapterPath)) {
+      const testFilePath = candidate.testFile ? join(__dirname, candidate.testFile) : null;
+      const adapterPath = candidate.adapter ? join(__dirname, candidate.adapter) : null;
+      const hasFileTests = testFilePath ? existsSync(testFilePath) : false;
+      const hasFileAdapter = adapterPath ? existsSync(adapterPath) : false;
+      const hasDbAdapter = Boolean(getChallengeAdapterDefinition(challengeId));
+      const hasDbTests = getChallengeTestCases(challengeId, 'run').length > 0
+        || getChallengeTestCases(challengeId, 'submit').length > 0;
+
+      if ((hasFileTests || hasDbTests) && (hasFileAdapter || hasDbAdapter)) {
         return candidate;
       }
     }
@@ -1657,21 +1669,41 @@ function normalizeChallengeName(challengeId) {
     .join(' ');
 }
 
-async function getTechBarDescriptionText(folder) {
-  if (!folder) {
+async function getTechBarDescriptionText(value) {
+  if (!value) {
     return '';
   }
-  if (techBarDescriptionCache.has(folder)) {
-    return techBarDescriptionCache.get(folder);
+  const challengeId = typeof value === 'object' && value !== null
+    ? value.challengeId || null
+    : value;
+  const folder = typeof value === 'object' && value !== null
+    ? value.folder || value.challengeId || null
+    : value;
+  const cacheKey = challengeId || folder;
+  if (cacheKey && techBarDescriptionCache.has(cacheKey)) {
+    return techBarDescriptionCache.get(cacheKey);
   }
-  const descriptionPath = join(__dirname, '../../data', folder, 'description.html');
   try {
-    const html = await readFile(descriptionPath, 'utf8');
+    const html = await getChallengeAssetContent({
+      challengeId,
+      folder,
+      type: 'description_html'
+    });
+    if (!html) {
+      if (cacheKey) {
+        techBarDescriptionCache.set(cacheKey, '');
+      }
+      return '';
+    }
     const text = stripHtml(html);
-    techBarDescriptionCache.set(folder, text);
+    if (cacheKey) {
+      techBarDescriptionCache.set(cacheKey, text);
+    }
     return text;
   } catch {
-    techBarDescriptionCache.set(folder, '');
+    if (cacheKey) {
+      techBarDescriptionCache.set(cacheKey, '');
+    }
     return '';
   }
 }
@@ -1816,7 +1848,10 @@ async function evaluateTechBarForSubmission({
       return;
     }
 
-    const descriptionText = await getTechBarDescriptionText(challengeFolder);
+    const descriptionText = await getTechBarDescriptionText({
+      challengeId,
+      folder: challengeFolder
+    });
     const label = await evaluateTechBarLabel({
       client,
       challengeName,
@@ -1837,14 +1872,27 @@ async function evaluateTechBarForSubmission({
   }
 }
 
-function getLanguageAdapterPath(challenge, language) {
-  if (language === 'python' && challenge.adapter.startsWith('./adapters/')) {
+function getLanguageAdapterPath(challenge, language, challengeId = null) {
+  const normalizedLanguage = normalizeLanguage(language);
+
+  if (challengeId) {
+    try {
+      const definition = getChallengeAdapterDefinition(challengeId);
+      if (definition) {
+        return `db-standard:${challengeId}:${normalizedLanguage}`;
+      }
+    } catch {
+      // Ignore DB lookup failures; fall back to file-based adapters.
+    }
+  }
+
+  if (normalizedLanguage === 'python' && challenge.adapter.startsWith('./adapters/')) {
     return challenge.adapter.replace('./adapters/', './adapters/python/');
   }
-  if (language === 'javascript' && challenge.adapter.startsWith('./adapters/')) {
+  if (normalizedLanguage === 'javascript' && challenge.adapter.startsWith('./adapters/')) {
     return challenge.adapter.replace('./adapters/', './adapters/javascript/');
   }
-  if (language === 'typescript' && challenge.adapter.startsWith('./adapters/')) {
+  if (normalizedLanguage === 'typescript' && challenge.adapter.startsWith('./adapters/')) {
     return challenge.adapter.replace('./adapters/', './adapters/typescript/');
   }
   return challenge.adapter;
@@ -1866,13 +1914,13 @@ function getTemplateFilename(language) {
 // Helper function to load test cases dynamically
 async function loadTestCases(challengeId, language = 'java') {
   const challenge = getChallenge(challengeId);
-  const testModule = await import(challenge.testFile);
-  let runTests = testModule.runTests || [];
-  let submitTests = testModule.submitTests || [];
-  
-  // Load adapter to check if it has preprocessing
-  const adapterPath = getLanguageAdapterPath(challenge, language);
+  const adapterPath = getLanguageAdapterPath(challenge, language, challengeId);
   const adapter = await loadAdapter(adapterPath);
+
+  let { runTests, submitTests } = await getChallengeTestCasesWithFallback({
+    challengeId,
+    challenge
+  });
   
   // Apply adapter preprocessing if available
   if (adapter.preprocessTestCases) {
@@ -1996,8 +2044,16 @@ app.get('/api/template', async (req, res) => {
     const challengeId = req.query.challenge || DEFAULT_CHALLENGE;
     const challenge = getChallenge(challengeId);
     const language = normalizeLanguage(req.query.language);
-    const templatePath = join(__dirname, '../../data', challenge.folder, getTemplateFilename(language));
-    const templateContent = await readFile(templatePath, 'utf8');
+    const templateContent = await getChallengeAssetContent({
+      challengeId,
+      folder: challenge.folder,
+      type: 'template',
+      language,
+      preferFile: process.env.NODE_ENV === 'test'
+    });
+    if (!templateContent) {
+      throw new Error('Failed to load template');
+    }
     res.json({ code: templateContent });
   } catch (error) {
     console.error('Template error:', error);
@@ -2012,8 +2068,15 @@ app.get('/api/description', async (req, res) => {
   try {
     const challengeId = req.query.challenge || DEFAULT_CHALLENGE;
     const challenge = getChallenge(challengeId);
-    const descriptionPath = join(__dirname, '../../data', challenge.folder, 'description.html');
-    const descriptionContent = await readFile(descriptionPath, 'utf8');
+    const descriptionContent = await getChallengeAssetContent({
+      challengeId,
+      folder: challenge.folder,
+      type: 'description_html',
+      preferFile: process.env.NODE_ENV === 'test'
+    });
+    if (!descriptionContent) {
+      throw new Error('Failed to load description');
+    }
     res.json({ description: descriptionContent });
   } catch (error) {
     console.error('Description error:', error);
@@ -2032,7 +2095,7 @@ app.get('/api/test-cases', async (req, res) => {
     
     // Load adapter to use extractInput() method
     const challenge = getChallenge(challengeId);
-    const adapterPath = getLanguageAdapterPath(challenge, language);
+    const adapterPath = getLanguageAdapterPath(challenge, language, challengeId);
     const adapter = await loadAdapter(adapterPath);
     
     // Return test cases with only the information needed for preview (no expected output)
@@ -2089,7 +2152,7 @@ app.post('/api/run', async (req, res) => {
     }
 
     const { runTests, submitTests } = await loadTestCases(challenge, language);
-    const adapterPath = getLanguageAdapterPath(getChallenge(challenge), language);
+    const adapterPath = getLanguageAdapterPath(getChallenge(challenge), language, challenge);
     const adapter = await loadAdapter(adapterPath);
 
     // If testIds provided, filter to only those tests; otherwise use all runTests
@@ -2174,7 +2237,7 @@ app.post('/api/submit', async (req, res) => {
     }
 
     const { submitTests } = await loadTestCases(challenge, language);
-    const adapterPath = getLanguageAdapterPath(getChallenge(challenge), language);
+    const adapterPath = getLanguageAdapterPath(getChallenge(challenge), language, challenge);
     const adapter = await loadAdapter(adapterPath);
 
     if (process.env.MOCK_EXECUTION === '1') {

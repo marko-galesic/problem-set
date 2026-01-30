@@ -1,10 +1,11 @@
 import { exec, spawn } from 'child_process';
 import { promisify } from 'util';
-import { writeFile, unlink, mkdir, readdir, readFile } from 'fs/promises';
+import { writeFile, unlink, mkdir, readdir } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { DEFAULT_CHALLENGE } from '../server.js';
+import { getChallengeAssetContent, getHelperAssetType } from '../db/challengeContent.js';
 
 const execAsync = promisify(exec);
 
@@ -126,8 +127,14 @@ function stripTripleQuotedStrings(code) {
 
 async function extractClassNameFromTemplate(challengeId) {
   try {
-    const templatePath = join(__dirname, '../../../data', challengeId, 'template.py');
-    const templateContent = await readFile(templatePath, 'utf8');
+    const templateContent = await getChallengeAssetContent({
+      challengeId,
+      type: 'template',
+      language: 'python'
+    });
+    if (!templateContent) {
+      return null;
+    }
     const sanitizedContent = stripTripleQuotedStrings(templateContent);
     const classPattern = /^\s*(?:#.*\n|\s*)*class\s+(\w+)\b/m;
     const match = sanitizedContent.match(classPattern);
@@ -178,9 +185,15 @@ export async function executePythonCode(userCode, testCases, adapter, challengeI
   const helperContents = [];
 
   for (const helper of helperFiles) {
-    const helperPath = join(__dirname, '../../../data', challengeId, `${helper}.py`);
     try {
-      const helperContent = await readFile(helperPath, 'utf8');
+      const helperContent = await getChallengeAssetContent({
+        challengeId,
+        type: getHelperAssetType(helper),
+        language: 'python'
+      });
+      if (!helperContent) {
+        throw new Error('missing helper');
+      }
       if (!hasClassDefinition(processedUserCode, helper)) {
         helperContents.push(helperContent.trim());
       }

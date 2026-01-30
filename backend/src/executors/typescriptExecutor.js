@@ -1,10 +1,11 @@
 import { spawn } from 'child_process';
-import { writeFile, unlink, mkdir, readdir, readFile } from 'fs/promises';
+import { writeFile, unlink, mkdir, readdir } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { dirname } from 'path';
 import { DEFAULT_CHALLENGE } from '../server.js';
+import { getChallengeAssetContent, getHelperAssetType } from '../db/challengeContent.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -153,8 +154,14 @@ function stripBlockComments(code) {
 
 async function extractClassNameFromTemplate(challengeId) {
   try {
-    const templatePath = join(__dirname, '../../../data', challengeId, 'template.ts');
-    const templateContent = await readFile(templatePath, 'utf8');
+    const templateContent = await getChallengeAssetContent({
+      challengeId,
+      type: 'template',
+      language: 'typescript'
+    });
+    if (!templateContent) {
+      return null;
+    }
     const sanitizedContent = stripBlockComments(templateContent);
     const classPattern = /^\s*(?:\/\/.*\n|\s*)*class\s+(\w+)\b/m;
     const match = sanitizedContent.match(classPattern);
@@ -204,9 +211,15 @@ export async function executeTypeScriptCode(userCode, testCases, adapter, challe
   const helperFiles = ['TreeNode', 'ListNode', 'Node', 'AttrResult'];
   const helperContents = [];
   for (const helper of helperFiles) {
-    const helperPath = join(__dirname, '../../../data', challengeId, `${helper}.ts`);
     try {
-      const helperContent = await readFile(helperPath, 'utf8');
+      const helperContent = await getChallengeAssetContent({
+        challengeId,
+        type: getHelperAssetType(helper),
+        language: 'typescript'
+      });
+      if (!helperContent) {
+        throw new Error('missing helper');
+      }
       if (!hasClassDefinition(processedUserCode, helper)) {
         helperContents.push(helperContent.trim());
       }

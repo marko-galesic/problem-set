@@ -84,6 +84,42 @@ function createSchema(database) {
     )
   `);
 
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS challenge_assets (
+      challenge_id TEXT NOT NULL,
+      type TEXT NOT NULL,
+      language TEXT NOT NULL DEFAULT '',
+      content TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (challenge_id, type, language),
+      FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE
+    )
+  `);
+
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS challenge_adapter_definitions (
+      challenge_id TEXT PRIMARY KEY,
+      definition_json TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE
+    )
+  `);
+
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS challenge_test_cases (
+      challenge_id TEXT NOT NULL,
+      kind TEXT NOT NULL CHECK (kind IN ('run', 'submit')),
+      order_index INTEGER NOT NULL,
+      case_id INTEGER,
+      name TEXT,
+      input TEXT,
+      test_case_json TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (challenge_id, kind, order_index),
+      FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE
+    )
+  `);
+
   // Challenge prerequisites (many-to-many)
   database.exec(`
     CREATE TABLE IF NOT EXISTS challenge_prerequisites (
@@ -185,6 +221,12 @@ function createSchema(database) {
 
     CREATE INDEX IF NOT EXISTS idx_challenge_tree_parent 
     ON challenge_tree(parent_id);
+
+    CREATE INDEX IF NOT EXISTS idx_challenge_assets_challenge
+    ON challenge_assets(challenge_id);
+
+    CREATE INDEX IF NOT EXISTS idx_challenge_test_cases_challenge
+    ON challenge_test_cases(challenge_id, kind, order_index);
 
     CREATE INDEX IF NOT EXISTS idx_next_challenge_recommendations_updated
     ON next_challenge_recommendations(updated_at DESC);

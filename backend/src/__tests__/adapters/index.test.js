@@ -2,6 +2,9 @@ import { describe, test, expect, beforeEach } from '@jest/globals';
 import { loadAdapter, clearCache } from '../../adapters/index.js';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
+import { initDatabase } from '../../db/database.js';
+import { insertChallenge, upsertChallengeAdapterDefinition } from '../../db/queries.js';
+import { standardAdapterDefinitions } from '../../adapters/standardAdapterDefinitions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -42,6 +45,30 @@ describe('Adapter Registry', () => {
       const adapter = await loadAdapter(adapterUrl);
       expect(adapter).toBeDefined();
       expect(adapter.loadAdapter).toBeDefined();
+    });
+
+    test('should load db-standard adapter definitions', async () => {
+      const challengeId = 'db_standard_two_sum';
+
+      initDatabase();
+      insertChallenge({
+        id: challengeId,
+        name: 'DB Standard Two Sum',
+        folder: 'two_sum',
+        test_file: './testCases/twoSumTests.js',
+        adapter: './adapters/twoSumAdapter.js',
+        difficulty: null,
+        topics: []
+      });
+      upsertChallengeAdapterDefinition(challengeId, standardAdapterDefinitions.twoSum);
+
+      const adapter = await loadAdapter(`db-standard:${challengeId}:java`);
+      expect(adapter).toBeDefined();
+      expect(adapter.getReturnType()).toBe('int[]');
+      expect(adapter.extractInput({ nums: [1, 2], target: 3 })).toEqual({
+        nums: [1, 2],
+        target: 3
+      });
     });
 
     test('should throw error for non-existent adapter', async () => {
