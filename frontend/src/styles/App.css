@@ -313,15 +313,15 @@ body {
 }
 
 .resizable-divider-horizontal {
-  width: 6px;
+  width: 3px;
   cursor: col-resize;
 }
 
 .resizable-divider-vertical {
-  height: 8px;
+  height: 4px;
   width: 100%;
   cursor: row-resize;
-  min-height: 8px;
+  min-height: 4px;
   flex-shrink: 0;
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
@@ -348,7 +348,7 @@ body {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 6px;
+  width: 3px;
   height: 100%;
 }
 
@@ -356,7 +356,7 @@ body {
   top: 50%;
   left: 0;
   transform: translateY(-50%);
-  height: 8px;
+  height: 4px;
   width: 100%;
 }
 
