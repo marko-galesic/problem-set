@@ -868,4 +868,304 @@ export const standardAdapterDefinitions = {
       },
     ]
   },
+  sumOfDigitSquares: {
+    method: 'sumOfDigitSquares',
+    className: 'SumOfDigitSquares',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  rotateStringK: {
+    method: 'rotateStringK',
+    className: 'RotateStringK',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      },
+    ]
+  },
+  firstNonRepeatingChar: {
+    method: 'firstNonRepeatingChar',
+    className: 'FirstNonRepeatingChar',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  isPowerOfThree: {
+    method: 'isPowerOfThree',
+    className: 'IsPowerOfThree',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  countSetBits: {
+    method: 'countSetBits',
+    className: 'CountSetBits',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  reverseWordsInString: {
+    method: 'reverseWordsInString',
+    className: 'ReverseWordsInString',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  arrayProductExceptSelf: {
+    method: 'arrayProductExceptSelf',
+    className: 'ArrayProductExceptSelf',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  maximumSubarraySumK: {
+    method: 'maximumSubarraySumK',
+    className: 'MaximumSubarraySumK',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      },
+    ]
+  },
+  minStepsToZero: {
+    method: 'minStepsToZero',
+    className: 'MinStepsToZero',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  longestRunOfOnes: {
+    method: 'longestRunOfOnes',
+    className: 'LongestRunOfOnes',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  validParenthesesWithStar: {
+    method: 'validParenthesesWithStar',
+    className: 'ValidParenthesesWithStar',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  removeAdjacentDuplicates: {
+    method: 'removeAdjacentDuplicates',
+    className: 'RemoveAdjacentDuplicates',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  mergeKSortedLists: {
+    method: 'mergeKSortedLists',
+    className: 'MergeKSortedLists',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'lists',
+        type: 'intGrid',
+        helperBase: 'Lists',
+      },
+    ]
+  },
+  partitionEqualSubsetSum: {
+    method: 'canPartition',
+    className: 'PartitionEqualSubsetSum',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  coinChangeMinCoins: {
+    method: 'coinChangeMinCoins',
+    className: 'CoinChangeMinCoins',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'coins',
+        type: 'intArray',
+        helperBase: 'Coins',
+      },
+      {
+        name: 'amount',
+        type: 'int',
+        helperBase: 'Amount',
+      },
+    ]
+  },
+  longestCommonSubsequence: {
+    method: 'longestCommonSubsequence',
+    className: 'LongestCommonSubsequence',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'text1',
+        type: 'string',
+        helperBase: 'Text1',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'text2',
+        type: 'string',
+        helperBase: 'Text2',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  editDistance: {
+    method: 'editDistance',
+    className: 'EditDistance',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'word1',
+        type: 'string',
+        helperBase: 'Word1',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'word2',
+        type: 'string',
+        helperBase: 'Word2',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  uniquePathsWithObstacles: {
+    method: 'uniquePathsWithObstacles',
+    className: 'UniquePathsWithObstacles',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      },
+    ]
+  },
+  isomorphicStrings: {
+    method: 'isIsomorphic',
+    className: 'IsomorphicStrings',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      },
+      {
+        name: 't',
+        type: 'string',
+        helperBase: 'T',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  findPeakElement: {
+    method: 'findPeakElement',
+    className: 'FindPeakElement',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  spiralMatrixTraversal: {
+    method: 'spiralMatrixTraversal',
+    className: 'SpiralMatrixTraversal',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'matrix',
+        type: 'intGrid',
+        helperBase: 'Matrix',
+      },
+    ]
+  },
 };

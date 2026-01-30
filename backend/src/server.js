@@ -1394,8 +1394,158 @@ export const CHALLENGES = {
     folder: 'replace_spaces_with_plus',
     testFile: './testCases/replaceSpacesWithPlusTests.js',
     adapter: './adapters/replaceSpacesWithPlusAdapter.js'
-  }
+  },
 
+  sum_of_digit_squares: {
+    name: 'Sum of Digit Squares',
+    folder: 'sum_of_digit_squares',
+    testFile: './testCases/sumOfDigitSquaresTests.js',
+    adapter: './adapters/sumOfDigitSquaresAdapter.js'
+  },
+  rotate_string_k: {
+    name: 'Rotate String K',
+    folder: 'rotate_string_k',
+    testFile: './testCases/rotateStringKTests.js',
+    adapter: './adapters/rotateStringKAdapter.js'
+  },
+  first_non_repeating_char: {
+    name: 'First Non-Repeating Char',
+    folder: 'first_non_repeating_char',
+    testFile: './testCases/firstNonRepeatingCharTests.js',
+    adapter: './adapters/firstNonRepeatingCharAdapter.js'
+  },
+  is_power_of_three: {
+    name: 'Is Power of Three',
+    folder: 'is_power_of_three',
+    testFile: './testCases/isPowerOfThreeTests.js',
+    adapter: './adapters/isPowerOfThreeAdapter.js'
+  },
+  count_set_bits: {
+    name: 'Count Set Bits',
+    folder: 'count_set_bits',
+    testFile: './testCases/countSetBitsTests.js',
+    adapter: './adapters/countSetBitsAdapter.js'
+  },
+  reverse_words_in_string: {
+    name: 'Reverse Words in String',
+    folder: 'reverse_words_in_string',
+    testFile: './testCases/reverseWordsInStringTests.js',
+    adapter: './adapters/reverseWordsInStringAdapter.js'
+  },
+  array_product_except_self: {
+    name: 'Array Product Except Self',
+    folder: 'array_product_except_self',
+    testFile: './testCases/arrayProductExceptSelfTests.js',
+    adapter: './adapters/arrayProductExceptSelfAdapter.js'
+  },
+  maximum_subarray_sum_k: {
+    name: 'Maximum Subarray Sum K',
+    folder: 'maximum_subarray_sum_k',
+    testFile: './testCases/maximumSubarraySumKTests.js',
+    adapter: './adapters/maximumSubarraySumKAdapter.js'
+  },
+  min_steps_to_zero: {
+    name: 'Min Steps to Zero',
+    folder: 'min_steps_to_zero',
+    testFile: './testCases/minStepsToZeroTests.js',
+    adapter: './adapters/minStepsToZeroAdapter.js'
+  },
+  longest_run_of_ones: {
+    name: 'Longest Run of Ones',
+    folder: 'longest_run_of_ones',
+    testFile: './testCases/longestRunOfOnesTests.js',
+    adapter: './adapters/longestRunOfOnesAdapter.js'
+  },
+  valid_parentheses_with_star: {
+    name: 'Valid Parentheses with Star',
+    folder: 'valid_parentheses_with_star',
+    testFile: './testCases/validParenthesesWithStarTests.js',
+    adapter: './adapters/validParenthesesWithStarAdapter.js'
+  },
+  remove_adjacent_duplicates: {
+    name: 'Remove Adjacent Duplicates',
+    folder: 'remove_adjacent_duplicates',
+    testFile: './testCases/removeAdjacentDuplicatesTests.js',
+    adapter: './adapters/removeAdjacentDuplicatesAdapter.js'
+  },
+  kth_smallest_in_bst: {
+    name: 'Kth Smallest in BST',
+    folder: 'kth_smallest_in_bst',
+    testFile: './testCases/kthSmallestInBstTests.js',
+    adapter: './adapters/kthSmallestInBstAdapter.js'
+  },
+  level_order_traversal: {
+    name: 'Level Order Traversal',
+    folder: 'level_order_traversal',
+    testFile: './testCases/levelOrderTraversalTests.js',
+    adapter: './adapters/levelOrderTraversalAdapter.js'
+  },
+  lowest_common_ancestor_bst: {
+    name: 'Lowest Common Ancestor BST',
+    folder: 'lowest_common_ancestor_bst',
+    testFile: './testCases/lowestCommonAncestorBstTests.js',
+    adapter: './adapters/lowestCommonAncestorBstAdapter.js'
+  },
+  merge_k_sorted_lists: {
+    name: 'Merge K Sorted Lists',
+    folder: 'merge_k_sorted_lists',
+    testFile: './testCases/mergeKSortedListsTests.js',
+    adapter: './adapters/mergeKSortedListsAdapter.js'
+  },
+  detect_cycle_in_linked_list: {
+    name: 'Detect Cycle in Linked List',
+    folder: 'detect_cycle_in_linked_list',
+    testFile: './testCases/detectCycleInLinkedListTests.js',
+    adapter: './adapters/detectCycleInLinkedListAdapter.js'
+  },
+  partition_equal_subset_sum: {
+    name: 'Partition Equal Subset Sum',
+    folder: 'partition_equal_subset_sum',
+    testFile: './testCases/partitionEqualSubsetSumTests.js',
+    adapter: './adapters/partitionEqualSubsetSumAdapter.js'
+  },
+  coin_change_min_coins: {
+    name: 'Coin Change Min Coins',
+    folder: 'coin_change_min_coins',
+    testFile: './testCases/coinChangeMinCoinsTests.js',
+    adapter: './adapters/coinChangeMinCoinsAdapter.js'
+  },
+  longest_common_subsequence: {
+    name: 'Longest Common Subsequence',
+    folder: 'longest_common_subsequence',
+    testFile: './testCases/longestCommonSubsequenceTests.js',
+    adapter: './adapters/longestCommonSubsequenceAdapter.js'
+  },
+  edit_distance: {
+    name: 'Edit Distance',
+    folder: 'edit_distance',
+    testFile: './testCases/editDistanceTests.js',
+    adapter: './adapters/editDistanceAdapter.js'
+  },
+  unique_paths_with_obstacles: {
+    name: 'Unique Paths with Obstacles',
+    folder: 'unique_paths_with_obstacles',
+    testFile: './testCases/uniquePathsWithObstaclesTests.js',
+    adapter: './adapters/uniquePathsWithObstaclesAdapter.js'
+  },
+  isomorphic_strings: {
+    name: 'Isomorphic Strings',
+    folder: 'isomorphic_strings',
+    testFile: './testCases/isomorphicStringsTests.js',
+    adapter: './adapters/isomorphicStringsAdapter.js'
+  },
+  find_peak_element: {
+    name: 'Find Peak Element',
+    folder: 'find_peak_element',
+    testFile: './testCases/findPeakElementTests.js',
+    adapter: './adapters/findPeakElementAdapter.js'
+  },
+  spiral_matrix_traversal: {
+    name: 'Spiral Matrix Traversal',
+    folder: 'spiral_matrix_traversal',
+    testFile: './testCases/spiralMatrixTraversalTests.js',
+    adapter: './adapters/spiralMatrixTraversalAdapter.js'
+  },
 };
 
 // Helper function to get challenge config
