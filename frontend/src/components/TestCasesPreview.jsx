@@ -76,20 +76,12 @@ export default function TestCasesPreview({ testCases, isRunning, actionType, isE
         </div>
 
         <div className="test-case-content">
-          <div className="test-case-header">
-            <div className="test-case-left">
-              <span className="test-name">
-                Test {selectedTestIndex + 1}: {selectedTestCase.name}
-              </span>
-              {isRunning && (
-                <span className="test-case-preview-status running" style={{ marginLeft: '10px' }}>
-                  <span className="spinner"></span> Running...
-                </span>
-              )}
-            </div>
-          </div>
-
           <div className="test-details">
+            {isRunning && (
+              <div className="test-case-preview-status running">
+                <span className="spinner"></span> Running...
+              </div>
+            )}
             <div className="test-input">
               <strong>Input:</strong>
               <pre>{selectedTestCase.input}</pre>
