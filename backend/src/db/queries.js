@@ -46,6 +46,29 @@ export function insertChallenge(challenge) {
   );
 }
 
+export function insertChallengeIfMissing(challenge) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    INSERT INTO challenges (id, name, folder, test_file, adapter, difficulty, topics, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    ON CONFLICT(id) DO NOTHING
+  `);
+
+  const topicsJson = Array.isArray(challenge.topics)
+    ? JSON.stringify(challenge.topics)
+    : challenge.topics || '[]';
+
+  return stmt.run(
+    challenge.id,
+    challenge.name,
+    challenge.folder,
+    challenge.test_file,
+    challenge.adapter,
+    challenge.difficulty ?? null,
+    topicsJson
+  );
+}
+
 export function getChallengeAsset(challengeId, type, language = '') {
   const db = getDatabase();
   const stmt = db.prepare(`
