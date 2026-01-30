@@ -6,6 +6,7 @@
     "dev": "node src/server.js",
     "start": "node src/server.js",
     "backup:db": "node src/db/backupDatabase.js",
+    "backfill:challenge-metadata": "node src/db/backfillChallengeMetadata.js",
     "backfill:leetcode": "node src/db/backfillLeetCodeSubmissions.js",
     "seed:challenge-content": "node src/db/seedChallengeContent.js",
     "migrate": "node src/db/migrate.js",
