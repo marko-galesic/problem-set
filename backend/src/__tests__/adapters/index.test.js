@@ -71,6 +71,53 @@ describe('Adapter Registry', () => {
       });
     });
 
+    test('should load standard adapter definitions by key', async () => {
+      const adapter = await loadAdapter('standard:twoSum:java');
+      expect(adapter).toBeDefined();
+      expect(adapter.getReturnType()).toBe('int[]');
+      expect(adapter.extractInput({ nums: [1, 2], target: 3 })).toEqual({
+        nums: [1, 2],
+        target: 3
+      });
+    });
+
+    test('should load standard adapter definitions for python', async () => {
+      const adapter = await loadAdapter('standard:twoSum:python');
+      expect(adapter).toBeDefined();
+      expect(adapter.getReturnType()).toBe('list[int]');
+    });
+
+    test('standard adapter path should match wrapper output', async () => {
+      const wrapperAdapter = await loadAdapter('./adapters/twoSumAdapter.js');
+      const standardAdapter = await loadAdapter('standard:twoSum:java');
+      const sampleTestCases = [
+        { nums: [2, 7, 11, 15], target: 9, expected: [0, 1] },
+        { nums: [3, 2, 4], target: 6, expected: [1, 2] }
+      ];
+      const sample = sampleTestCases[0];
+
+      expect(standardAdapter.extractInput(sample)).toEqual(wrapperAdapter.extractInput(sample));
+      expect(standardAdapter.buildExpectedCode(sample.expected)).toBe(
+        wrapperAdapter.buildExpectedCode(sample.expected)
+      );
+      expect(standardAdapter.generateSerializer()).toBe(wrapperAdapter.generateSerializer());
+      expect(standardAdapter.generateInvocation('solver')).toBe(
+        wrapperAdapter.generateInvocation('solver')
+      );
+      expect(standardAdapter.generateInputHelpers(sampleTestCases)).toBe(
+        wrapperAdapter.generateInputHelpers(sampleTestCases)
+      );
+      expect(standardAdapter.getReturnType()).toBe(wrapperAdapter.getReturnType());
+      expect(standardAdapter.getSerializerMethod()).toBe(wrapperAdapter.getSerializerMethod());
+      expect(standardAdapter.getDefaultClassName()).toBe(wrapperAdapter.getDefaultClassName());
+    });
+
+    test('should throw error for invalid standard adapter key', async () => {
+      await expect(
+        loadAdapter('standard:notARealAdapter:java')
+      ).rejects.toThrow();
+    });
+
     test('should throw error for non-existent adapter', async () => {
       await expect(
         loadAdapter('./adapters/nonExistentAdapter.js')

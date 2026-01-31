@@ -7,6 +7,7 @@ import { dirname, join } from 'path';
 import { initDatabase } from '../db/database.js';
 import { getChallengeAdapterDefinition } from '../db/queries.js';
 import { createStandardAdapter } from './standardAdapterFactory.js';
+import { standardAdapterDefinitions } from './standardAdapterDefinitions.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,6 +34,24 @@ export async function loadAdapter(adapterPath) {
       const definition = getChallengeAdapterDefinition(challengeId);
       if (!definition) {
         throw new Error(`Missing adapter definition for ${challengeId}`);
+      }
+
+      const adapter = createStandardAdapter(definition, language);
+      adapterCache.set(adapterPath, adapter);
+      return adapter;
+    }
+    if (adapterPath.startsWith('standard:')) {
+      const parts = adapterPath.split(':');
+      const adapterKey = parts[1];
+      const language = parts[2] || 'java';
+
+      if (!adapterKey) {
+        throw new Error('Missing standard adapter key');
+      }
+
+      const definition = standardAdapterDefinitions[adapterKey];
+      if (!definition) {
+        throw new Error(`Missing standard adapter definition for ${adapterKey}`);
       }
 
       const adapter = createStandardAdapter(definition, language);
