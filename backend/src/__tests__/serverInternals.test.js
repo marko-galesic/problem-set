@@ -34,17 +34,35 @@ describe('Server helper utilities', () => {
   });
 
   test('language-based paths and templates resolve correctly', () => {
-    const challenge = { adapter: './adapters/twoSumAdapter.js' };
+    const fileChallenge = { adapter: './adapters/lruCacheAdapter.js' };
+    const standardChallenge = { adapter: 'standard:twoSum:java' };
 
-    expect(testables.getLanguageAdapterPath(challenge, 'python')).toBe('./adapters/python/twoSumAdapter.js');
-    expect(testables.getLanguageAdapterPath(challenge, 'javascript')).toBe('./adapters/javascript/twoSumAdapter.js');
-    expect(testables.getLanguageAdapterPath(challenge, 'typescript')).toBe('./adapters/typescript/twoSumAdapter.js');
-    expect(testables.getLanguageAdapterPath(challenge, 'java')).toBe('./adapters/twoSumAdapter.js');
+    expect(testables.getLanguageAdapterPath(fileChallenge, 'python')).toBe('./adapters/python/lruCacheAdapter.js');
+    expect(testables.getLanguageAdapterPath(fileChallenge, 'javascript')).toBe('./adapters/javascript/lruCacheAdapter.js');
+    expect(testables.getLanguageAdapterPath(fileChallenge, 'typescript')).toBe('./adapters/typescript/lruCacheAdapter.js');
+    expect(testables.getLanguageAdapterPath(fileChallenge, 'java')).toBe('./adapters/lruCacheAdapter.js');
+
+    expect(testables.getLanguageAdapterPath(standardChallenge, 'python')).toBe('standard:twoSum:python');
+    expect(testables.getLanguageAdapterPath(standardChallenge, 'javascript')).toBe('standard:twoSum:javascript');
+    expect(testables.getLanguageAdapterPath(standardChallenge, 'typescript')).toBe('standard:twoSum:typescript');
+    expect(testables.getLanguageAdapterPath(standardChallenge, 'java')).toBe('standard:twoSum:java');
 
     expect(testables.getTemplateFilename('python')).toBe('template.py');
     expect(testables.getTemplateFilename('javascript')).toBe('template.js');
     expect(testables.getTemplateFilename('typescript')).toBe('template.ts');
     expect(testables.getTemplateFilename('java')).toBe('template.java');
+  });
+
+  test('standard adapter file paths resolve to standard adapter ids', () => {
+    const standardFileChallenge = { adapter: './adapters/twoSumAdapter.js' };
+    const overrideFileChallenge = { adapter: './adapters/groupAnagramsAdapter.js' };
+
+    expect(testables.getLanguageAdapterPath(standardFileChallenge, 'java')).toBe('standard:twoSum:java');
+    expect(testables.getLanguageAdapterPath(standardFileChallenge, 'python')).toBe('standard:twoSum:python');
+
+    expect(testables.getLanguageAdapterPath(overrideFileChallenge, 'javascript')).toBe(
+      './adapters/javascript/groupAnagramsAdapter.js'
+    );
   });
 
   test('getTechBarDescriptionText caches and handles missing files', async () => {

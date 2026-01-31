@@ -29,6 +29,7 @@ export async function loadAdapter(adapterPath) {
       const parts = adapterPath.split(':');
       const challengeId = parts[1];
       const language = parts[2] || 'java';
+      const normalizedLanguage = language === 'typescript' ? 'javascript' : language;
 
       initDatabase();
       const definition = getChallengeAdapterDefinition(challengeId);
@@ -36,7 +37,7 @@ export async function loadAdapter(adapterPath) {
         throw new Error(`Missing adapter definition for ${challengeId}`);
       }
 
-      const adapter = createStandardAdapter(definition, language);
+      const adapter = createStandardAdapter(definition, normalizedLanguage);
       adapterCache.set(adapterPath, adapter);
       return adapter;
     }
@@ -44,6 +45,7 @@ export async function loadAdapter(adapterPath) {
       const parts = adapterPath.split(':');
       const adapterKey = parts[1];
       const language = parts[2] || 'java';
+      const normalizedLanguage = language === 'typescript' ? 'javascript' : language;
 
       if (!adapterKey) {
         throw new Error('Missing standard adapter key');
@@ -54,7 +56,7 @@ export async function loadAdapter(adapterPath) {
         throw new Error(`Missing standard adapter definition for ${adapterKey}`);
       }
 
-      const adapter = createStandardAdapter(definition, language);
+      const adapter = createStandardAdapter(definition, normalizedLanguage);
       adapterCache.set(adapterPath, adapter);
       return adapter;
     }

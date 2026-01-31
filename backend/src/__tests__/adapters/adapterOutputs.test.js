@@ -35,34 +35,48 @@ async function snapshotAdapter(spec) {
   };
 }
 
+function resolveLanguageAdapterPath(adapterPath, language) {
+  if (adapterPath.startsWith('standard:')) {
+    const parts = adapterPath.split(':');
+    const adapterKey = parts[1];
+    if (adapterKey) {
+      return `standard:${adapterKey}:${language}`;
+    }
+  }
+  if (adapterPath.startsWith('./adapters/')) {
+    return adapterPath.replace('./adapters/', `./adapters/${language}/`);
+  }
+  return adapterPath;
+}
+
 const JAVA_CASES = [
   {
     name: 'twoSum',
-    adapterPath: './adapters/twoSumAdapter.js',
+    adapterPath: 'standard:twoSum:java',
     testCaseFile: 'twoSumTests.js',
     sampleSize: 2
   },
   {
     name: 'binarySearch',
-    adapterPath: './adapters/binarySearchAdapter.js',
+    adapterPath: 'standard:binarySearch:java',
     testCaseFile: 'binarySearchTests.js',
     sampleSize: 2
   },
   {
     name: 'maximumAverageSubarrayI',
-    adapterPath: './adapters/maximumAverageSubarrayIAdapter.js',
+    adapterPath: 'standard:maximumAverageSubarrayI:java',
     testCaseFile: 'maximumAverageSubarrayITests.js',
     sampleSize: 2
   },
   {
     name: 'minimumWindowSubstring',
-    adapterPath: './adapters/minimumWindowSubstringAdapter.js',
+    adapterPath: 'standard:minimumWindowSubstring:java',
     testCaseFile: 'minimumWindowSubstringTests.js',
     sampleSize: 2
   },
   {
     name: 'letterCombinationsOfAPhoneNumber',
-    adapterPath: './adapters/letterCombinationsOfAPhoneNumberAdapter.js',
+    adapterPath: 'standard:letterCombinationsOfAPhoneNumber:java',
     testCaseFile: 'letterCombinationsOfAPhoneNumberTests.js',
     sampleSize: 2
   },
@@ -74,19 +88,19 @@ const JAVA_CASES = [
   },
   {
     name: 'setMatrixZeroes',
-    adapterPath: './adapters/setMatrixZeroesAdapter.js',
+    adapterPath: 'standard:setMatrixZeroes:java',
     testCaseFile: 'setMatrixZeroesTests.js',
     sampleSize: 1
   },
   {
     name: 'sudokuSolver',
-    adapterPath: './adapters/sudokuSolverAdapter.js',
+    adapterPath: 'standard:sudokuSolver:java',
     testCaseFile: 'sudokuSolverTests.js',
     sampleSize: 1
   },
   {
     name: 'wordSearch',
-    adapterPath: './adapters/wordSearchAdapter.js',
+    adapterPath: 'standard:wordSearch:java',
     testCaseFile: 'wordSearchTests.js',
     sampleSize: 1
   }
@@ -94,12 +108,12 @@ const JAVA_CASES = [
 
 const JAVASCRIPT_CASES = JAVA_CASES.map((spec) => ({
   ...spec,
-  adapterPath: spec.adapterPath.replace('./adapters/', './adapters/javascript/')
+  adapterPath: resolveLanguageAdapterPath(spec.adapterPath, 'javascript')
 }));
 
 const PYTHON_CASES = JAVA_CASES.map((spec) => ({
   ...spec,
-  adapterPath: spec.adapterPath.replace('./adapters/', './adapters/python/')
+  adapterPath: resolveLanguageAdapterPath(spec.adapterPath, 'python')
 }));
 
 describe('adapter outputs (characterization)', () => {

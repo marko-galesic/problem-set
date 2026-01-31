@@ -22,7 +22,7 @@ if (shouldSeed && !globalThis.__CHALLENGES_DB_SEEDED__) {
     name: 'Two Sum',
     folder: 'two_sum',
     test_file: './testCases/twoSumTests.js',
-    adapter: './adapters/twoSumAdapter.js',
+    adapter: 'standard:twoSum:java',
     difficulty: null,
     topics: []
   });

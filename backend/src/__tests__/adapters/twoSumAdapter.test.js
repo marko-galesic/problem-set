@@ -1,6 +1,9 @@
 import { describe, test, expect } from '@jest/globals';
-import twoSumAdapter from '../../adapters/twoSumAdapter.js';
+import { createStandardAdapter } from '../../adapters/standardAdapterFactory.js';
+import { standardAdapterDefinitions } from '../../adapters/standardAdapterDefinitions.js';
 import { twoSumTestCases } from '../utils/fixtures.js';
+
+const twoSumAdapter = createStandardAdapter(standardAdapterDefinitions.twoSum, 'java');
 
 describe('Two Sum Adapter', () => {
   describe('extractInput', () => {

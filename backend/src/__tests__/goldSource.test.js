@@ -111,6 +111,13 @@ async function readGoldSource(challengeId, language = 'java') {
  * Loads test cases for a challenge
  */
 function getAdapterPath(challenge, language) {
+  if (challenge.adapter?.startsWith('standard:')) {
+    const parts = challenge.adapter.split(':');
+    const adapterKey = parts[1];
+    if (adapterKey) {
+      return `standard:${adapterKey}:${language}`;
+    }
+  }
   if (language === 'javascript' && challenge.adapter.startsWith('./adapters/')) {
     return challenge.adapter.replace('./adapters/', './adapters/javascript/');
   }

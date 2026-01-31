@@ -5,6 +5,7 @@ import { dirname, join } from 'path';
 import { initDatabase } from '../../db/database.js';
 import { insertChallenge, upsertChallengeAdapterDefinition } from '../../db/queries.js';
 import { standardAdapterDefinitions } from '../../adapters/standardAdapterDefinitions.js';
+import { createStandardAdapter } from '../../adapters/standardAdapterFactory.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,7 +17,7 @@ describe('Adapter Registry', () => {
 
   describe('loadAdapter', () => {
     test('should load Two Sum adapter', async () => {
-      const adapter = await loadAdapter('./adapters/twoSumAdapter.js');
+      const adapter = await loadAdapter('standard:twoSum:java');
       expect(adapter).toBeDefined();
       expect(adapter.getReturnType).toBeDefined();
       expect(adapter.getReturnType()).toBe('int[]');
@@ -30,13 +31,13 @@ describe('Adapter Registry', () => {
     });
 
     test('should cache loaded adapters', async () => {
-      const adapter1 = await loadAdapter('./adapters/twoSumAdapter.js');
-      const adapter2 = await loadAdapter('./adapters/twoSumAdapter.js');
+      const adapter1 = await loadAdapter('standard:twoSum:java');
+      const adapter2 = await loadAdapter('standard:twoSum:java');
       expect(adapter1).toBe(adapter2); // Same instance
     });
 
     test('should handle adapter path with ./ prefix', async () => {
-      const adapter = await loadAdapter('./adapters/twoSumAdapter.js');
+      const adapter = await loadAdapter('./adapters/lruCacheAdapter.js');
       expect(adapter).toBeDefined();
     });
 
@@ -56,7 +57,7 @@ describe('Adapter Registry', () => {
         name: 'DB Standard Two Sum',
         folder: 'two_sum',
         test_file: './testCases/twoSumTests.js',
-        adapter: './adapters/twoSumAdapter.js',
+        adapter: 'standard:twoSum:java',
         difficulty: null,
         topics: []
       });
@@ -87,8 +88,14 @@ describe('Adapter Registry', () => {
       expect(adapter.getReturnType()).toBe('list[int]');
     });
 
-    test('standard adapter path should match wrapper output', async () => {
-      const wrapperAdapter = await loadAdapter('./adapters/twoSumAdapter.js');
+    test('should load standard adapter definitions for typescript', async () => {
+      const adapter = await loadAdapter('standard:twoSum:typescript');
+      expect(adapter).toBeDefined();
+      expect(adapter.getReturnType()).toBe('number[]');
+    });
+
+    test('standard adapter path should match factory output', async () => {
+      const factoryAdapter = createStandardAdapter(standardAdapterDefinitions.twoSum, 'java');
       const standardAdapter = await loadAdapter('standard:twoSum:java');
       const sampleTestCases = [
         { nums: [2, 7, 11, 15], target: 9, expected: [0, 1] },
@@ -96,20 +103,20 @@ describe('Adapter Registry', () => {
       ];
       const sample = sampleTestCases[0];
 
-      expect(standardAdapter.extractInput(sample)).toEqual(wrapperAdapter.extractInput(sample));
+      expect(standardAdapter.extractInput(sample)).toEqual(factoryAdapter.extractInput(sample));
       expect(standardAdapter.buildExpectedCode(sample.expected)).toBe(
-        wrapperAdapter.buildExpectedCode(sample.expected)
+        factoryAdapter.buildExpectedCode(sample.expected)
       );
-      expect(standardAdapter.generateSerializer()).toBe(wrapperAdapter.generateSerializer());
+      expect(standardAdapter.generateSerializer()).toBe(factoryAdapter.generateSerializer());
       expect(standardAdapter.generateInvocation('solver')).toBe(
-        wrapperAdapter.generateInvocation('solver')
+        factoryAdapter.generateInvocation('solver')
       );
       expect(standardAdapter.generateInputHelpers(sampleTestCases)).toBe(
-        wrapperAdapter.generateInputHelpers(sampleTestCases)
+        factoryAdapter.generateInputHelpers(sampleTestCases)
       );
-      expect(standardAdapter.getReturnType()).toBe(wrapperAdapter.getReturnType());
-      expect(standardAdapter.getSerializerMethod()).toBe(wrapperAdapter.getSerializerMethod());
-      expect(standardAdapter.getDefaultClassName()).toBe(wrapperAdapter.getDefaultClassName());
+      expect(standardAdapter.getReturnType()).toBe(factoryAdapter.getReturnType());
+      expect(standardAdapter.getSerializerMethod()).toBe(factoryAdapter.getSerializerMethod());
+      expect(standardAdapter.getDefaultClassName()).toBe(factoryAdapter.getDefaultClassName());
     });
 
     test('should throw error for invalid standard adapter key', async () => {
@@ -133,20 +140,19 @@ describe('Adapter Registry', () => {
 
   describe('clearCache', () => {
     test('should clear adapter cache', async () => {
-      const adapter1 = await loadAdapter('./adapters/twoSumAdapter.js');
+      const adapter1 = await loadAdapter('standard:twoSum:java');
       clearCache();
-      const adapter2 = await loadAdapter('./adapters/twoSumAdapter.js');
-      // ES modules are singletons, so adapter1 and adapter2 will be the same object
-      // The cache clear still works (clears internal cache), but ES module imports are cached by Node.js
-      expect(adapter1).toBe(adapter2); // Same instance due to ES module singleton behavior
-      // But should have same functionality
+      const adapter2 = await loadAdapter('standard:twoSum:java');
+      // Standard adapters are created per load, so clearCache should allow a new instance.
+      expect(adapter1).not.toBe(adapter2);
+      // But should have same functionality.
       expect(adapter1.getReturnType()).toBe(adapter2.getReturnType());
     });
 
     test('should allow loading adapter after cache clear', async () => {
-      await loadAdapter('./adapters/twoSumAdapter.js');
+      await loadAdapter('standard:twoSum:java');
       clearCache();
-      const adapter = await loadAdapter('./adapters/twoSumAdapter.js');
+      const adapter = await loadAdapter('standard:twoSum:java');
       expect(adapter).toBeDefined();
     });
   });

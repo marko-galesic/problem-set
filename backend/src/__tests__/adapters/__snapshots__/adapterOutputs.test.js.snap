@@ -2,7 +2,7 @@
 
 exports[`adapter outputs (characterization) java adapters binarySearch 1`] = `
 {
-  "adapterPath": "./adapters/binarySearchAdapter.js",
+  "adapterPath": "standard:binarySearch:java",
   "defaultClassName": "BinarySearch",
   "expectedCode": "        int expected = 2;
 ",
@@ -147,7 +147,7 @@ exports[`adapter outputs (characterization) java adapters groupAnagrams 1`] = `
 
 exports[`adapter outputs (characterization) java adapters letterCombinationsOfAPhoneNumber 1`] = `
 {
-  "adapterPath": "./adapters/letterCombinationsOfAPhoneNumberAdapter.js",
+  "adapterPath": "standard:letterCombinationsOfAPhoneNumber:java",
   "defaultClassName": "LetterCombinationsOfAPhoneNumber",
   "expectedCode": "        String[] expected = new String[] { "ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf" };
 ",
@@ -194,7 +194,7 @@ exports[`adapter outputs (characterization) java adapters letterCombinationsOfAP
 
 exports[`adapter outputs (characterization) java adapters maximumAverageSubarrayI 1`] = `
 {
-  "adapterPath": "./adapters/maximumAverageSubarrayIAdapter.js",
+  "adapterPath": "standard:maximumAverageSubarrayI:java",
   "defaultClassName": "MaximumAverageSubarrayI",
   "expectedCode": "        double expected = 12.75;
 ",
@@ -244,7 +244,7 @@ exports[`adapter outputs (characterization) java adapters maximumAverageSubarray
 
 exports[`adapter outputs (characterization) java adapters minimumWindowSubstring 1`] = `
 {
-  "adapterPath": "./adapters/minimumWindowSubstringAdapter.js",
+  "adapterPath": "standard:minimumWindowSubstring:java",
   "defaultClassName": "MinimumWindowSubstring",
   "expectedCode": "        String expected = "BANC";
 ",
@@ -288,7 +288,7 @@ exports[`adapter outputs (characterization) java adapters minimumWindowSubstring
 
 exports[`adapter outputs (characterization) java adapters setMatrixZeroes 1`] = `
 {
-  "adapterPath": "./adapters/setMatrixZeroesAdapter.js",
+  "adapterPath": "standard:setMatrixZeroes:java",
   "defaultClassName": "SetMatrixZeroes",
   "expectedCode": "        int[][] expected = new int[][] { new int[] { 1, 0, 1 }, new int[] { 0, 0, 0 }, new int[] { 1, 0, 1 } };
 ",
@@ -351,7 +351,7 @@ exports[`adapter outputs (characterization) java adapters setMatrixZeroes 1`] = 
 
 exports[`adapter outputs (characterization) java adapters sudokuSolver 1`] = `
 {
-  "adapterPath": "./adapters/sudokuSolverAdapter.js",
+  "adapterPath": "standard:sudokuSolver:java",
   "defaultClassName": "SudokuSolver",
   "expectedCode": "        char[][] expected = new char[][] { new char[] { '5', '3', '4', '6', '7', '8', '9', '1', '2' }, new char[] { '6', '7', '2', '1', '9', '5', '3', '4', '8' }, new char[] { '1', '9', '8', '3', '4', '2', '5', '6', '7' }, new char[] { '8', '5', '9', '7', '6', '1', '4', '2', '3' }, new char[] { '4', '2', '6', '8', '5', '3', '7', '9', '1' }, new char[] { '7', '1', '3', '9', '2', '4', '8', '5', '6' }, new char[] { '9', '6', '1', '5', '3', '7', '2', '8', '4' }, new char[] { '2', '8', '7', '4', '1', '9', '6', '3', '5' }, new char[] { '3', '4', '5', '2', '8', '6', '1', '7', '9' } };
 ",
@@ -516,7 +516,7 @@ exports[`adapter outputs (characterization) java adapters sudokuSolver 1`] = `
 
 exports[`adapter outputs (characterization) java adapters twoSum 1`] = `
 {
-  "adapterPath": "./adapters/twoSumAdapter.js",
+  "adapterPath": "standard:twoSum:java",
   "defaultClassName": "TwoSum",
   "expectedCode": "        int[] expected = new int[] { 0, 1 };
 ",
@@ -570,7 +570,7 @@ exports[`adapter outputs (characterization) java adapters twoSum 1`] = `
 
 exports[`adapter outputs (characterization) java adapters wordSearch 1`] = `
 {
-  "adapterPath": "./adapters/wordSearchAdapter.js",
+  "adapterPath": "standard:wordSearch:java",
   "defaultClassName": "WordSearch",
   "expectedCode": "        boolean expected = true;
 ",
@@ -626,7 +626,7 @@ exports[`adapter outputs (characterization) java adapters wordSearch 1`] = `
 
 exports[`adapter outputs (characterization) javascript adapters binarySearch 1`] = `
 {
-  "adapterPath": "./adapters/javascript/binarySearchAdapter.js",
+  "adapterPath": "standard:binarySearch:javascript",
   "defaultClassName": "BinarySearch",
   "expectedCode": "  const expected = 2;
 ",
@@ -741,7 +741,7 @@ function serializeGroupAnagrams(matrix) {
 
 exports[`adapter outputs (characterization) javascript adapters letterCombinationsOfAPhoneNumber 1`] = `
 {
-  "adapterPath": "./adapters/javascript/letterCombinationsOfAPhoneNumberAdapter.js",
+  "adapterPath": "standard:letterCombinationsOfAPhoneNumber:javascript",
   "defaultClassName": "LetterCombinationsOfAPhoneNumber",
   "expectedCode": "  const expected = ["ad","ae","af","bd","be","bf","cd","ce","cf"];
 ",
@@ -780,7 +780,7 @@ exports[`adapter outputs (characterization) javascript adapters letterCombinatio
 
 exports[`adapter outputs (characterization) javascript adapters maximumAverageSubarrayI 1`] = `
 {
-  "adapterPath": "./adapters/javascript/maximumAverageSubarrayIAdapter.js",
+  "adapterPath": "standard:maximumAverageSubarrayI:javascript",
   "defaultClassName": "MaximumAverageSubarrayI",
   "expectedCode": "  const expected = 12.75;
 ",
@@ -822,7 +822,7 @@ function getTestK(index) {
 
 exports[`adapter outputs (characterization) javascript adapters minimumWindowSubstring 1`] = `
 {
-  "adapterPath": "./adapters/javascript/minimumWindowSubstringAdapter.js",
+  "adapterPath": "standard:minimumWindowSubstring:javascript",
   "defaultClassName": "MinimumWindowSubstring",
   "expectedCode": "  const expected = "BANC";
 ",
@@ -865,7 +865,7 @@ function getTestT(index) {
 
 exports[`adapter outputs (characterization) javascript adapters setMatrixZeroes 1`] = `
 {
-  "adapterPath": "./adapters/javascript/setMatrixZeroesAdapter.js",
+  "adapterPath": "standard:setMatrixZeroes:javascript",
   "defaultClassName": "SetMatrixZeroes",
   "expectedCode": "  const expected = [[1,0,1],[0,0,0],[1,0,1]];
 ",
@@ -914,7 +914,7 @@ exports[`adapter outputs (characterization) javascript adapters setMatrixZeroes 
 
 exports[`adapter outputs (characterization) javascript adapters sudokuSolver 1`] = `
 {
-  "adapterPath": "./adapters/javascript/sudokuSolverAdapter.js",
+  "adapterPath": "standard:sudokuSolver:javascript",
   "defaultClassName": "SudokuSolver",
   "expectedCode": "  const expected = [["5","3","4","6","7","8","9","1","2"],["6","7","2","1","9","5","3","4","8"],["1","9","8","3","4","2","5","6","7"],["8","5","9","7","6","1","4","2","3"],["4","2","6","8","5","3","7","9","1"],["7","1","3","9","2","4","8","5","6"],["9","6","1","5","3","7","2","8","4"],["2","8","7","4","1","9","6","3","5"],["3","4","5","2","8","6","1","7","9"]];
 ",
@@ -1057,7 +1057,7 @@ function escapeChar(value) {
 
 exports[`adapter outputs (characterization) javascript adapters twoSum 1`] = `
 {
-  "adapterPath": "./adapters/javascript/twoSumAdapter.js",
+  "adapterPath": "standard:twoSum:javascript",
   "defaultClassName": "TwoSum",
   "expectedCode": "  const expected = [0,1];
 ",
@@ -1096,7 +1096,7 @@ function getTestTarget(index) {
 
 exports[`adapter outputs (characterization) javascript adapters wordSearch 1`] = `
 {
-  "adapterPath": "./adapters/javascript/wordSearchAdapter.js",
+  "adapterPath": "standard:wordSearch:javascript",
   "defaultClassName": "WordSearch",
   "expectedCode": "  const expected = true;
 ",
@@ -1151,7 +1151,7 @@ function getTestWord(index) {
 
 exports[`adapter outputs (characterization) python adapters binarySearch 1`] = `
 {
-  "adapterPath": "./adapters/python/binarySearchAdapter.js",
+  "adapterPath": "standard:binarySearch:python",
   "defaultClassName": "BinarySearch",
   "expectedCode": "    expected = 2
 ",
@@ -1270,7 +1270,7 @@ def serialize_group_anagrams(matrix):
 
 exports[`adapter outputs (characterization) python adapters letterCombinationsOfAPhoneNumber 1`] = `
 {
-  "adapterPath": "./adapters/python/letterCombinationsOfAPhoneNumberAdapter.js",
+  "adapterPath": "standard:letterCombinationsOfAPhoneNumber:python",
   "defaultClassName": "LetterCombinationsOfAPhoneNumber",
   "expectedCode": "    expected = ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]
 ",
@@ -1308,7 +1308,7 @@ actual = solver.letterCombinations(digits)",
 
 exports[`adapter outputs (characterization) python adapters maximumAverageSubarrayI 1`] = `
 {
-  "adapterPath": "./adapters/python/maximumAverageSubarrayIAdapter.js",
+  "adapterPath": "standard:maximumAverageSubarrayI:python",
   "defaultClassName": "MaximumAverageSubarrayI",
   "expectedCode": "    expected = 12.75
 ",
@@ -1354,7 +1354,7 @@ actual = solver.findMaxAverage(nums, k)",
 
 exports[`adapter outputs (characterization) python adapters minimumWindowSubstring 1`] = `
 {
-  "adapterPath": "./adapters/python/minimumWindowSubstringAdapter.js",
+  "adapterPath": "standard:minimumWindowSubstring:python",
   "defaultClassName": "MinimumWindowSubstring",
   "expectedCode": "    expected = "BANC"
 ",
@@ -1393,7 +1393,7 @@ actual = solver.minWindow(s, t)",
 
 exports[`adapter outputs (characterization) python adapters setMatrixZeroes 1`] = `
 {
-  "adapterPath": "./adapters/python/setMatrixZeroesAdapter.js",
+  "adapterPath": "standard:setMatrixZeroes:python",
   "defaultClassName": "SetMatrixZeroes",
   "expectedCode": "    expected = [[1, 0, 1], [0, 0, 0], [1, 0, 1]]
 ",
@@ -1451,7 +1451,7 @@ actual = solver.setZeroes(matrix)",
 
 exports[`adapter outputs (characterization) python adapters sudokuSolver 1`] = `
 {
-  "adapterPath": "./adapters/python/sudokuSolverAdapter.js",
+  "adapterPath": "standard:sudokuSolver:python",
   "defaultClassName": "SudokuSolver",
   "expectedCode": "    expected = [["5", "3", "4", "6", "7", "8", "9", "1", "2"], ["6", "7", "2", "1", "9", "5", "3", "4", "8"], ["1", "9", "8", "3", "4", "2", "5", "6", "7"], ["8", "5", "9", "7", "6", "1", "4", "2", "3"], ["4", "2", "6", "8", "5", "3", "7", "9", "1"], ["7", "1", "3", "9", "2", "4", "8", "5", "6"], ["9", "6", "1", "5", "3", "7", "2", "8", "4"], ["2", "8", "7", "4", "1", "9", "6", "3", "5"], ["3", "4", "5", "2", "8", "6", "1", "7", "9"]]
 ",
@@ -1603,7 +1603,7 @@ actual = solver.solveSudoku(board)",
 
 exports[`adapter outputs (characterization) python adapters twoSum 1`] = `
 {
-  "adapterPath": "./adapters/python/twoSumAdapter.js",
+  "adapterPath": "standard:twoSum:python",
   "defaultClassName": "TwoSum",
   "expectedCode": "    expected = [0, 1]
 ",
@@ -1647,7 +1647,7 @@ actual = solver.twoSum(nums, target)",
 
 exports[`adapter outputs (characterization) python adapters wordSearch 1`] = `
 {
-  "adapterPath": "./adapters/python/wordSearchAdapter.js",
+  "adapterPath": "standard:wordSearch:python",
   "defaultClassName": "WordSearch",
   "expectedCode": "    expected = True
 ",

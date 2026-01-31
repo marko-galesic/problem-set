@@ -22,9 +22,17 @@ const DATA_DIR = join(ROOT_DIR, 'data');
 
 const LANGUAGES = ['java', 'python', 'javascript', 'typescript'];
 const HELPERS = ['TreeNode', 'ListNode', 'Node', 'AttrResult'];
+const STANDARD_ADAPTER_OVERRIDES = new Set([
+  'groupAnagrams',
+  'threeSum',
+  'topKFrequentElements'
+]);
 
 function resolveAdapterPath(adapterPath) {
   if (!adapterPath) {
+    return null;
+  }
+  if (adapterPath.startsWith('standard:') || adapterPath.startsWith('db-standard:')) {
     return null;
   }
   const resolved = adapterPath.startsWith('./')
@@ -52,6 +60,25 @@ function extractStandardDefinitionKey(adapterSource) {
   return match?.[1] || null;
 }
 
+function extractStandardDefinitionKeyFromPath(adapterPath) {
+  if (!adapterPath) {
+    return null;
+  }
+  if (!adapterPath.startsWith('standard:')) {
+    const match = adapterPath.match(/\.\/adapters\/(?:(?:javascript|python|typescript)\/)?([A-Za-z0-9_]+)Adapter\.js$/);
+    if (!match) {
+      return null;
+    }
+    const key = match[1];
+    if (STANDARD_ADAPTER_OVERRIDES.has(key)) {
+      return null;
+    }
+    return standardAdapterDefinitions[key] ? key : null;
+  }
+  const parts = adapterPath.split(':');
+  return parts[1] || null;
+}
+
 export async function seedStandardAdapterDefinition({ challengeId, adapterPath }) {
   if (!challengeId) {
     return { seeded: false };
@@ -62,9 +89,10 @@ export async function seedStandardAdapterDefinition({ challengeId, adapterPath }
     return { seeded: false };
   }
 
+  const definitionKeyFromPath = extractStandardDefinitionKeyFromPath(adapterPath);
   const resolvedPath = resolveAdapterPath(adapterPath);
-  const adapterSource = await readFileSafe(resolvedPath);
-  const definitionKey = extractStandardDefinitionKey(adapterSource);
+  const adapterSource = resolvedPath ? await readFileSafe(resolvedPath) : null;
+  const definitionKey = definitionKeyFromPath || extractStandardDefinitionKey(adapterSource);
   if (!definitionKey) {
     return { seeded: false };
   }

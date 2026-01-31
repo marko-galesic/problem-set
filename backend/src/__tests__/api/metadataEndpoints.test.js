@@ -26,7 +26,7 @@ describe('API metadata and analytics endpoints', () => {
       folder: prereqId,
       name: 'Prerequisite Challenge',
       test_file: './testCases/twoSumTests.js',
-      adapter: './adapters/twoSumAdapter.js',
+      adapter: 'standard:twoSum:java',
       difficulty: 'easy',
       topics: [topic]
     });
@@ -39,7 +39,7 @@ describe('API metadata and analytics endpoints', () => {
       folder: challengeId,
       name: 'Main Challenge',
       test_file: './testCases/twoSumTests.js',
-      adapter: './adapters/twoSumAdapter.js',
+      adapter: 'standard:twoSum:java',
       difficulty: 'easy',
       topics: [topic]
     });

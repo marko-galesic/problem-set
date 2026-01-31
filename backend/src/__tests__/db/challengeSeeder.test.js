@@ -38,7 +38,7 @@ describe('challenge seeder', () => {
       name: 'Seeder Test',
       folder,
       test_file: './testCases/twoSumTests.js',
-      adapter: './adapters/twoSumAdapter.js',
+      adapter: 'standard:twoSum:java',
       difficulty: null,
       topics: []
     });
@@ -53,12 +53,33 @@ describe('challenge seeder', () => {
   test('seedStandardAdapterDefinition stores standard definitions', async () => {
     const result = await seedStandardAdapterDefinition({
       challengeId,
-      adapterPath: './adapters/twoSumAdapter.js'
+      adapterPath: 'standard:twoSum:java'
     });
     expect(result.seeded).toBe(true);
     const definition = getChallengeAdapterDefinition(challengeId);
     expect(definition).toBeTruthy();
     expect(definition.method).toBe('twoSum');
+  });
+
+  test('seedStandardAdapterDefinition accepts standard file paths', async () => {
+    const fileChallengeId = `seed_path_${randomUUID()}`;
+    insertChallenge({
+      id: fileChallengeId,
+      name: 'Seeder Path Test',
+      folder,
+      test_file: './testCases/twoSumTests.js',
+      adapter: './adapters/twoSumAdapter.js',
+      difficulty: null,
+      topics: []
+    });
+
+    const result = await seedStandardAdapterDefinition({
+      challengeId: fileChallengeId,
+      adapterPath: './adapters/twoSumAdapter.js'
+    });
+    expect(result.seeded).toBe(true);
+    const definition = getChallengeAdapterDefinition(fileChallengeId);
+    expect(definition?.method).toBe('twoSum');
   });
 
   test('seedChallengeAssetsFromFiles stores file assets', async () => {
@@ -82,4 +103,3 @@ describe('challenge seeder', () => {
     expect(submitTests.length).toBeGreaterThan(0);
   });
 });
-

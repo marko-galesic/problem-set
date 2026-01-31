@@ -25,7 +25,7 @@ describe('challenge content storage', () => {
       name: 'Content Seed',
       folder,
       test_file: './testCases/twoSumTests.js',
-      adapter: './adapters/twoSumAdapter.js',
+      adapter: 'standard:twoSum:java',
       difficulty: null,
       topics: []
     });

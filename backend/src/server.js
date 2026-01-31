@@ -11,6 +11,7 @@ import { executePythonCode } from './executors/pythonExecutor.js';
 import { executeJavaScriptCode } from './executors/javascriptExecutor.js';
 import { executeTypeScriptCode } from './executors/typescriptExecutor.js';
 import { loadAdapter } from './adapters/index.js';
+import { standardAdapterDefinitions } from './adapters/standardAdapterDefinitions.js';
 import { initDatabase } from './db/database.js';
 import {
   getChallengeById,
@@ -72,13 +73,13 @@ export const CHALLENGES = {
     name: 'Two Sum',
     folder: 'two_sum',
     testFile: './testCases/twoSumTests.js',
-    adapter: './adapters/twoSumAdapter.js'
+    adapter: 'standard:twoSum:java'
   },
   contains_duplicate: {
     name: 'Contains Duplicate',
     folder: 'contains_duplicate',
     testFile: './testCases/containsDuplicateTests.js',
-    adapter: './adapters/containsDuplicateAdapter.js'
+    adapter: 'standard:containsDuplicate:java'
   },
   top_k_frequent_elements: {
     name: 'Top K Frequent Elements',
@@ -90,55 +91,55 @@ export const CHALLENGES = {
     name: 'Number of Islands',
     folder: 'number_of_islands',
     testFile: './testCases/numberOfIslandsTests.js',
-    adapter: './adapters/numberOfIslandsAdapter.js'
+    adapter: 'standard:numberOfIslands:java'
   },
   valid_parentheses: {
     name: 'Valid Parentheses',
     folder: 'valid_parentheses',
     testFile: './testCases/validParenthesesTests.js',
-    adapter: './adapters/validParenthesesAdapter.js'
+    adapter: 'standard:validParentheses:java'
   },
   valid_anagram: {
     name: 'Valid Anagram',
     folder: 'valid_anagram',
     testFile: './testCases/validAnagramTests.js',
-    adapter: './adapters/validAnagramAdapter.js'
+    adapter: 'standard:validAnagram:java'
   },
   valid_palindrome: {
     name: 'Valid Palindrome',
     folder: 'valid_palindrome',
     testFile: './testCases/validPalindromeTests.js',
-    adapter: './adapters/validPalindromeAdapter.js'
+    adapter: 'standard:validPalindrome:java'
   },
   valid_palindrome_ii: {
     name: 'Valid Palindrome II',
     folder: 'valid_palindrome_ii',
     testFile: './testCases/validPalindromeIiTests.js',
-    adapter: './adapters/validPalindromeIiAdapter.js'
+    adapter: 'standard:validPalindromeIi:java'
   },
   permutation_in_string: {
     name: 'Permutation in String',
     folder: 'permutation_in_string',
     testFile: './testCases/permutationInStringTests.js',
-    adapter: './adapters/permutationInStringAdapter.js'
+    adapter: 'standard:permutationInString:java'
   },
   is_subsequence: {
     name: 'Is Subsequence',
     folder: 'is_subsequence',
     testFile: './testCases/isSubsequenceTests.js',
-    adapter: './adapters/isSubsequenceAdapter.js'
+    adapter: 'standard:isSubsequence:java'
   },
   to_lower_case: {
     name: 'To Lower Case',
     folder: 'to_lower_case',
     testFile: './testCases/toLowerCaseTests.js',
-    adapter: './adapters/toLowerCaseAdapter.js'
+    adapter: 'standard:toLowerCase:java'
   },
   rotting_oranges: {
     name: 'Rotting Oranges',
     folder: 'rotting_oranges',
     testFile: './testCases/rottingOrangesTests.js',
-    adapter: './adapters/rottingOrangesAdapter.js'
+    adapter: 'standard:rottingOranges:java'
   },
   reverse_linked_list: {
     name: 'Reverse Linked List',
@@ -186,43 +187,43 @@ export const CHALLENGES = {
     name: 'Longest Substring Without Repeating Characters',
     folder: 'longest_substring_without_repeating_characters',
     testFile: './testCases/longestSubstringWithoutRepeatingCharactersTests.js',
-    adapter: './adapters/longestSubstringWithoutRepeatingCharactersAdapter.js'
+    adapter: 'standard:longestSubstringWithoutRepeatingCharacters:java'
   },
   longest_repeating_character_replacement: {
     name: 'Longest Repeating Character Replacement',
     folder: 'longest_repeating_character_replacement',
     testFile: './testCases/longestRepeatingCharacterReplacementTests.js',
-    adapter: './adapters/longestRepeatingCharacterReplacementAdapter.js'
+    adapter: 'standard:longestRepeatingCharacterReplacement:java'
   },
   best_time_to_buy_and_sell_stock: {
     name: 'Best Time to Buy and Sell Stock',
     folder: 'best_time_to_buy_and_sell_stock',
     testFile: './testCases/bestTimeToBuyAndSellStockTests.js',
-    adapter: './adapters/bestTimeToBuyAndSellStockAdapter.js'
+    adapter: 'standard:bestTimeToBuyAndSellStock:java'
   },
   remove_duplicates_from_sorted_array: {
     name: 'Remove Duplicates from Sorted Array',
     folder: 'remove_duplicates_from_sorted_array',
     testFile: './testCases/removeDuplicatesFromSortedArrayTests.js',
-    adapter: './adapters/removeDuplicatesFromSortedArrayAdapter.js'
+    adapter: 'standard:removeDuplicatesFromSortedArray:java'
   },
   remove_element: {
     name: 'Remove Element',
     folder: 'remove_element',
     testFile: './testCases/removeElementTests.js',
-    adapter: './adapters/removeElementAdapter.js'
+    adapter: 'standard:removeElement:java'
   },
   maximum_average_subarray_i: {
     name: 'Maximum Average Subarray I',
     folder: 'maximum_average_subarray_i',
     testFile: './testCases/maximumAverageSubarrayITests.js',
-    adapter: './adapters/maximumAverageSubarrayIAdapter.js'
+    adapter: 'standard:maximumAverageSubarrayI:java'
   },
   coin_change: {
     name: 'Coin Change',
     folder: 'coin_change',
     testFile: './testCases/coinChangeTests.js',
-    adapter: './adapters/coinChangeAdapter.js'
+    adapter: 'standard:coinChange:java'
   },
   paginated_article_stats: {
     name: 'Paginated Article Stats',
@@ -246,67 +247,67 @@ export const CHALLENGES = {
     name: 'Binary Search',
     folder: 'binary_search',
     testFile: './testCases/binarySearchTests.js',
-    adapter: './adapters/binarySearchAdapter.js'
+    adapter: 'standard:binarySearch:java'
   },
   fibonacci_number: {
     name: 'Fibonacci Number',
     folder: 'fibonacci_number',
     testFile: './testCases/fibonacciNumberTests.js',
-    adapter: './adapters/fibonacciNumberAdapter.js'
+    adapter: 'standard:fibonacciNumber:java'
   },
   move_zeroes: {
     name: 'Move Zeroes',
     folder: 'move_zeroes',
     testFile: './testCases/moveZeroesTests.js',
-    adapter: './adapters/moveZeroesAdapter.js'
+    adapter: 'standard:moveZeroes:java'
   },
   reverse_string: {
     name: 'Reverse String',
     folder: 'reverse_string',
     testFile: './testCases/reverseStringTests.js',
-    adapter: './adapters/reverseStringAdapter.js'
+    adapter: 'standard:reverseString:java'
   },
   first_unique_character: {
     name: 'First Unique Character',
     folder: 'first_unique_character',
     testFile: './testCases/firstUniqueCharacterTests.js',
-    adapter: './adapters/firstUniqueCharacterAdapter.js'
+    adapter: 'standard:firstUniqueCharacter:java'
   },
   majority_element: {
     name: 'Majority Element',
     folder: 'majority_element',
     testFile: './testCases/majorityElementTests.js',
-    adapter: './adapters/majorityElementAdapter.js'
+    adapter: 'standard:majorityElement:java'
   },
   maximum_subarray: {
     name: 'Maximum Subarray',
     folder: 'maximum_subarray',
     testFile: './testCases/maximumSubarrayTests.js',
-    adapter: './adapters/maximumSubarrayAdapter.js'
+    adapter: 'standard:maximumSubarray:java'
   },
   valid_mountain_array: {
     name: 'Valid Mountain Array',
     folder: 'valid_mountain_array',
     testFile: './testCases/validMountainArrayTests.js',
-    adapter: './adapters/validMountainArrayAdapter.js'
+    adapter: 'standard:validMountainArray:java'
   },
   single_number: {
     name: 'Single Number',
     folder: 'single_number',
     testFile: './testCases/singleNumberTests.js',
-    adapter: './adapters/singleNumberAdapter.js'
+    adapter: 'standard:singleNumber:java'
   },
   climbing_stairs: {
     name: 'Climbing Stairs',
     folder: 'climbing_stairs',
     testFile: './testCases/climbingStairsTests.js',
-    adapter: './adapters/climbingStairsAdapter.js'
+    adapter: 'standard:climbingStairs:java'
   },
   two_sum_ii_input_sorted: {
     name: 'Two Sum II (Input Sorted)',
     folder: 'two_sum_ii_input_sorted',
     testFile: './testCases/twoSumIiInputSortedTests.js',
-    adapter: './adapters/twoSumIiInputSortedAdapter.js'
+    adapter: 'standard:twoSumIiInputSorted:java'
   },
   three_sum: {
     name: '3Sum',
@@ -318,133 +319,133 @@ export const CHALLENGES = {
     name: '4Sum',
     folder: 'four_sum',
     testFile: './testCases/fourSumTests.js',
-    adapter: './adapters/fourSumAdapter.js'
+    adapter: 'standard:fourSum:java'
   },
   container_with_most_water: {
     name: 'Container With Most Water',
     folder: 'container_with_most_water',
     testFile: './testCases/containerWithMostWaterTests.js',
-    adapter: './adapters/containerWithMostWaterAdapter.js'
+    adapter: 'standard:containerWithMostWater:java'
   },
   trapping_rain_water: {
     name: 'Trapping Rain Water',
     folder: 'trapping_rain_water',
     testFile: './testCases/trappingRainWaterTests.js',
-    adapter: './adapters/trappingRainWaterAdapter.js'
+    adapter: 'standard:trappingRainWater:java'
   },
   product_of_array_except_self: {
     name: 'Product of Array Except Self',
     folder: 'product_of_array_except_self',
     testFile: './testCases/productOfArrayExceptSelfTests.js',
-    adapter: './adapters/productOfArrayExceptSelfAdapter.js'
+    adapter: 'standard:productOfArrayExceptSelf:java'
   },
   find_minimum_in_rotated_sorted_array: {
     name: 'Find Minimum in Rotated Sorted Array',
     folder: 'find_minimum_in_rotated_sorted_array',
     testFile: './testCases/findMinimumInRotatedSortedArrayTests.js',
-    adapter: './adapters/findMinimumInRotatedSortedArrayAdapter.js'
+    adapter: 'standard:findMinimumInRotatedSortedArray:java'
   },
   search_in_rotated_sorted_array: {
     name: 'Search in Rotated Sorted Array',
     folder: 'search_in_rotated_sorted_array',
     testFile: './testCases/searchInRotatedSortedArrayTests.js',
-    adapter: './adapters/searchInRotatedSortedArrayAdapter.js'
+    adapter: 'standard:searchInRotatedSortedArray:java'
   },
   merge_intervals: {
     name: 'Merge Intervals',
     folder: 'merge_intervals',
     testFile: './testCases/mergeIntervalsTests.js',
-    adapter: './adapters/mergeIntervalsAdapter.js'
+    adapter: 'standard:mergeIntervals:java'
   },
   insert_interval: {
     name: 'Insert Interval',
     folder: 'insert_interval',
     testFile: './testCases/insertIntervalTests.js',
-    adapter: './adapters/insertIntervalAdapter.js'
+    adapter: 'standard:insertInterval:java'
   },
   non_overlapping_intervals: {
     name: 'Non-overlapping Intervals',
     folder: 'non_overlapping_intervals',
     testFile: './testCases/nonOverlappingIntervalsTests.js',
-    adapter: './adapters/nonOverlappingIntervalsAdapter.js'
+    adapter: 'standard:nonOverlappingIntervals:java'
   },
   meeting_rooms: {
     name: 'Meeting Rooms',
     folder: 'meeting_rooms',
     testFile: './testCases/meetingRoomsTests.js',
-    adapter: './adapters/meetingRoomsAdapter.js'
+    adapter: 'standard:meetingRooms:java'
   },
   meeting_rooms_ii: {
     name: 'Meeting Rooms II',
     folder: 'meeting_rooms_ii',
     testFile: './testCases/meetingRoomsIiTests.js',
-    adapter: './adapters/meetingRoomsIiAdapter.js'
+    adapter: 'standard:meetingRoomsIi:java'
   },
   spiral_matrix: {
     name: 'Spiral Matrix',
     folder: 'spiral_matrix',
     testFile: './testCases/spiralMatrixTests.js',
-    adapter: './adapters/spiralMatrixAdapter.js'
+    adapter: 'standard:spiralMatrix:java'
   },
   rotate_image: {
     name: 'Rotate Image',
     folder: 'rotate_image',
     testFile: './testCases/rotateImageTests.js',
-    adapter: './adapters/rotateImageAdapter.js'
+    adapter: 'standard:rotateImage:java'
   },
   set_matrix_zeroes: {
     name: 'Set Matrix Zeroes',
     folder: 'set_matrix_zeroes',
     testFile: './testCases/setMatrixZeroesTests.js',
-    adapter: './adapters/setMatrixZeroesAdapter.js'
+    adapter: 'standard:setMatrixZeroes:java'
   },
   word_search: {
     name: 'Word Search',
     folder: 'word_search',
     testFile: './testCases/wordSearchTests.js',
-    adapter: './adapters/wordSearchAdapter.js'
+    adapter: 'standard:wordSearch:java'
   },
   letter_combinations_of_a_phone_number: {
     name: 'Letter Combinations of a Phone Number',
     folder: 'letter_combinations_of_a_phone_number',
     testFile: './testCases/letterCombinationsOfAPhoneNumberTests.js',
-    adapter: './adapters/letterCombinationsOfAPhoneNumberAdapter.js'
+    adapter: 'standard:letterCombinationsOfAPhoneNumber:java'
   },
   generate_parentheses: {
     name: 'Generate Parentheses',
     folder: 'generate_parentheses',
     testFile: './testCases/generateParenthesesTests.js',
-    adapter: './adapters/generateParenthesesAdapter.js'
+    adapter: 'standard:generateParentheses:java'
   },
   combination_sum: {
     name: 'Combination Sum',
     folder: 'combination_sum',
     testFile: './testCases/combinationSumTests.js',
-    adapter: './adapters/combinationSumAdapter.js'
+    adapter: 'standard:combinationSum:java'
   },
   combination_sum_ii: {
     name: 'Combination Sum II',
     folder: 'combination_sum_ii',
     testFile: './testCases/combinationSumIiTests.js',
-    adapter: './adapters/combinationSumIiAdapter.js'
+    adapter: 'standard:combinationSumIi:java'
   },
   permutations: {
     name: 'Permutations',
     folder: 'permutations',
     testFile: './testCases/permutationsTests.js',
-    adapter: './adapters/permutationsAdapter.js'
+    adapter: 'standard:permutations:java'
   },
   subsets: {
     name: 'Subsets',
     folder: 'subsets',
     testFile: './testCases/subsetsTests.js',
-    adapter: './adapters/subsetsAdapter.js'
+    adapter: 'standard:subsets:java'
   },
   subsets_ii: {
     name: 'Subsets II',
     folder: 'subsets_ii',
     testFile: './testCases/subsetsIiTests.js',
-    adapter: './adapters/subsetsIiAdapter.js'
+    adapter: 'standard:subsetsIi:java'
   },
   group_anagrams: {
     name: 'Group Anagrams',
@@ -456,43 +457,43 @@ export const CHALLENGES = {
     name: 'Longest Common Prefix',
     folder: 'longest_common_prefix',
     testFile: './testCases/longestCommonPrefixTests.js',
-    adapter: './adapters/longestCommonPrefixAdapter.js'
+    adapter: 'standard:longestCommonPrefix:java'
   },
   valid_sudoku: {
     name: 'Valid Sudoku',
     folder: 'valid_sudoku',
     testFile: './testCases/validSudokuTests.js',
-    adapter: './adapters/validSudokuAdapter.js'
+    adapter: 'standard:validSudoku:java'
   },
   sudoku_solver: {
     name: 'Sudoku Solver',
     folder: 'sudoku_solver',
     testFile: './testCases/sudokuSolverTests.js',
-    adapter: './adapters/sudokuSolverAdapter.js'
+    adapter: 'standard:sudokuSolver:java'
   },
   kth_largest_element_in_an_array: {
     name: 'Kth Largest Element in an Array',
     folder: 'kth_largest_element_in_an_array',
     testFile: './testCases/kthLargestElementInAnArrayTests.js',
-    adapter: './adapters/kthLargestElementInAnArrayAdapter.js'
+    adapter: 'standard:kthLargestElementInAnArray:java'
   },
   top_k_frequent_words: {
     name: 'Top K Frequent Words',
     folder: 'top_k_frequent_words',
     testFile: './testCases/topKFrequentWordsTests.js',
-    adapter: './adapters/topKFrequentWordsAdapter.js'
+    adapter: 'standard:topKFrequentWords:java'
   },
   sliding_window_maximum: {
     name: 'Sliding Window Maximum',
     folder: 'sliding_window_maximum',
     testFile: './testCases/slidingWindowMaximumTests.js',
-    adapter: './adapters/slidingWindowMaximumAdapter.js'
+    adapter: 'standard:slidingWindowMaximum:java'
   },
   minimum_window_substring: {
     name: 'Minimum Window Substring',
     folder: 'minimum_window_substring',
     testFile: './testCases/minimumWindowSubstringTests.js',
-    adapter: './adapters/minimumWindowSubstringAdapter.js'
+    adapter: 'standard:minimumWindowSubstring:java'
   },
   add_one: {
     name: 'Add One',
@@ -1407,73 +1408,73 @@ export const CHALLENGES = {
     name: 'Sum of Digit Squares',
     folder: 'sum_of_digit_squares',
     testFile: './testCases/sumOfDigitSquaresTests.js',
-    adapter: './adapters/sumOfDigitSquaresAdapter.js'
+    adapter: 'standard:sumOfDigitSquares:java'
   },
   rotate_string_k: {
     name: 'Rotate String K',
     folder: 'rotate_string_k',
     testFile: './testCases/rotateStringKTests.js',
-    adapter: './adapters/rotateStringKAdapter.js'
+    adapter: 'standard:rotateStringK:java'
   },
   first_non_repeating_char: {
     name: 'First Non-Repeating Char',
     folder: 'first_non_repeating_char',
     testFile: './testCases/firstNonRepeatingCharTests.js',
-    adapter: './adapters/firstNonRepeatingCharAdapter.js'
+    adapter: 'standard:firstNonRepeatingChar:java'
   },
   is_power_of_three: {
     name: 'Is Power of Three',
     folder: 'is_power_of_three',
     testFile: './testCases/isPowerOfThreeTests.js',
-    adapter: './adapters/isPowerOfThreeAdapter.js'
+    adapter: 'standard:isPowerOfThree:java'
   },
   count_set_bits: {
     name: 'Count Set Bits',
     folder: 'count_set_bits',
     testFile: './testCases/countSetBitsTests.js',
-    adapter: './adapters/countSetBitsAdapter.js'
+    adapter: 'standard:countSetBits:java'
   },
   reverse_words_in_string: {
     name: 'Reverse Words in String',
     folder: 'reverse_words_in_string',
     testFile: './testCases/reverseWordsInStringTests.js',
-    adapter: './adapters/reverseWordsInStringAdapter.js'
+    adapter: 'standard:reverseWordsInString:java'
   },
   array_product_except_self: {
     name: 'Array Product Except Self',
     folder: 'array_product_except_self',
     testFile: './testCases/arrayProductExceptSelfTests.js',
-    adapter: './adapters/arrayProductExceptSelfAdapter.js'
+    adapter: 'standard:arrayProductExceptSelf:java'
   },
   maximum_subarray_sum_k: {
     name: 'Maximum Subarray Sum K',
     folder: 'maximum_subarray_sum_k',
     testFile: './testCases/maximumSubarraySumKTests.js',
-    adapter: './adapters/maximumSubarraySumKAdapter.js'
+    adapter: 'standard:maximumSubarraySumK:java'
   },
   min_steps_to_zero: {
     name: 'Min Steps to Zero',
     folder: 'min_steps_to_zero',
     testFile: './testCases/minStepsToZeroTests.js',
-    adapter: './adapters/minStepsToZeroAdapter.js'
+    adapter: 'standard:minStepsToZero:java'
   },
   longest_run_of_ones: {
     name: 'Longest Run of Ones',
     folder: 'longest_run_of_ones',
     testFile: './testCases/longestRunOfOnesTests.js',
-    adapter: './adapters/longestRunOfOnesAdapter.js'
+    adapter: 'standard:longestRunOfOnes:java'
   },
   valid_parentheses_with_star: {
     name: 'Valid Parentheses with Star',
     folder: 'valid_parentheses_with_star',
     testFile: './testCases/validParenthesesWithStarTests.js',
-    adapter: './adapters/validParenthesesWithStarAdapter.js'
+    adapter: 'standard:validParenthesesWithStar:java'
   },
   remove_adjacent_duplicates: {
     name: 'Remove Adjacent Duplicates',
     folder: 'remove_adjacent_duplicates',
     testFile: './testCases/removeAdjacentDuplicatesTests.js',
-    adapter: './adapters/removeAdjacentDuplicatesAdapter.js'
+    adapter: 'standard:removeAdjacentDuplicates:java'
   },
   kth_smallest_in_bst: {
     name: 'Kth Smallest in BST',
@@ -1497,7 +1498,7 @@ export const CHALLENGES = {
     name: 'Merge K Sorted Lists',
     folder: 'merge_k_sorted_lists',
     testFile: './testCases/mergeKSortedListsTests.js',
-    adapter: './adapters/mergeKSortedListsAdapter.js'
+    adapter: 'standard:mergeKSortedLists:java'
   },
   detect_cycle_in_linked_list: {
     name: 'Detect Cycle in Linked List',
@@ -1509,169 +1510,169 @@ export const CHALLENGES = {
     name: 'Partition Equal Subset Sum',
     folder: 'partition_equal_subset_sum',
     testFile: './testCases/partitionEqualSubsetSumTests.js',
-    adapter: './adapters/partitionEqualSubsetSumAdapter.js'
+    adapter: 'standard:partitionEqualSubsetSum:java'
   },
   coin_change_min_coins: {
     name: 'Coin Change Min Coins',
     folder: 'coin_change_min_coins',
     testFile: './testCases/coinChangeMinCoinsTests.js',
-    adapter: './adapters/coinChangeMinCoinsAdapter.js'
+    adapter: 'standard:coinChangeMinCoins:java'
   },
   longest_common_subsequence: {
     name: 'Longest Common Subsequence',
     folder: 'longest_common_subsequence',
     testFile: './testCases/longestCommonSubsequenceTests.js',
-    adapter: './adapters/longestCommonSubsequenceAdapter.js'
+    adapter: 'standard:longestCommonSubsequence:java'
   },
   edit_distance: {
     name: 'Edit Distance',
     folder: 'edit_distance',
     testFile: './testCases/editDistanceTests.js',
-    adapter: './adapters/editDistanceAdapter.js'
+    adapter: 'standard:editDistance:java'
   },
   unique_paths_with_obstacles: {
     name: 'Unique Paths with Obstacles',
     folder: 'unique_paths_with_obstacles',
     testFile: './testCases/uniquePathsWithObstaclesTests.js',
-    adapter: './adapters/uniquePathsWithObstaclesAdapter.js'
+    adapter: 'standard:uniquePathsWithObstacles:java'
   },
   isomorphic_strings: {
     name: 'Isomorphic Strings',
     folder: 'isomorphic_strings',
     testFile: './testCases/isomorphicStringsTests.js',
-    adapter: './adapters/isomorphicStringsAdapter.js'
+    adapter: 'standard:isomorphicStrings:java'
   },
   find_peak_element: {
     name: 'Find Peak Element',
     folder: 'find_peak_element',
     testFile: './testCases/findPeakElementTests.js',
-    adapter: './adapters/findPeakElementAdapter.js'
+    adapter: 'standard:findPeakElement:java'
   },
   spiral_matrix_traversal: {
     name: 'Spiral Matrix Traversal',
     folder: 'spiral_matrix_traversal',
     testFile: './testCases/spiralMatrixTraversalTests.js',
-    adapter: './adapters/spiralMatrixTraversalAdapter.js'
+    adapter: 'standard:spiralMatrixTraversal:java'
   },
   house_robber: {
     name: 'House Robber',
     folder: 'house_robber',
     testFile: './testCases/houseRobberTests.js',
-    adapter: './adapters/houseRobberAdapter.js'
+    adapter: 'standard:houseRobber:java'
   },
   jump_game: {
     name: 'Jump Game',
     folder: 'jump_game',
     testFile: './testCases/jumpGameTests.js',
-    adapter: './adapters/jumpGameAdapter.js'
+    adapter: 'standard:jumpGame:java'
   },
   search_insert_position: {
     name: 'Search Insert Position',
     folder: 'search_insert_position',
     testFile: './testCases/searchInsertPositionTests.js',
-    adapter: './adapters/searchInsertPositionAdapter.js'
+    adapter: 'standard:searchInsertPosition:java'
   },
   search_2d_matrix: {
     name: 'Search 2D Matrix',
     folder: 'search_2d_matrix',
     testFile: './testCases/search2dMatrixTests.js',
-    adapter: './adapters/search2dMatrixAdapter.js'
+    adapter: 'standard:search2dMatrix:java'
   },
   merge_sorted_array: {
     name: 'Merge Sorted Array',
     folder: 'merge_sorted_array',
     testFile: './testCases/mergeSortedArrayTests.js',
-    adapter: './adapters/mergeSortedArrayAdapter.js'
+    adapter: 'standard:mergeSortedArray:java'
   },
   plus_one: {
     name: 'Plus One',
     folder: 'plus_one',
     testFile: './testCases/plusOneTests.js',
-    adapter: './adapters/plusOneAdapter.js'
+    adapter: 'standard:plusOne:java'
   },
   add_strings: {
     name: 'Add Strings',
     folder: 'add_strings',
     testFile: './testCases/addStringsTests.js',
-    adapter: './adapters/addStringsAdapter.js'
+    adapter: 'standard:addStrings:java'
   },
   multiply_strings: {
     name: 'Multiply Strings',
     folder: 'multiply_strings',
     testFile: './testCases/multiplyStringsTests.js',
-    adapter: './adapters/multiplyStringsAdapter.js'
+    adapter: 'standard:multiplyStrings:java'
   },
   roman_to_integer: {
     name: 'Roman To Integer',
     folder: 'roman_to_integer',
     testFile: './testCases/romanToIntegerTests.js',
-    adapter: './adapters/romanToIntegerAdapter.js'
+    adapter: 'standard:romanToInteger:java'
   },
   integer_to_roman: {
     name: 'Integer To Roman',
     folder: 'integer_to_roman',
     testFile: './testCases/integerToRomanTests.js',
-    adapter: './adapters/integerToRomanAdapter.js'
+    adapter: 'standard:integerToRoman:java'
   },
   longest_palindromic_substring: {
     name: 'Longest Palindromic Substring',
     folder: 'longest_palindromic_substring',
     testFile: './testCases/longestPalindromicSubstringTests.js',
-    adapter: './adapters/longestPalindromicSubstringAdapter.js'
+    adapter: 'standard:longestPalindromicSubstring:java'
   },
   palindrome_number: {
     name: 'Palindrome Number',
     folder: 'palindrome_number',
     testFile: './testCases/palindromeNumberTests.js',
-    adapter: './adapters/palindromeNumberAdapter.js'
+    adapter: 'standard:palindromeNumber:java'
   },
   reverse_bits: {
     name: 'Reverse Bits',
     folder: 'reverse_bits',
     testFile: './testCases/reverseBitsTests.js',
-    adapter: './adapters/reverseBitsAdapter.js'
+    adapter: 'standard:reverseBits:java'
   },
   hamming_distance: {
     name: 'Hamming Distance',
     folder: 'hamming_distance',
     testFile: './testCases/hammingDistanceTests.js',
-    adapter: './adapters/hammingDistanceAdapter.js'
+    adapter: 'standard:hammingDistance:java'
   },
   missing_number: {
     name: 'Missing Number',
     folder: 'missing_number',
     testFile: './testCases/missingNumberTests.js',
-    adapter: './adapters/missingNumberAdapter.js'
+    adapter: 'standard:missingNumber:java'
   },
   find_pivot_index: {
     name: 'Find Pivot Index',
     folder: 'find_pivot_index',
     testFile: './testCases/findPivotIndexTests.js',
-    adapter: './adapters/findPivotIndexAdapter.js'
+    adapter: 'standard:findPivotIndex:java'
   },
   range_sum_query_immutable: {
     name: 'Range Sum Query (Immutable)',
     folder: 'range_sum_query_immutable',
     testFile: './testCases/rangeSumQueryImmutableTests.js',
-    adapter: './adapters/rangeSumQueryImmutableAdapter.js'
+    adapter: 'standard:rangeSumQueryImmutable:java'
   },
   flood_fill: {
     name: 'Flood Fill',
     folder: 'flood_fill',
     testFile: './testCases/floodFillTests.js',
-    adapter: './adapters/floodFillAdapter.js'
+    adapter: 'standard:floodFill:java'
   },
   island_perimeter: {
     name: 'Island Perimeter',
     folder: 'island_perimeter',
     testFile: './testCases/islandPerimeterTests.js',
-    adapter: './adapters/islandPerimeterAdapter.js'
+    adapter: 'standard:islandPerimeter:java'
   },
   min_stack: {
     name: 'Min Stack',
     folder: 'min_stack',
     testFile: './testCases/minStackTests.js',
-    adapter: './adapters/minStackAdapter.js'
+    adapter: 'standard:minStack:java'
   },
   max_depth_of_binary_tree: {
     name: 'Max Depth Of Binary Tree',
@@ -1705,6 +1706,12 @@ export const CHALLENGES = {
   },
 };
 
+const STANDARD_ADAPTER_OVERRIDES = new Set([
+  'groupAnagrams',
+  'threeSum',
+  'topKFrequentElements'
+]);
+
 // Helper function to get challenge config
 // Tries database first, falls back to CHALLENGES object
 function getChallenge(challengeId) {
@@ -1723,11 +1730,14 @@ function getChallenge(challengeId) {
       const adapterPath = candidate.adapter ? join(__dirname, candidate.adapter) : null;
       const hasFileTests = testFilePath ? existsSync(testFilePath) : false;
       const hasFileAdapter = adapterPath ? existsSync(adapterPath) : false;
+      const hasStandardAdapter = candidate.adapter?.startsWith('standard:')
+        || candidate.adapter?.startsWith('db-standard:')
+        || Boolean(getStandardAdapterKeyFromPath(candidate.adapter));
       const hasDbAdapter = Boolean(getChallengeAdapterDefinition(challengeId));
       const hasDbTests = getChallengeTestCases(challengeId, 'run').length > 0
         || getChallengeTestCases(challengeId, 'submit').length > 0;
 
-      if ((hasFileTests || hasDbTests) && (hasFileAdapter || hasDbAdapter)) {
+      if ((hasFileTests || hasDbTests) && (hasFileAdapter || hasDbAdapter || hasStandardAdapter)) {
         return candidate;
       }
     }
@@ -1741,6 +1751,24 @@ function getChallenge(challengeId) {
     throw new Error(`Unknown challenge: ${challengeId}`);
   }
   return challenge;
+}
+
+function getStandardAdapterKeyFromPath(adapterPath) {
+  if (!adapterPath || typeof adapterPath !== 'string') {
+    return null;
+  }
+  const match = adapterPath.match(/\.\/adapters\/(?:(?:javascript|python|typescript)\/)?([A-Za-z0-9_]+)Adapter\.js$/);
+  if (!match) {
+    return null;
+  }
+  const key = match[1];
+  if (!standardAdapterDefinitions[key]) {
+    return null;
+  }
+  if (STANDARD_ADAPTER_OVERRIDES.has(key)) {
+    return null;
+  }
+  return key;
 }
 
 function normalizeLanguage(value) {
@@ -2035,6 +2063,19 @@ function getLanguageAdapterPath(challenge, language, challengeId = null) {
     } catch {
       // Ignore DB lookup failures; fall back to file-based adapters.
     }
+  }
+
+  if (challenge.adapter?.startsWith('standard:')) {
+    const parts = challenge.adapter.split(':');
+    const adapterKey = parts[1];
+    if (adapterKey) {
+      return `standard:${adapterKey}:${normalizedLanguage}`;
+    }
+  }
+
+  const standardKey = getStandardAdapterKeyFromPath(challenge.adapter);
+  if (standardKey) {
+    return `standard:${standardKey}:${normalizedLanguage}`;
   }
 
   if (normalizedLanguage === 'python' && challenge.adapter.startsWith('./adapters/')) {

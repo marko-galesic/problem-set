@@ -1,8 +1,11 @@
 import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { executeJavaCode } from '../../executors/javaExecutor.js';
-import twoSumAdapter from '../../adapters/twoSumAdapter.js';
+import { createStandardAdapter } from '../../adapters/standardAdapterFactory.js';
+import { standardAdapterDefinitions } from '../../adapters/standardAdapterDefinitions.js';
 import { twoSumTestCases } from '../utils/fixtures.js';
 import { createTestTempDir, cleanupTestDir, fileExists } from '../utils/fileSystemHelpers.js';
+
+const twoSumAdapter = createStandardAdapter(standardAdapterDefinitions.twoSum, 'java');
 
 // Mock console.log to reduce noise in tests
 const originalConsoleLog = console.log;

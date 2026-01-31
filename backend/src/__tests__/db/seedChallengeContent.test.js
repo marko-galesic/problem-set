@@ -17,7 +17,7 @@ describe('seedChallengeContent', () => {
         name: 'Two Sum',
         folder: 'two_sum',
         testFile: './testCases/twoSumTests.js',
-        adapter: './adapters/twoSumAdapter.js'
+        adapter: 'standard:twoSum:java'
       }
     });
 
