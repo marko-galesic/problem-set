@@ -123,6 +123,46 @@ const SERIALIZER_METHODS = {
   }
 };
 
+const JAVASCRIPT_CONFIG = {
+  expectedBuilders: {
+    int: jsHelpers.buildExpectedIntCode,
+    double: jsHelpers.buildExpectedDoubleCode,
+    boolean: jsHelpers.buildExpectedBooleanCode,
+    string: jsHelpers.buildExpectedStringCode,
+    intArray: jsHelpers.buildExpectedListCode,
+    stringArray: jsHelpers.buildExpectedListCode,
+    stringArrayCoerceEmpty: jsHelpers.buildExpectedStringArrayCoerceEmptyCode,
+    intMatrix: jsHelpers.buildExpectedListCode,
+    stringMatrix: jsHelpers.buildExpectedListCode,
+    charMatrix: jsHelpers.buildExpectedListCode
+  },
+  serializers: {
+    int: jsHelpers.serializeInt,
+    double: jsHelpers.serializeDouble,
+    boolean: jsHelpers.serializeBoolean,
+    string: jsHelpers.serializeString,
+    intArray: jsHelpers.serializeIntArray,
+    stringArray: jsHelpers.serializeStringArray,
+    stringArrayCoerceEmpty: jsHelpers.serializeStringArrayCoerceEmpty,
+    intMatrix: jsHelpers.serializeIntMatrix,
+    stringMatrix: jsHelpers.serializeStringMatrix,
+    charMatrix: jsHelpers.serializeCharMatrix
+  },
+  inputBuilders: {
+    int: jsHelpers.buildIntScalarInputHelper,
+    intArray: jsHelpers.buildIntArrayInputHelper,
+    string: jsHelpers.buildStringInputHelper,
+    stringArray: jsHelpers.buildStringArrayInputHelper,
+    intGrid: jsHelpers.buildGridInputHelper,
+    charGrid: jsHelpers.buildCharGridInputHelper
+  },
+  returnTypes: JAVASCRIPT_RETURN_TYPES,
+  serializerMethods: SERIALIZER_METHODS.javascript,
+  invocationIndent: '          ',
+  inputJoiner: '\n\n',
+  helperName: (base) => `getTest${base}`
+};
+
 const LANGUAGE_CONFIG = {
   java: {
     expectedBuilders: {
@@ -164,45 +204,8 @@ const LANGUAGE_CONFIG = {
     helperName: (base) => `getTest${base}`,
     inputTypeNames: JAVA_TYPE_MAP
   },
-  javascript: {
-    expectedBuilders: {
-      int: jsHelpers.buildExpectedIntCode,
-      double: jsHelpers.buildExpectedDoubleCode,
-      boolean: jsHelpers.buildExpectedBooleanCode,
-      string: jsHelpers.buildExpectedStringCode,
-      intArray: jsHelpers.buildExpectedListCode,
-      stringArray: jsHelpers.buildExpectedListCode,
-      stringArrayCoerceEmpty: jsHelpers.buildExpectedStringArrayCoerceEmptyCode,
-      intMatrix: jsHelpers.buildExpectedListCode,
-      stringMatrix: jsHelpers.buildExpectedListCode,
-      charMatrix: jsHelpers.buildExpectedListCode
-    },
-    serializers: {
-      int: jsHelpers.serializeInt,
-      double: jsHelpers.serializeDouble,
-      boolean: jsHelpers.serializeBoolean,
-      string: jsHelpers.serializeString,
-      intArray: jsHelpers.serializeIntArray,
-      stringArray: jsHelpers.serializeStringArray,
-      stringArrayCoerceEmpty: jsHelpers.serializeStringArrayCoerceEmpty,
-      intMatrix: jsHelpers.serializeIntMatrix,
-      stringMatrix: jsHelpers.serializeStringMatrix,
-      charMatrix: jsHelpers.serializeCharMatrix
-    },
-    inputBuilders: {
-      int: jsHelpers.buildIntScalarInputHelper,
-      intArray: jsHelpers.buildIntArrayInputHelper,
-      string: jsHelpers.buildStringInputHelper,
-      stringArray: jsHelpers.buildStringArrayInputHelper,
-      intGrid: jsHelpers.buildGridInputHelper,
-      charGrid: jsHelpers.buildCharGridInputHelper
-    },
-    returnTypes: JAVASCRIPT_RETURN_TYPES,
-    serializerMethods: SERIALIZER_METHODS.javascript,
-    invocationIndent: '          ',
-    inputJoiner: '\n\n',
-    helperName: (base) => `getTest${base}`
-  },
+  javascript: JAVASCRIPT_CONFIG,
+  typescript: JAVASCRIPT_CONFIG,
   python: {
     expectedBuilders: {
       int: pyHelpers.buildExpectedIntCode,
@@ -277,7 +280,7 @@ function buildInvocation(definition, language, parserVar) {
     return lines.join('\n');
   }
 
-  if (language === 'javascript') {
+  if (language === 'javascript' || language === 'typescript') {
     const lines = definition.inputs.map((input) => {
       const helperName = config.helperName(resolveHelperBase(input));
       return `const ${input.name} = ${helperName}(i);`;
