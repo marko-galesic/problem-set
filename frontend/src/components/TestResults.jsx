@@ -52,22 +52,50 @@ export default function TestResults({
 
   return (
     <div className="test-results">
-      <div className="results-header">
-        <h2>Test Results</h2>
-        <div className="results-summary">
-          <span className={`status ${allPassed ? 'passed' : 'failed'}`}>
-            {passedCount} / {results.length} tests passed
-          </span>
-          {totalTime && (
-            <span className="execution-time">
-              Total time: {totalTime}ms
+      <div className="test-tabs-container">
+        <div className="test-tabs-header test-results-tabs-header">
+          <Tabs
+            value={selectedTestIndex}
+            onChange={handleTabChange}
+            className="test-tabs"
+            variant="scrollable"
+            scrollButtons={false}
+            TabIndicatorProps={{ style: { display: 'none' } }}
+            aria-label="Test results"
+          >
+            {results.map((result, index) => (
+              <Tab
+                key={index}
+                className={`test-tab ${result.passed ? 'passed' : 'failed'} ${index === selectedTestIndex ? 'active' : ''}`}
+                label={
+                  <>
+                    <span className="test-tab-icon">
+                      {result.passed ? '✓' : '✗'}
+                    </span>
+                    <span className="test-tab-label">
+                      Test {index + 1}
+                    </span>
+                  </>
+                }
+                value={index}
+              />
+            ))}
+          </Tabs>
+          <div className="results-summary">
+            <span className={`status ${allPassed ? 'passed' : 'failed'}`}>
+              {passedCount} / {results.length} tests passed
             </span>
-          )}
-          {avgTime && (
-            <span className="avg-time">
-              Avg time: {avgTime}ms
-            </span>
-          )}
+            {totalTime && (
+              <span className="execution-time">
+                Total time: {totalTime}ms
+              </span>
+            )}
+            {avgTime && (
+              <span className="avg-time">
+                Avg time: {avgTime}ms
+              </span>
+            )}
+          </div>
           <IconButton 
             className="btn btn--icon btn--ghost btn-sidebar-toggle"
             onClick={onToggle}
@@ -77,36 +105,6 @@ export default function TestResults({
             ◀
           </IconButton>
         </div>
-      </div>
-
-      <div className="test-tabs-container">
-        <Tabs
-          value={selectedTestIndex}
-          onChange={handleTabChange}
-          className="test-tabs"
-          variant="scrollable"
-          scrollButtons={false}
-          TabIndicatorProps={{ style: { display: 'none' } }}
-          aria-label="Test results"
-        >
-          {results.map((result, index) => (
-            <Tab
-              key={index}
-              className={`test-tab ${result.passed ? 'passed' : 'failed'} ${index === selectedTestIndex ? 'active' : ''}`}
-              label={
-                <>
-                  <span className="test-tab-icon">
-                    {result.passed ? '✓' : '✗'}
-                  </span>
-                  <span className="test-tab-label">
-                    Test {index + 1}
-                  </span>
-                </>
-              }
-              value={index}
-            />
-          ))}
-        </Tabs>
 
         <div className={`test-case-content ${selectedResult.passed ? 'passed' : 'failed'}`}>
           <div className="test-case-header">

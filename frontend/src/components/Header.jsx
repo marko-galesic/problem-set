@@ -94,9 +94,10 @@ export default function Header({
           disabled={isRunning}
           className="btn btn-reset"
           type="button"
+          aria-label="Reset to template"
           title="Reset to template"
         >
-          Reset
+          <span aria-hidden="true">↻</span>
         </Button>
         <Button 
           onClick={onRun} 

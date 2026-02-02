@@ -963,9 +963,10 @@ body {
 
 .results-summary {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .status {
@@ -1002,7 +1003,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 20px;
+  padding: 0;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
