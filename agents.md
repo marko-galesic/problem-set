@@ -69,3 +69,7 @@ The backend uses the adapter + test cases to compile and run Java code.
 
 - Use Conventional Commits format for commit messages (e.g. `feat: add new challenge`).
 - Only commit when tests pass and coverage is maintained at 80% or higher.
+
+## Skill Packaging
+
+- `scripts/package_skill.py` requires PyYAML; if packaging fails, install from a local wheel to avoid network dependence (e.g., `python -m venv .venv` then `.venv/bin/python -m pip install --no-index --find-links=vendor pyyaml`).
