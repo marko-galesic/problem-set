@@ -2235,4 +2235,364 @@ export const standardAdapterDefinitions = {
       },
     ]
   },
+
+  maxProductSubarray: {
+    method: 'maxProductSubarray',
+    className: 'MaxProductSubarray',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  longestSubarraySumEqualsK: {
+    method: 'longestSubarraySumEqualsK',
+    className: 'LongestSubarraySumEqualsK',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  subarraySumDivisibleByK: {
+    method: 'subarraySumDivisibleByK',
+    className: 'SubarraySumDivisibleByK',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  maxConsecutiveOnesWithKFlips: {
+    method: 'maxConsecutiveOnesWithKFlips',
+    className: 'MaxConsecutiveOnesWithKFlips',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  rotateArrayByK: {
+    method: 'rotateArrayByK',
+    className: 'RotateArrayByK',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  minimumSwapsToGroupOnes: {
+    method: 'minimumSwapsToGroupOnes',
+    className: 'MinimumSwapsToGroupOnes',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  longestMountainInArray: {
+    method: 'longestMountainInArray',
+    className: 'LongestMountainInArray',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  kthMissingPositiveNumber: {
+    method: 'kthMissingPositiveNumber',
+    className: 'KthMissingPositiveNumber',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  maxSumOfMinPairs: {
+    method: 'maxSumOfMinPairs',
+    className: 'MaxSumOfMinPairs',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  removeDuplicatesAllowTwo: {
+    method: 'removeDuplicatesAllowTwo',
+    className: 'RemoveDuplicatesAllowTwo',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  countSubarraysWithEvenSum: {
+    method: 'countSubarraysWithEvenSum',
+    className: 'CountSubarraysWithEvenSum',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  longestSubarrayAtMostKDistinct: {
+    method: 'longestSubarrayAtMostKDistinct',
+    className: 'LongestSubarrayAtMostKDistinct',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  minimumRemoveToMakeValidParentheses: {
+    method: 'minimumRemoveToMakeValidParentheses',
+    className: 'MinimumRemoveToMakeValidParentheses',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  removeAdjacentKDuplicates: {
+    method: 'removeAdjacentKDuplicates',
+    className: 'RemoveAdjacentKDuplicates',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  oneEditDistance: {
+    method: 'oneEditDistance',
+    className: 'OneEditDistance',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      },
+      {
+        name: 't',
+        type: 'string',
+        helperBase: 'T',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  longestPalindromeLength: {
+    method: 'longestPalindromeLength',
+    className: 'LongestPalindromeLength',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  longestSubstringKDistinct: {
+    method: 'longestSubstringKDistinct',
+    className: 'LongestSubstringKDistinct',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  countPalindromicSubstrings: {
+    method: 'countPalindromicSubstrings',
+    className: 'CountPalindromicSubstrings',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  stringRunLengthEncode: {
+    method: 'stringRunLengthEncode',
+    className: 'StringRunLengthEncode',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  simplifyPath: {
+    method: 'simplifyPath',
+    className: 'SimplifyPath',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 'path',
+        type: 'string',
+        helperBase: 'Path',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  matrixBlockSum: {
+    method: 'matrixBlockSum',
+    className: 'MatrixBlockSum',
+    returnType: 'intMatrix',
+    inputs: [
+      {
+        name: 'mat',
+        type: 'intGrid',
+        helperBase: 'Mat',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  diagonalTraverse: {
+    method: 'diagonalTraverse',
+    className: 'DiagonalTraverse',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'matrix',
+        type: 'intGrid',
+        helperBase: 'Matrix',
+      }
+    ]
+  },
+  maxAreaOfIsland: {
+    method: 'maxAreaOfIsland',
+    className: 'MaxAreaOfIsland',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  numberOfClosedIslands: {
+    method: 'numberOfClosedIslands',
+    className: 'NumberOfClosedIslands',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  countBattleships: {
+    method: 'countBattleships',
+    className: 'CountBattleships',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'board',
+        type: 'charGrid',
+        helperBase: 'Board',
+      }
+    ]
+  },
 };

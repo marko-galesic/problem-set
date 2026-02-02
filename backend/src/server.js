@@ -2004,6 +2004,157 @@ export const CHALLENGES = {
     testFile: './testCases/maximalSquareTests.js',
     adapter: 'standard:maximalSquare:java'
   },
+
+  max_product_subarray: {
+    name: 'Max Product Subarray',
+    folder: 'max_product_subarray',
+    testFile: './testCases/maxProductSubarrayTests.js',
+    adapter: 'standard:maxProductSubarray:java'
+  },
+  longest_subarray_sum_equals_k: {
+    name: 'Longest Subarray Sum Equals K',
+    folder: 'longest_subarray_sum_equals_k',
+    testFile: './testCases/longestSubarraySumEqualsKTests.js',
+    adapter: 'standard:longestSubarraySumEqualsK:java'
+  },
+  subarray_sum_divisible_by_k: {
+    name: 'Subarray Sum Divisible by K',
+    folder: 'subarray_sum_divisible_by_k',
+    testFile: './testCases/subarraySumDivisibleByKTests.js',
+    adapter: 'standard:subarraySumDivisibleByK:java'
+  },
+  max_consecutive_ones_with_k_flips: {
+    name: 'Max Consecutive Ones with K Flips',
+    folder: 'max_consecutive_ones_with_k_flips',
+    testFile: './testCases/maxConsecutiveOnesWithKFlipsTests.js',
+    adapter: 'standard:maxConsecutiveOnesWithKFlips:java'
+  },
+  rotate_array_by_k: {
+    name: 'Rotate Array by K',
+    folder: 'rotate_array_by_k',
+    testFile: './testCases/rotateArrayByKTests.js',
+    adapter: 'standard:rotateArrayByK:java'
+  },
+  minimum_swaps_to_group_ones: {
+    name: 'Minimum Swaps to Group Ones',
+    folder: 'minimum_swaps_to_group_ones',
+    testFile: './testCases/minimumSwapsToGroupOnesTests.js',
+    adapter: 'standard:minimumSwapsToGroupOnes:java'
+  },
+  longest_mountain_in_array: {
+    name: 'Longest Mountain in Array',
+    folder: 'longest_mountain_in_array',
+    testFile: './testCases/longestMountainInArrayTests.js',
+    adapter: 'standard:longestMountainInArray:java'
+  },
+  kth_missing_positive_number: {
+    name: 'Kth Missing Positive Number',
+    folder: 'kth_missing_positive_number',
+    testFile: './testCases/kthMissingPositiveNumberTests.js',
+    adapter: 'standard:kthMissingPositiveNumber:java'
+  },
+  max_sum_of_min_pairs: {
+    name: 'Max Sum of Min Pairs',
+    folder: 'max_sum_of_min_pairs',
+    testFile: './testCases/maxSumOfMinPairsTests.js',
+    adapter: 'standard:maxSumOfMinPairs:java'
+  },
+  remove_duplicates_allow_two: {
+    name: 'Remove Duplicates Allow Two',
+    folder: 'remove_duplicates_allow_two',
+    testFile: './testCases/removeDuplicatesAllowTwoTests.js',
+    adapter: 'standard:removeDuplicatesAllowTwo:java'
+  },
+  count_subarrays_with_even_sum: {
+    name: 'Count Subarrays with Even Sum',
+    folder: 'count_subarrays_with_even_sum',
+    testFile: './testCases/countSubarraysWithEvenSumTests.js',
+    adapter: 'standard:countSubarraysWithEvenSum:java'
+  },
+  longest_subarray_at_most_k_distinct: {
+    name: 'Longest Subarray with At Most K Distinct',
+    folder: 'longest_subarray_at_most_k_distinct',
+    testFile: './testCases/longestSubarrayAtMostKDistinctTests.js',
+    adapter: 'standard:longestSubarrayAtMostKDistinct:java'
+  },
+  minimum_remove_to_make_valid_parentheses: {
+    name: 'Minimum Remove to Make Valid Parentheses',
+    folder: 'minimum_remove_to_make_valid_parentheses',
+    testFile: './testCases/minimumRemoveToMakeValidParenthesesTests.js',
+    adapter: 'standard:minimumRemoveToMakeValidParentheses:java'
+  },
+  remove_adjacent_k_duplicates: {
+    name: 'Remove Adjacent K Duplicates',
+    folder: 'remove_adjacent_k_duplicates',
+    testFile: './testCases/removeAdjacentKDuplicatesTests.js',
+    adapter: 'standard:removeAdjacentKDuplicates:java'
+  },
+  one_edit_distance: {
+    name: 'One Edit Distance',
+    folder: 'one_edit_distance',
+    testFile: './testCases/oneEditDistanceTests.js',
+    adapter: 'standard:oneEditDistance:java'
+  },
+  longest_palindrome_length: {
+    name: 'Longest Palindrome Length',
+    folder: 'longest_palindrome_length',
+    testFile: './testCases/longestPalindromeLengthTests.js',
+    adapter: 'standard:longestPalindromeLength:java'
+  },
+  longest_substring_k_distinct: {
+    name: 'Longest Substring with K Distinct',
+    folder: 'longest_substring_k_distinct',
+    testFile: './testCases/longestSubstringKDistinctTests.js',
+    adapter: 'standard:longestSubstringKDistinct:java'
+  },
+  count_palindromic_substrings: {
+    name: 'Count Palindromic Substrings',
+    folder: 'count_palindromic_substrings',
+    testFile: './testCases/countPalindromicSubstringsTests.js',
+    adapter: 'standard:countPalindromicSubstrings:java'
+  },
+  string_run_length_encode: {
+    name: 'Run Length Encode String',
+    folder: 'string_run_length_encode',
+    testFile: './testCases/stringRunLengthEncodeTests.js',
+    adapter: 'standard:stringRunLengthEncode:java'
+  },
+  simplify_path: {
+    name: 'Simplify Path',
+    folder: 'simplify_path',
+    testFile: './testCases/simplifyPathTests.js',
+    adapter: 'standard:simplifyPath:java'
+  },
+  matrix_block_sum: {
+    name: 'Matrix Block Sum',
+    folder: 'matrix_block_sum',
+    testFile: './testCases/matrixBlockSumTests.js',
+    adapter: 'standard:matrixBlockSum:java'
+  },
+  diagonal_traverse: {
+    name: 'Diagonal Traverse',
+    folder: 'diagonal_traverse',
+    testFile: './testCases/diagonalTraverseTests.js',
+    adapter: 'standard:diagonalTraverse:java'
+  },
+  max_area_of_island: {
+    name: 'Max Area of Island',
+    folder: 'max_area_of_island',
+    testFile: './testCases/maxAreaOfIslandTests.js',
+    adapter: 'standard:maxAreaOfIsland:java'
+  },
+  number_of_closed_islands: {
+    name: 'Number of Closed Islands',
+    folder: 'number_of_closed_islands',
+    testFile: './testCases/numberOfClosedIslandsTests.js',
+    adapter: 'standard:numberOfClosedIslands:java'
+  },
+  count_battleships: {
+    name: 'Count Battleships',
+    folder: 'count_battleships',
+    testFile: './testCases/countBattleshipsTests.js',
+    adapter: 'standard:countBattleships:java'
+  },
 };
 
 const STANDARD_ADAPTER_OVERRIDES = new Set([

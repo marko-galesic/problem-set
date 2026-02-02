@@ -1,0 +1,12 @@
+class KthMissingPositiveNumber:
+    def kthMissingPositiveNumber(self, arr, k):
+        current = 1
+        i = 0
+        while True:
+            if i < len(arr) and arr[i] == current:
+                i += 1
+            else:
+                k -= 1
+                if k == 0:
+                    return current
+            current += 1
