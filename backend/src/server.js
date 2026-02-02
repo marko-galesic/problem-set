@@ -1704,6 +1704,156 @@ export const CHALLENGES = {
     testFile: './testCases/binaryTreeInorderTraversalTests.js',
     adapter: './adapters/binaryTreeInorderTraversalAdapter.js'
   },
+  implement_trie: {
+    name: 'Implement Trie',
+    folder: 'implement_trie',
+    testFile: './testCases/implementTrieTests.js',
+    adapter: 'standard:implementTrie:java'
+  },
+  add_and_search_word: {
+    name: 'Add and Search Word',
+    folder: 'add_and_search_word',
+    testFile: './testCases/addAndSearchWordTests.js',
+    adapter: 'standard:addAndSearchWord:java'
+  },
+  replace_words: {
+    name: 'Replace Words',
+    folder: 'replace_words',
+    testFile: './testCases/replaceWordsTests.js',
+    adapter: 'standard:replaceWords:java'
+  },
+  word_search_ii: {
+    name: 'Word Search II',
+    folder: 'word_search_ii',
+    testFile: './testCases/wordSearchIiTests.js',
+    adapter: 'standard:wordSearchIi:java'
+  },
+  prefix_and_suffix_search: {
+    name: 'Prefix and Suffix Search',
+    folder: 'prefix_and_suffix_search',
+    testFile: './testCases/prefixAndSuffixSearchTests.js',
+    adapter: 'standard:prefixAndSuffixSearch:java'
+  },
+  search_suggestions_system: {
+    name: 'Search Suggestions System',
+    folder: 'search_suggestions_system',
+    testFile: './testCases/searchSuggestionsSystemTests.js',
+    adapter: 'standard:searchSuggestionsSystem:java'
+  },
+  map_sum_pairs: {
+    name: 'Map Sum Pairs',
+    folder: 'map_sum_pairs',
+    testFile: './testCases/mapSumPairsTests.js',
+    adapter: 'standard:mapSumPairs:java'
+  },
+  longest_word_in_dictionary: {
+    name: 'Longest Word in Dictionary',
+    folder: 'longest_word_in_dictionary',
+    testFile: './testCases/longestWordInDictionaryTests.js',
+    adapter: 'standard:longestWordInDictionary:java'
+  },
+  stream_of_characters: {
+    name: 'Stream of Characters',
+    folder: 'stream_of_characters',
+    testFile: './testCases/streamOfCharactersTests.js',
+    adapter: 'standard:streamOfCharacters:java'
+  },
+  maximum_xor_of_two_numbers: {
+    name: 'Maximum XOR of Two Numbers',
+    folder: 'maximum_xor_of_two_numbers',
+    testFile: './testCases/maximumXorOfTwoNumbersTests.js',
+    adapter: 'standard:maximumXorOfTwoNumbers:java'
+  },
+  accounts_merge: {
+    name: 'Accounts Merge',
+    folder: 'accounts_merge',
+    testFile: './testCases/accountsMergeTests.js',
+    adapter: 'standard:accountsMerge:java'
+  },
+  redundant_connection: {
+    name: 'Redundant Connection',
+    folder: 'redundant_connection',
+    testFile: './testCases/redundantConnectionTests.js',
+    adapter: 'standard:redundantConnection:java'
+  },
+  number_of_provinces: {
+    name: 'Number of Provinces',
+    folder: 'number_of_provinces',
+    testFile: './testCases/numberOfProvincesTests.js',
+    adapter: 'standard:numberOfProvinces:java'
+  },
+  satisfiability_of_equality_equations: {
+    name: 'Satisfiability of Equality Equations',
+    folder: 'satisfiability_of_equality_equations',
+    testFile: './testCases/satisfiabilityOfEqualityEquationsTests.js',
+    adapter: 'standard:satisfiabilityOfEqualityEquations:java'
+  },
+  lexicographically_smallest_equivalent_string: {
+    name: 'Lexicographically Smallest Equivalent String',
+    folder: 'lexicographically_smallest_equivalent_string',
+    testFile: './testCases/lexicographicallySmallestEquivalentStringTests.js',
+    adapter: 'standard:lexicographicallySmallestEquivalentString:java'
+  },
+  smallest_string_with_swaps: {
+    name: 'Smallest String With Swaps',
+    folder: 'smallest_string_with_swaps',
+    testFile: './testCases/smallestStringWithSwapsTests.js',
+    adapter: 'standard:smallestStringWithSwaps:java'
+  },
+  most_stones_removed: {
+    name: 'Most Stones Removed',
+    folder: 'most_stones_removed',
+    testFile: './testCases/mostStonesRemovedTests.js',
+    adapter: 'standard:mostStonesRemoved:java'
+  },
+  regions_cut_by_slashes: {
+    name: 'Regions Cut By Slashes',
+    folder: 'regions_cut_by_slashes',
+    testFile: './testCases/regionsCutBySlashesTests.js',
+    adapter: 'standard:regionsCutBySlashes:java'
+  },
+  daily_temperatures: {
+    name: 'Daily Temperatures',
+    folder: 'daily_temperatures',
+    testFile: './testCases/dailyTemperaturesTests.js',
+    adapter: 'standard:dailyTemperatures:java'
+  },
+  next_greater_element_i: {
+    name: 'Next Greater Element I',
+    folder: 'next_greater_element_i',
+    testFile: './testCases/nextGreaterElementITests.js',
+    adapter: 'standard:nextGreaterElementI:java'
+  },
+  next_greater_element_ii: {
+    name: 'Next Greater Element II',
+    folder: 'next_greater_element_ii',
+    testFile: './testCases/nextGreaterElementIiTests.js',
+    adapter: 'standard:nextGreaterElementIi:java'
+  },
+  largest_rectangle_in_histogram: {
+    name: 'Largest Rectangle in Histogram',
+    folder: 'largest_rectangle_in_histogram',
+    testFile: './testCases/largestRectangleInHistogramTests.js',
+    adapter: 'standard:largestRectangleInHistogram:java'
+  },
+  sum_of_subarray_minimums: {
+    name: 'Sum of Subarray Minimums',
+    folder: 'sum_of_subarray_minimums',
+    testFile: './testCases/sumOfSubarrayMinimumsTests.js',
+    adapter: 'standard:sumOfSubarrayMinimums:java'
+  },
+  shortest_unsorted_continuous_subarray: {
+    name: 'Shortest Unsorted Continuous Subarray',
+    folder: 'shortest_unsorted_continuous_subarray',
+    testFile: './testCases/shortestUnsortedContinuousSubarrayTests.js',
+    adapter: 'standard:shortestUnsortedContinuousSubarray:java'
+  },
+  maximum_width_ramp: {
+    name: 'Maximum Width Ramp',
+    folder: 'maximum_width_ramp',
+    testFile: './testCases/maximumWidthRampTests.js',
+    adapter: 'standard:maximumWidthRamp:java'
+  },
 };
 
 const STANDARD_ADAPTER_OVERRIDES = new Set([

@@ -1,0 +1,31 @@
+<p>
+  Design a word dictionary that supports adding words and searching with a wildcard.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[] wordDictionaryOps(String[] ops, String[] words)</code></pre>
+
+<h3>Operation Format</h3>
+<ul>
+  <li><code>ops[i]</code> is one of: <code>"add"</code>, <code>"search"</code></li>
+  <li><code>words[i]</code> is the word or search pattern</li>
+  <li>The search pattern may include <code>'.'</code> which matches any single letter</li>
+</ul>
+
+<h3>Return Value</h3>
+<ul>
+  <li>Return an array of results for <code>search</code> operations only</li>
+  <li>Use <code>1</code> for true and <code>0</code> for false</li>
+</ul>
+
+<h3>Example</h3>
+<pre><code>ops  = ["add","add","add","search","search","search"]
+words = ["bad","dad","mad","pad","bad",".ad"]
+
+Output: [0,1,1]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>All words consist of lowercase English letters</li>
+  <li>The dictionary starts empty</li>
+</ul>

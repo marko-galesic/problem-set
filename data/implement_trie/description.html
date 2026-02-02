@@ -1,0 +1,31 @@
+<p>
+  Implement a prefix tree (Trie) that supports insert and prefix queries.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[] trieOps(String[] ops, String[] words)</code></pre>
+
+<h3>Operation Format</h3>
+<ul>
+  <li><code>ops[i]</code> is one of: <code>"insert"</code>, <code>"search"</code>, <code>"startsWith"</code></li>
+  <li><code>words[i]</code> is the word or prefix for that operation</li>
+</ul>
+
+<h3>Return Value</h3>
+<ul>
+  <li>Return an array of results for <code>search</code> and <code>startsWith</code> operations only</li>
+  <li>Use <code>1</code> for true and <code>0</code> for false</li>
+  <li>Results must appear in the same order as the query operations</li>
+</ul>
+
+<h3>Example</h3>
+<pre><code>ops  = ["insert","insert","search","search","startsWith"]
+words = ["apple","app","app","ap","app"]
+
+Output: [1,0,1]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>All words consist of lowercase English letters</li>
+  <li>The trie starts empty</li>
+</ul>

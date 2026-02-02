@@ -1,0 +1,26 @@
+<p>
+  Implement a map that supports inserting key-value pairs and returning the sum
+  of all values whose keys start with a given prefix.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[] mapSumOps(String[] ops, String[] keys, int[] vals)</code></pre>
+
+<h3>Operation Format</h3>
+<ul>
+  <li><code>ops[i]</code> is one of: <code>"insert"</code>, <code>"sum"</code></li>
+  <li><code>keys[i]</code> is the key (for insert) or prefix (for sum)</li>
+  <li><code>vals[i]</code> is the value for insert; it is ignored for sum</li>
+</ul>
+
+<h3>Return Value</h3>
+<ul>
+  <li>Return an array of results for <code>sum</code> operations only</li>
+</ul>
+
+<h3>Example</h3>
+<pre><code>ops  = ["insert","insert","sum","insert","sum"]
+keys = ["apple","app","ap","app","ap"]
+vals = [3,2,0,5,0]
+
+Output: [5,8]</code></pre>

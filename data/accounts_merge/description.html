@@ -1,0 +1,35 @@
+<p>
+  Merge accounts that share common email addresses. Each account is provided as a
+  comma-separated string: <code>"Name,email1,email2,..."</code>.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public String[][] accountsMerge(String[] accounts)</code></pre>
+
+<h3>Input Format</h3>
+<ul>
+  <li><code>accounts[i]</code> is a comma-separated list where the first token is the name</li>
+  <li>Names and emails will not contain commas</li>
+</ul>
+
+<h3>Output Format</h3>
+<ul>
+  <li>Return merged accounts as arrays: <code>[name, email1, email2, ...]</code></li>
+  <li>Sort emails within each account lexicographically</li>
+  <li>Sort accounts by name, then by first email</li>
+</ul>
+
+<h3>Example</h3>
+<pre><code>accounts = [
+  "John,johnsmith@mail.com,john_newyork@mail.com",
+  "John,johnsmith@mail.com,john00@mail.com",
+  "Mary,mary@mail.com",
+  "John,johnnybravo@mail.com"
+]
+
+Output:
+[
+  ["John","john00@mail.com","john_newyork@mail.com","johnsmith@mail.com"],
+  ["John","johnnybravo@mail.com"],
+  ["Mary","mary@mail.com"]
+]</code></pre>

@@ -1498,4 +1498,369 @@ export const standardAdapterDefinitions = {
       },
     ]
   },
+  implementTrie: {
+    method: 'trieOps',
+    className: 'ImplementTrie',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'ops',
+        type: 'stringArray',
+        helperBase: 'Ops',
+      },
+      {
+        name: 'words',
+        type: 'stringArray',
+        helperBase: 'Words',
+      },
+    ]
+  },
+  addAndSearchWord: {
+    method: 'wordDictionaryOps',
+    className: 'AddAndSearchWord',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'ops',
+        type: 'stringArray',
+        helperBase: 'Ops',
+      },
+      {
+        name: 'words',
+        type: 'stringArray',
+        helperBase: 'Words',
+      },
+    ]
+  },
+  replaceWords: {
+    method: 'replaceWords',
+    className: 'ReplaceWords',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 'dictionary',
+        type: 'stringArray',
+        helperBase: 'Dictionary',
+      },
+      {
+        name: 'sentence',
+        type: 'string',
+        helperBase: 'Sentence',
+      },
+    ]
+  },
+  wordSearchIi: {
+    method: 'findWords',
+    className: 'WordSearchII',
+    returnType: 'stringArray',
+    inputs: [
+      {
+        name: 'board',
+        type: 'charGrid',
+        helperBase: 'Board',
+      },
+      {
+        name: 'words',
+        type: 'stringArray',
+        helperBase: 'Words',
+      },
+    ]
+  },
+  prefixAndSuffixSearch: {
+    method: 'prefixSuffixSearch',
+    className: 'PrefixAndSuffixSearch',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'words',
+        type: 'stringArray',
+        helperBase: 'Words',
+      },
+      {
+        name: 'queries',
+        type: 'stringArray',
+        helperBase: 'Queries',
+      },
+    ]
+  },
+  searchSuggestionsSystem: {
+    method: 'suggestedProducts',
+    className: 'SearchSuggestionsSystem',
+    returnType: 'stringMatrix',
+    inputs: [
+      {
+        name: 'products',
+        type: 'stringArray',
+        helperBase: 'Products',
+      },
+      {
+        name: 'searchWord',
+        type: 'string',
+        helperBase: 'SearchWord',
+      },
+    ]
+  },
+  mapSumPairs: {
+    method: 'mapSumOps',
+    className: 'MapSumPairs',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'ops',
+        type: 'stringArray',
+        helperBase: 'Ops',
+      },
+      {
+        name: 'keys',
+        type: 'stringArray',
+        helperBase: 'Keys',
+      },
+      {
+        name: 'vals',
+        type: 'intArray',
+        helperBase: 'Vals',
+      },
+    ]
+  },
+  longestWordInDictionary: {
+    method: 'longestWord',
+    className: 'LongestWordInDictionary',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 'words',
+        type: 'stringArray',
+        helperBase: 'Words',
+      },
+    ]
+  },
+  streamOfCharacters: {
+    method: 'streamQueries',
+    className: 'StreamOfCharacters',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'words',
+        type: 'stringArray',
+        helperBase: 'Words',
+      },
+      {
+        name: 'queries',
+        type: 'stringArray',
+        helperBase: 'Queries',
+      },
+    ]
+  },
+  maximumXorOfTwoNumbers: {
+    method: 'findMaximumXOR',
+    className: 'MaximumXorOfTwoNumbers',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  accountsMerge: {
+    method: 'accountsMerge',
+    className: 'AccountsMerge',
+    returnType: 'stringMatrix',
+    inputs: [
+      {
+        name: 'accounts',
+        type: 'stringArray',
+        helperBase: 'Accounts',
+      },
+    ]
+  },
+  redundantConnection: {
+    method: 'findRedundantConnection',
+    className: 'RedundantConnection',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'edges',
+        type: 'intGrid',
+        helperBase: 'Edges',
+      },
+    ]
+  },
+  numberOfProvinces: {
+    method: 'findCircleNum',
+    className: 'NumberOfProvinces',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'isConnected',
+        type: 'intGrid',
+        helperBase: 'IsConnected',
+      },
+    ]
+  },
+  satisfiabilityOfEqualityEquations: {
+    method: 'equationsPossible',
+    className: 'SatisfiabilityOfEqualityEquations',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'equations',
+        type: 'stringArray',
+        helperBase: 'Equations',
+      },
+    ]
+  },
+  lexicographicallySmallestEquivalentString: {
+    method: 'smallestEquivalentString',
+    className: 'LexicographicallySmallestEquivalentString',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's1',
+        type: 'string',
+        helperBase: 'S1',
+      },
+      {
+        name: 's2',
+        type: 'string',
+        helperBase: 'S2',
+      },
+      {
+        name: 'baseStr',
+        type: 'string',
+        helperBase: 'BaseStr',
+      },
+    ]
+  },
+  smallestStringWithSwaps: {
+    method: 'smallestStringWithSwaps',
+    className: 'SmallestStringWithSwaps',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+      },
+      {
+        name: 'pairs',
+        type: 'intGrid',
+        helperBase: 'Pairs',
+      },
+    ]
+  },
+  mostStonesRemoved: {
+    method: 'removeStones',
+    className: 'MostStonesRemoved',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'stones',
+        type: 'intGrid',
+        helperBase: 'Stones',
+      },
+    ]
+  },
+  regionsCutBySlashes: {
+    method: 'regionsBySlashes',
+    className: 'RegionsCutBySlashes',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'stringArray',
+        helperBase: 'Grid',
+      },
+    ]
+  },
+  dailyTemperatures: {
+    method: 'dailyTemperatures',
+    className: 'DailyTemperatures',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'temperatures',
+        type: 'intArray',
+        helperBase: 'Temperatures',
+      },
+    ]
+  },
+  nextGreaterElementI: {
+    method: 'nextGreaterElement',
+    className: 'NextGreaterElementI',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'nums1',
+        type: 'intArray',
+        helperBase: 'Nums1',
+      },
+      {
+        name: 'nums2',
+        type: 'intArray',
+        helperBase: 'Nums2',
+      },
+    ]
+  },
+  nextGreaterElementIi: {
+    method: 'nextGreaterElements',
+    className: 'NextGreaterElementII',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  largestRectangleInHistogram: {
+    method: 'largestRectangleArea',
+    className: 'LargestRectangleInHistogram',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'heights',
+        type: 'intArray',
+        helperBase: 'Heights',
+      },
+    ]
+  },
+  sumOfSubarrayMinimums: {
+    method: 'sumSubarrayMins',
+    className: 'SumOfSubarrayMinimums',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      },
+    ]
+  },
+  shortestUnsortedContinuousSubarray: {
+    method: 'findUnsortedSubarray',
+    className: 'ShortestUnsortedContinuousSubarray',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  maximumWidthRamp: {
+    method: 'maxWidthRamp',
+    className: 'MaximumWidthRamp',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
 };

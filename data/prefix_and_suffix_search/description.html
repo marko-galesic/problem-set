@@ -1,0 +1,32 @@
+<p>
+  Given a list of words, answer queries that ask for the highest index of a word
+  with a given prefix and suffix.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[] prefixSuffixSearch(String[] words, String[] queries)</code></pre>
+
+<h3>Query Format</h3>
+<ul>
+  <li>Each query is encoded as <code>"prefix|suffix"</code></li>
+  <li>Use an empty prefix or suffix by leaving the side empty (e.g. <code>"pre|"</code>)</li>
+</ul>
+
+<h3>Return Value</h3>
+<ul>
+  <li>For each query, return the largest index of a word that starts with the prefix
+      and ends with the suffix</li>
+  <li>Return <code>-1</code> if no word matches</li>
+</ul>
+
+<h3>Example</h3>
+<pre><code>words = ["apple","apply","ape","apex"]
+queries = ["ap|le","ap|ly","a|x","ap|"]
+
+Output: [0,1,3,3]</code></pre>
+
+<h3>Notes</h3>
+<ul>
+  <li>Words and queries use lowercase English letters</li>
+  <li>The delimiter <code>'|'</code> will not appear in words</li>
+</ul>

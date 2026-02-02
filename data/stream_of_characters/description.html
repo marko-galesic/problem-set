@@ -1,0 +1,25 @@
+<p>
+  You are given a list of words and a stream of query characters. After each
+  query character is appended to the stream, determine whether any word is a
+  suffix of the current stream.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int[] streamQueries(String[] words, String[] queries)</code></pre>
+
+<h3>Input Format</h3>
+<ul>
+  <li><code>words</code> contains the dictionary words</li>
+  <li><code>queries</code> contains single-character strings to append to the stream</li>
+</ul>
+
+<h3>Return Value</h3>
+<ul>
+  <li>Return <code>1</code> if any word is a suffix after the query, otherwise <code>0</code></li>
+</ul>
+
+<h3>Example</h3>
+<pre><code>words = ["cd","f","kl"]
+queries = ["a","b","c","d","e","f"]
+
+Output: [0,0,0,1,0,1]</code></pre>

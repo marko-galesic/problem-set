@@ -1,0 +1,25 @@
+<p>
+  Given a 2D board of letters and a list of words, return all words that can be
+  formed by sequentially adjacent cells (up, down, left, right). A cell may not
+  be used more than once in a word.
+</p>
+
+<h3>Method Signature</h3>
+<pre><code>public String[] findWords(char[][] board, String[] words)</code></pre>
+
+<h3>Return Value</h3>
+<ul>
+  <li>Return the found words in lexicographical order</li>
+  <li>Each word should appear at most once in the output</li>
+</ul>
+
+<h3>Example</h3>
+<pre><code>board = [
+  ['o','a','a','n'],
+  ['e','t','a','e'],
+  ['i','h','k','r'],
+  ['i','f','l','v']
+]
+words = ["oath","pea","eat","rain"]
+
+Output: ["eat","oath"]</code></pre>
