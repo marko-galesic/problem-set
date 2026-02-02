@@ -1854,6 +1854,156 @@ export const CHALLENGES = {
     testFile: './testCases/maximumWidthRampTests.js',
     adapter: 'standard:maximumWidthRamp:java'
   },
+  subarray_sum_equals_k: {
+    name: 'Subarray Sum Equals K',
+    folder: 'subarray_sum_equals_k',
+    testFile: './testCases/subarraySumEqualsKTests.js',
+    adapter: 'standard:subarraySumEqualsK:java'
+  },
+  contiguous_array: {
+    name: 'Contiguous Array',
+    folder: 'contiguous_array',
+    testFile: './testCases/contiguousArrayTests.js',
+    adapter: 'standard:contiguousArray:java'
+  },
+  minimum_path_sum: {
+    name: 'Minimum Path Sum',
+    folder: 'minimum_path_sum',
+    testFile: './testCases/minimumPathSumTests.js',
+    adapter: 'standard:minimumPathSum:java'
+  },
+  unique_paths: {
+    name: 'Unique Paths',
+    folder: 'unique_paths',
+    testFile: './testCases/uniquePathsTests.js',
+    adapter: 'standard:uniquePaths:java'
+  },
+  decode_ways: {
+    name: 'Decode Ways',
+    folder: 'decode_ways',
+    testFile: './testCases/decodeWaysTests.js',
+    adapter: 'standard:decodeWays:java'
+  },
+  word_break: {
+    name: 'Word Break',
+    folder: 'word_break',
+    testFile: './testCases/wordBreakTests.js',
+    adapter: 'standard:wordBreak:java'
+  },
+  longest_increasing_subsequence: {
+    name: 'Longest Increasing Subsequence',
+    folder: 'longest_increasing_subsequence',
+    testFile: './testCases/longestIncreasingSubsequenceTests.js',
+    adapter: 'standard:longestIncreasingSubsequence:java'
+  },
+  spiral_matrix_ii: {
+    name: 'Spiral Matrix II',
+    folder: 'spiral_matrix_ii',
+    testFile: './testCases/spiralMatrixIiTests.js',
+    adapter: 'standard:spiralMatrixIi:java'
+  },
+  search_2d_matrix_ii: {
+    name: 'Search 2D Matrix II',
+    folder: 'search_2d_matrix_ii',
+    testFile: './testCases/search2dMatrixIiTests.js',
+    adapter: 'standard:search2dMatrixIi:java'
+  },
+  find_duplicate_number: {
+    name: 'Find Duplicate Number',
+    folder: 'find_duplicate_number',
+    testFile: './testCases/findDuplicateNumberTests.js',
+    adapter: 'standard:findDuplicateNumber:java'
+  },
+  minimum_size_subarray_sum: {
+    name: 'Minimum Size Subarray Sum',
+    folder: 'minimum_size_subarray_sum',
+    testFile: './testCases/minimumSizeSubarraySumTests.js',
+    adapter: 'standard:minimumSizeSubarraySum:java'
+  },
+  partition_labels: {
+    name: 'Partition Labels',
+    folder: 'partition_labels',
+    testFile: './testCases/partitionLabelsTests.js',
+    adapter: 'standard:partitionLabels:java'
+  },
+  next_permutation: {
+    name: 'Next Permutation',
+    folder: 'next_permutation',
+    testFile: './testCases/nextPermutationTests.js',
+    adapter: 'standard:nextPermutation:java'
+  },
+  k_closest_points_to_origin: {
+    name: 'K Closest Points to Origin',
+    folder: 'k_closest_points_to_origin',
+    testFile: './testCases/kClosestPointsToOriginTests.js',
+    adapter: 'standard:kClosestPointsToOrigin:java'
+  },
+  interval_list_intersections: {
+    name: 'Interval List Intersections',
+    folder: 'interval_list_intersections',
+    testFile: './testCases/intervalListIntersectionsTests.js',
+    adapter: 'standard:intervalListIntersections:java'
+  },
+  combination_sum_iii: {
+    name: 'Combination Sum III',
+    folder: 'combination_sum_iii',
+    testFile: './testCases/combinationSumIiiTests.js',
+    adapter: 'standard:combinationSumIii:java'
+  },
+  sort_colors: {
+    name: 'Sort Colors',
+    folder: 'sort_colors',
+    testFile: './testCases/sortColorsTests.js',
+    adapter: 'standard:sortColors:java'
+  },
+  kth_smallest_in_sorted_matrix: {
+    name: 'Kth Smallest in Sorted Matrix',
+    folder: 'kth_smallest_in_sorted_matrix',
+    testFile: './testCases/kthSmallestInSortedMatrixTests.js',
+    adapter: 'standard:kthSmallestInSortedMatrix:java'
+  },
+  shortest_path_in_binary_matrix: {
+    name: 'Shortest Path in Binary Matrix',
+    folder: 'shortest_path_in_binary_matrix',
+    testFile: './testCases/shortestPathInBinaryMatrixTests.js',
+    adapter: 'standard:shortestPathInBinaryMatrix:java'
+  },
+  decode_string: {
+    name: 'Decode String',
+    folder: 'decode_string',
+    testFile: './testCases/decodeStringTests.js',
+    adapter: 'standard:decodeString:java'
+  },
+  evaluate_reverse_polish_notation: {
+    name: 'Evaluate Reverse Polish Notation',
+    folder: 'evaluate_reverse_polish_notation',
+    testFile: './testCases/evaluateReversePolishNotationTests.js',
+    adapter: 'standard:evaluateReversePolishNotation:java'
+  },
+  asteroid_collision: {
+    name: 'Asteroid Collision',
+    folder: 'asteroid_collision',
+    testFile: './testCases/asteroidCollisionTests.js',
+    adapter: 'standard:asteroidCollision:java'
+  },
+  find_all_anagrams_in_a_string: {
+    name: 'Find All Anagrams in a String',
+    folder: 'find_all_anagrams_in_a_string',
+    testFile: './testCases/findAllAnagramsInAStringTests.js',
+    adapter: 'standard:findAllAnagramsInAString:java'
+  },
+  subarray_product_less_than_k: {
+    name: 'Subarray Product Less Than K',
+    folder: 'subarray_product_less_than_k',
+    testFile: './testCases/subarrayProductLessThanKTests.js',
+    adapter: 'standard:subarrayProductLessThanK:java'
+  },
+  maximal_square: {
+    name: 'Maximal Square',
+    folder: 'maximal_square',
+    testFile: './testCases/maximalSquareTests.js',
+    adapter: 'standard:maximalSquare:java'
+  },
 };
 
 const STANDARD_ADAPTER_OVERRIDES = new Set([

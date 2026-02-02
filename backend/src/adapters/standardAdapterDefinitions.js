@@ -1863,4 +1863,376 @@ export const standardAdapterDefinitions = {
       },
     ]
   },
+  subarraySumEqualsK: {
+    method: 'subarraySum',
+    className: 'SubarraySumEqualsK',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      },
+    ]
+  },
+  contiguousArray: {
+    method: 'findMaxLength',
+    className: 'ContiguousArray',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  minimumPathSum: {
+    method: 'minPathSum',
+    className: 'MinimumPathSum',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      },
+    ]
+  },
+  uniquePaths: {
+    method: 'uniquePaths',
+    className: 'UniquePaths',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'm',
+        type: 'int',
+        helperBase: 'M',
+        javaArrayName: 'ms',
+      },
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  decodeWays: {
+    method: 'numDecodings',
+    className: 'DecodeWays',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  wordBreak: {
+    method: 'wordBreak',
+    className: 'WordBreak',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'wordDict',
+        type: 'stringArray',
+        helperBase: 'WordDict',
+      },
+    ]
+  },
+  longestIncreasingSubsequence: {
+    method: 'lengthOfLIS',
+    className: 'LongestIncreasingSubsequence',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  spiralMatrixIi: {
+    method: 'generateMatrix',
+    className: 'SpiralMatrixII',
+    returnType: 'intMatrix',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  search2dMatrixIi: {
+    method: 'searchMatrix',
+    className: 'Search2dMatrixII',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'matrix',
+        type: 'intGrid',
+        helperBase: 'Matrix',
+      },
+      {
+        name: 'target',
+        type: 'int',
+        helperBase: 'Target',
+        javaArrayName: 'targets',
+      },
+    ]
+  },
+  findDuplicateNumber: {
+    method: 'findDuplicate',
+    className: 'FindDuplicateNumber',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  minimumSizeSubarraySum: {
+    method: 'minSubArrayLen',
+    className: 'MinimumSizeSubarraySum',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'target',
+        type: 'int',
+        helperBase: 'Target',
+        javaArrayName: 'targets',
+      },
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  partitionLabels: {
+    method: 'partitionLabels',
+    className: 'PartitionLabels',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  nextPermutation: {
+    method: 'nextPermutation',
+    className: 'NextPermutation',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  kClosestPointsToOrigin: {
+    method: 'kClosest',
+    className: 'KClosestPointsToOrigin',
+    returnType: 'intMatrix',
+    inputs: [
+      {
+        name: 'points',
+        type: 'intGrid',
+        helperBase: 'Points',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      },
+    ]
+  },
+  intervalListIntersections: {
+    method: 'intervalIntersection',
+    className: 'IntervalListIntersections',
+    returnType: 'intMatrix',
+    inputs: [
+      {
+        name: 'firstList',
+        type: 'intGrid',
+        helperBase: 'FirstList',
+      },
+      {
+        name: 'secondList',
+        type: 'intGrid',
+        helperBase: 'SecondList',
+      },
+    ]
+  },
+  combinationSumIii: {
+    method: 'combinationSum3',
+    className: 'CombinationSumIII',
+    returnType: 'intMatrix',
+    inputs: [
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      },
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+    ]
+  },
+  sortColors: {
+    method: 'sortColors',
+    className: 'SortColors',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+    ]
+  },
+  kthSmallestInSortedMatrix: {
+    method: 'kthSmallest',
+    className: 'KthSmallestInSortedMatrix',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'matrix',
+        type: 'intGrid',
+        helperBase: 'Matrix',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      },
+    ]
+  },
+  shortestPathInBinaryMatrix: {
+    method: 'shortestPathBinaryMatrix',
+    className: 'ShortestPathInBinaryMatrix',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      },
+    ]
+  },
+  decodeString: {
+    method: 'decodeString',
+    className: 'DecodeString',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  evaluateReversePolishNotation: {
+    method: 'evalRPN',
+    className: 'EvaluateReversePolishNotation',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'tokens',
+        type: 'stringArray',
+        helperBase: 'Tokens',
+      },
+    ]
+  },
+  asteroidCollision: {
+    method: 'asteroidCollision',
+    className: 'AsteroidCollision',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'asteroids',
+        type: 'intArray',
+        helperBase: 'Asteroids',
+      },
+    ]
+  },
+  findAllAnagramsInAString: {
+    method: 'findAnagrams',
+    className: 'FindAllAnagramsInAString',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'String',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'p',
+        type: 'string',
+        helperBase: 'Pattern',
+        stringEscape: 'basic',
+      },
+    ]
+  },
+  subarrayProductLessThanK: {
+    method: 'numSubarrayProductLessThanK',
+    className: 'SubarrayProductLessThanK',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      },
+    ]
+  },
+  maximalSquare: {
+    method: 'maximalSquare',
+    className: 'MaximalSquare',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'matrix',
+        type: 'charGrid',
+        helperBase: 'Matrix',
+      },
+    ]
+  },
 };
