@@ -41,6 +41,7 @@ const {
   removeInnerClassIfTopLevelExists,
   extractClassNameFromTemplate,
   parseTestResults,
+  readResultsFile,
   deepEqual
 } = __testUtils;
 
@@ -344,6 +345,67 @@ static class Bar {
     expect(results[0].stdout).toContain('second line');
     expect(results[1].passed).toBe(true);
     expect(results[1].executionTime).toBe(7);
+  });
+
+  test('readResultsFile maps json payload to results', async () => {
+    const testCases = [{ id: 1, input: 'n=1', expected: 1 }];
+    const payload = {
+      results: [
+        {
+          actual: '1',
+          expected: '1',
+          passed: true,
+          durationMs: 4,
+          stdout: 'from file',
+          error: null
+        }
+      ]
+    };
+
+    readFileMock.mockResolvedValue(JSON.stringify(payload));
+    const results = await readResultsFile('/tmp/results.json', testCases, '');
+
+    expect(results).toHaveLength(1);
+    expect(results[0]).toEqual(expect.objectContaining({
+      actual: '1',
+      expected: '1',
+      passed: true,
+      executionTime: 4,
+      stdout: 'from file'
+    }));
+  });
+
+  test('readResultsFile maps array payload and keeps error text', async () => {
+    const testCases = [{ id: 1, input: 'n=1', expected: 1 }];
+    const payload = [
+      {
+        actual: '1',
+        expected: '1',
+        passed: true,
+        durationMs: '5',
+        stdout: 'ok',
+        error: 'boom'
+      }
+    ];
+
+    readFileMock.mockResolvedValue(JSON.stringify(payload));
+    const results = await readResultsFile('/tmp/results.json', testCases, '');
+
+    expect(results).toHaveLength(1);
+    expect(results[0].executionTime).toBe(5);
+    expect(results[0].error).toBe('boom');
+  });
+
+  test('readResultsFile returns null on invalid json', async () => {
+    readFileMock.mockResolvedValue('not-json');
+    const results = await readResultsFile('/tmp/results.json', [{ id: 1 }], '');
+    expect(results).toBeNull();
+  });
+
+  test('readResultsFile returns null on empty content', async () => {
+    readFileMock.mockResolvedValue('');
+    const results = await readResultsFile('/tmp/results.json', [{ id: 1 }], '');
+    expect(results).toBeNull();
   });
 
   test('deepEqual compares nested objects and arrays', () => {

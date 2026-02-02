@@ -186,6 +186,51 @@ describe('JavaScript Executor', () => {
     expect(result.results[0].error).toContain('TypeError');
   });
 
+  test('prefers results file when available', async () => {
+    const templateContent = 'class TemplateSolver { solve() { return 42; } }\n';
+    const fsMocks = createFsMocks({ templateContent });
+    const payload = {
+      results: [
+        {
+          actual: '42',
+          expected: '42',
+          passed: true,
+          durationMs: 3,
+          stdout: 'from file',
+          error: null
+        }
+      ]
+    };
+    const readFileImpl = fsMocks.readFile.getMockImplementation();
+    fsMocks.readFile.mockImplementation((filePath) => {
+      if (filePath.includes('_results_')) {
+        return Promise.resolve(JSON.stringify(payload));
+      }
+      return readFileImpl(filePath);
+    });
+
+    const stderr = [
+      'TEST_0_ACTUAL:0',
+      'TEST_0_EXPECTED:42',
+      'TEST_0_RESULT:FAIL',
+      'TEST_0_TIME:5',
+      'TEST_0_STDOUT:bad'
+    ].join('\n');
+    const { spawnMock } = createSpawnMock({ stderr });
+    const executeJavaScriptCode = await loadExecutor({ spawnMock, fsMocks });
+
+    const result = await executeJavaScriptCode(
+      'class TemplateSolver { solve() { return 42; } }',
+      sampleTestCases,
+      adapterStub,
+      'sample_challenge'
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.results[0].passed).toBe(true);
+    expect(result.results[0].stdout).toBe('from file');
+  });
+
   test('returns runtime error on non-zero exit code', async () => {
     const templateContent = 'class FailingSolver {}\n';
     const fsMocks = createFsMocks({ templateContent });

@@ -614,6 +614,8 @@ ${expectedCode}        return expected;
   // Wrap user code in a complete Java class
   const returnType = adapter.getReturnType();
   const serializerMethod = adapter.getSerializerMethod();
+  const resultsFileName = `${className}_results_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
+  const resultsPath = join(TEMP_DIR, resultsFileName);
   // Return-type classes (Node, AttrResult) are always provided as top-level utility files,
   // so no qualification needed
   let qualifiedReturnType = returnType;
@@ -866,6 +868,92 @@ ${adapter.generateHelperClasses(hasUserDefined, hasTopLevelNode, hasTopLevelAttr
 }
 class ${className}TestHarness {
     private static ${className} parser;
+    private static final String RESULTS_PATH = ${JSON.stringify(resultsPath)};
+
+    static class TestResult {
+        final String actual;
+        final String expected;
+        final boolean passed;
+        final long durationMs;
+        final String stdout;
+        final String error;
+
+        TestResult(String actual, String expected, boolean passed, long durationMs, String stdout, String error) {
+            this.actual = actual;
+            this.expected = expected;
+            this.passed = passed;
+            this.durationMs = durationMs;
+            this.stdout = stdout;
+            this.error = error;
+        }
+    }
+
+    private static String escapeJson(String value) {
+        if (value == null) {
+            return null;
+        }
+        StringBuilder escaped = new StringBuilder();
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+                case '\\\\':
+                    escaped.append("\\\\\\\\");
+                    break;
+                case '"':
+                    escaped.append("\\\\\\\"");
+                    break;
+                case '\\n':
+                    escaped.append("\\\\n");
+                    break;
+                case '\\r':
+                    escaped.append("\\\\r");
+                    break;
+                case '\\t':
+                    escaped.append("\\\\t");
+                    break;
+                default:
+                    if (c < 0x20) {
+                        escaped.append(String.format("\\\\u%04x", (int) c));
+                    } else {
+                        escaped.append(c);
+                    }
+                    break;
+            }
+        }
+        return escaped.toString();
+    }
+
+    private static String toJsonValue(String value) {
+        if (value == null) {
+            return "null";
+        }
+        return "\\"" + escapeJson(value) + "\\"";
+    }
+
+    private static void writeResultsFile(List<TestResult> results) {
+        StringBuilder json = new StringBuilder();
+        json.append("{\\"results\\":[");
+        for (int i = 0; i < results.size(); i++) {
+            TestResult result = results.get(i);
+            if (i > 0) {
+                json.append(",");
+            }
+            json.append("{");
+            json.append("\\"actual\\":").append(toJsonValue(result.actual)).append(",");
+            json.append("\\"expected\\":").append(toJsonValue(result.expected)).append(",");
+            json.append("\\"passed\\":").append(result.passed).append(",");
+            json.append("\\"durationMs\\":").append(result.durationMs).append(",");
+            json.append("\\"stdout\\":").append(toJsonValue(result.stdout)).append(",");
+            json.append("\\"error\\":").append(toJsonValue(result.error));
+            json.append("}");
+        }
+        json.append("]}");
+        try (FileWriter writer = new FileWriter(RESULTS_PATH)) {
+            writer.write(json.toString());
+        } catch (Exception e) {
+            System.err.println("ERROR writing results file: " + e.getMessage());
+        }
+    }
     
 ${serializerCode}
     
@@ -1001,12 +1089,14 @@ ${testCases.map((tc, idx) => generateExpectedMethod(idx, tc.expected, className,
     // Test runner
     public static void main(String[] args) {
         ${needsParserInstance ? `parser = new ${className}();` : ''}
-        StringBuilder results = new StringBuilder();
+        List<TestResult> results = new ArrayList<>();
+        StringBuilder markerResults = new StringBuilder();
         PrintStream originalOut = System.out;
         
         for (int i = 0; i < ${testCases.length}; i++) {
             CapturingPrintStream capturingOut = new CapturingPrintStream(originalOut);
             System.setOut(capturingOut);
+            String errorMessage = null;
             
             try {
                 long startTime = System.currentTimeMillis();
@@ -1016,6 +1106,13 @@ ${testCases.map((tc, idx) => generateExpectedMethod(idx, tc.expected, className,
                     ${adapter.generateInvocation('parser')}
                 } catch (Exception parseEx) {
                     // Log exception details to stderr so they're visible
+                    StringWriter sw = new StringWriter();
+                    parseEx.printStackTrace(new PrintWriter(sw));
+                    String stackTrace = sw.toString().trim();
+                    errorMessage = "ERROR in test " + i + " (method invocation): " + parseEx.getClass().getName() + ": " + parseEx.getMessage();
+                    if (!stackTrace.isEmpty()) {
+                        errorMessage = errorMessage + System.lineSeparator() + stackTrace;
+                    }
                     System.err.println("ERROR in test " + i + " (method invocation): " + parseEx.getClass().getName() + ": " + parseEx.getMessage());
                     parseEx.printStackTrace(System.err);
                     // If parsing fails, mark error for primitives or set to null for objects
@@ -1056,28 +1153,38 @@ ${testCases.map((tc, idx) => `                        case ${idx}: expected = ge
                 String stdout = capturingOut.getCapturedOutput();
                 System.setOut(originalOut);
                 
-                results.append("TEST_").append(i).append("_ACTUAL:").append(actualStr != null ? actualStr : "null").append(System.lineSeparator());
-                results.append("TEST_").append(i).append("_EXPECTED:").append(expectedStr != null ? expectedStr : "null").append(System.lineSeparator());
-                results.append("TEST_").append(i).append("_RESULT:").append(passed ? "PASS" : "FAIL").append(System.lineSeparator());
-                results.append("TEST_").append(i).append("_TIME:").append(duration).append(System.lineSeparator());
-                results.append("TEST_").append(i).append("_STDOUT:").append(stdout != null ? stdout : "").append(System.lineSeparator());
+                String actualValue = actualStr != null ? actualStr : "null";
+                String expectedValue = expectedStr != null ? expectedStr : "null";
+                String stdoutValue = stdout != null ? stdout : "";
+                results.add(new TestResult(actualValue, expectedValue, passed, duration, stdoutValue, errorMessage));
+                
+                markerResults.append("TEST_").append(i).append("_ACTUAL:").append(actualValue).append(System.lineSeparator());
+                markerResults.append("TEST_").append(i).append("_EXPECTED:").append(expectedValue).append(System.lineSeparator());
+                markerResults.append("TEST_").append(i).append("_RESULT:").append(passed ? "PASS" : "FAIL").append(System.lineSeparator());
+                markerResults.append("TEST_").append(i).append("_TIME:").append(duration).append(System.lineSeparator());
+                markerResults.append("TEST_").append(i).append("_STDOUT:").append(stdoutValue).append(System.lineSeparator());
             } catch (Exception e) {
                 // Capture stdout even on error (but don't include it in results)
                 String stdout = capturingOut.getCapturedOutput();
                 System.setOut(originalOut);
                 
                 // Even if there's an error, output something for this test
-                results.append("TEST_").append(i).append("_ACTUAL:null").append(System.lineSeparator());
-                results.append("TEST_").append(i).append("_EXPECTED:null").append(System.lineSeparator());
-                results.append("TEST_").append(i).append("_RESULT:FAIL").append(System.lineSeparator());
-                results.append("TEST_").append(i).append("_TIME:0").append(System.lineSeparator());
-                results.append("TEST_").append(i).append("_STDOUT:").append(stdout != null ? stdout : "").append(System.lineSeparator());
-                System.err.println("ERROR in test " + i + ": " + e.getMessage());
+                String stdoutValue = stdout != null ? stdout : "";
+                errorMessage = "ERROR in test " + i + ": " + e.getMessage();
+                results.add(new TestResult("null", "null", false, 0, stdoutValue, errorMessage));
+                
+                markerResults.append("TEST_").append(i).append("_ACTUAL:null").append(System.lineSeparator());
+                markerResults.append("TEST_").append(i).append("_EXPECTED:null").append(System.lineSeparator());
+                markerResults.append("TEST_").append(i).append("_RESULT:FAIL").append(System.lineSeparator());
+                markerResults.append("TEST_").append(i).append("_TIME:0").append(System.lineSeparator());
+                markerResults.append("TEST_").append(i).append("_STDOUT:").append(stdoutValue).append(System.lineSeparator());
+                System.err.println(errorMessage);
             }
         }
         
         // Always output results, even if there were errors
-        System.err.print(results.toString());
+        writeResultsFile(results);
+        System.err.print(markerResults.toString());
         System.err.flush();
     }
     
@@ -1204,9 +1311,10 @@ ${adapter.generateInputHelpers(testCases)}
     // Parse results - prefer the stream that contains TEST_* lines
     const stdout = executionResult.stdout || '';
     const stderr = executionResult.stderr || '';
-    const output = selectTestOutput(stdout, stderr);
+    const fileResults = await readResultsFile(resultsPath, testCases, stderr);
+    const output = fileResults ? '' : selectTestOutput(stdout, stderr);
     
-    const results = await parseTestResults(output, testCases, stderr);
+    const results = fileResults || await parseTestResults(output, testCases, stderr);
 
     // Cleanup - delete all files in the temp directory (including inner class files)
     try {
@@ -1270,26 +1378,18 @@ function stripTestResultLines(text = '') {
     .join('\n');
 }
 
-async function parseTestResults(output, testCases, stderr = '') {
-  const results = [];
-  
-  // Parse stderr to extract exception information per test
+function extractTestErrors(stderr = '', testCount = 0) {
   const testErrors = {};
   const errorText = stripTestResultLines(stderr);
-  
-  // Extract ERROR lines from stderr: "ERROR in test X (method invocation): ..."
-  // Note: Java code uses 1-based test numbers (test 1, test 2, etc.) but we use 0-based indices
-  for (let i = 0; i < testCases.length; i++) {
+  for (let i = 0; i < testCount; i++) {
     const javaTestNumber = i + 1; // Convert 0-based index to 1-based test number
     const errorStartPattern = `ERROR in test ${javaTestNumber} (method invocation):`;
     const errorStartIndex = errorText.indexOf(errorStartPattern);
     if (errorStartIndex !== -1) {
-      // Find the next ERROR line or end of stderr
       const nextErrorPattern = `ERROR in test ${javaTestNumber + 1} (method invocation):`;
       const nextErrorIndex = errorText.indexOf(nextErrorPattern, errorStartIndex + 1);
       const errorEndIndex = nextErrorIndex !== -1 ? nextErrorIndex : errorText.length;
       const errorSection = errorText.substring(errorStartIndex, errorEndIndex);
-      // Clean up: remove debug logs from the error message
       const cleanedError = errorSection
         .split('\n')
         .filter(line => !line.includes('[DEBUG]'))
@@ -1298,6 +1398,44 @@ async function parseTestResults(output, testCases, stderr = '') {
       testErrors[i] = cleanedError || errorSection.trim();
     }
   }
+  return testErrors;
+}
+
+async function readResultsFile(resultsPath, testCases, stderr = '') {
+  try {
+    const raw = await readFile(resultsPath, 'utf8');
+    if (!raw) {
+      return null;
+    }
+    const payload = JSON.parse(raw);
+    const rawResults = Array.isArray(payload) ? payload : payload?.results;
+    if (!Array.isArray(rawResults)) {
+      return null;
+    }
+    const testErrors = extractTestErrors(stderr, testCases.length);
+    return testCases.map((testCase, index) => {
+      const entry = rawResults[index] || {};
+      const durationMs = Number.isFinite(entry.durationMs)
+        ? entry.durationMs
+        : Number.parseInt(entry.durationMs ?? entry.executionTime ?? entry.timeMs, 10) || 0;
+      return {
+        testCase,
+        actual: entry.actual ?? entry.actualStr ?? null,
+        expected: entry.expected ?? entry.expectedStr ?? null,
+        passed: typeof entry.passed === 'boolean' ? entry.passed : false,
+        executionTime: durationMs,
+        stdout: entry.stdout ?? entry.stdoutValue ?? '',
+        error: entry.error ?? testErrors[index] ?? null
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function parseTestResults(output, testCases, stderr = '') {
+  const results = [];
+  const testErrors = extractTestErrors(stderr, testCases.length);
   
   if (!output || typeof output !== 'string') {
     // Return results with null values if output is invalid
@@ -1478,5 +1616,7 @@ export const __testUtils = {
   removeInnerClassIfTopLevelExists,
   extractClassNameFromTemplate,
   parseTestResults,
+  readResultsFile,
+  extractTestErrors,
   deepEqual
 };

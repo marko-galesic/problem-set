@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { writeFile, unlink, mkdir, readdir } from 'fs/promises';
+import { writeFile, unlink, mkdir, readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -184,8 +184,13 @@ export async function executeJavaScriptCode(userCode, testCases, adapter, challe
 
   const expectedList = testCases.map((_, idx) => `getExpected_${idx}`).join(', ');
   const serializerMethod = adapter.getSerializerMethod();
+  const resultsFileName = `${className}_results_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.json`;
+  const resultsPath = join(TEMP_DIR, resultsFileName);
 
-  const jsSource = `${helperBlock}${processedUserCode}
+  const jsSource = `import { writeFileSync } from 'fs';
+const RESULTS_PATH = ${JSON.stringify(resultsPath)};
+
+${helperBlock}${processedUserCode}
 
 ${serializerCode}
 
@@ -227,6 +232,25 @@ function captureStdout(callback) {
   return buffer;
 }
 
+function writeResults(results) {
+  const payload = {
+    results: results.map((result) => ({
+      actual: result.actualStr,
+      expected: result.expectedStr,
+      passed: result.passed,
+      durationMs: result.durationMs,
+      stdout: result.stdoutValue || '',
+      error: result.errorMessage || null
+    }))
+  };
+  try {
+    writeFileSync(RESULTS_PATH, JSON.stringify(payload));
+  } catch (err) {
+    const message = err && err.message ? err.message : String(err);
+    console.error(\`ERROR writing results file: \${message}\`);
+  }
+}
+
 function main() {
   const parser = ${needsParserInstance ? `new ${className}()` : 'null'};
   const results = [];
@@ -240,6 +264,7 @@ function main() {
     let passed = false;
     let durationMs = 0;
     let stdoutValue = '';
+    let errorMessage = null;
     stdoutValue = captureStdout(() => {
       const startTime = Date.now();
       try {
@@ -247,7 +272,8 @@ function main() {
           ${invocationCode}
         } catch (err) {
           actualError = err;
-          console.error(\`ERROR in test \${i} (method invocation): \${err.name}: \${err.message}\`);
+          errorMessage = \`ERROR in test \${i} (method invocation): \${err.name}: \${err.message}\`;
+          console.error(errorMessage);
         }
         try {
           expected = EXPECTED_BUILDERS[i]();
@@ -261,13 +287,16 @@ function main() {
         actualStr = "null";
         expectedStr = "null";
         passed = false;
-        console.error(\`ERROR in test \${i}: \${err.message}\`);
+        errorMessage = \`ERROR in test \${i}: \${err.message}\`;
+        console.error(errorMessage);
       } finally {
         durationMs = Date.now() - startTime;
       }
     });
-    results.push({ actualStr, expectedStr, passed, durationMs, stdoutValue, actualError, expectedError });
+    results.push({ actualStr, expectedStr, passed, durationMs, stdoutValue, actualError, expectedError, errorMessage });
   }
+
+  writeResults(results);
 
   for (let i = 0; i < results.length; i++) {
     const result = results[i];
@@ -308,12 +337,14 @@ main();
 
     const stdout = executionResult.stdout || '';
     const stderr = executionResult.stderr || '';
-    const output = selectTestOutput(stdout, stderr);
     const totalTime = Date.now() - startTime;
-    const results = await parseTestResults(output, testCases, stderr);
+    const fileResults = await readResultsFile(resultsPath, testCases, stderr);
+    const output = fileResults ? '' : selectTestOutput(stdout, stderr);
+    const results = fileResults || await parseTestResults(output, testCases, stderr);
 
     try {
       const files = await readdir(TEMP_DIR);
+      await unlink(resultsPath).catch(() => {});
       const deletePromises = files
         .filter(file => file.endsWith('_runner.js'))
         .map(file => unlink(join(TEMP_DIR, file)).catch(() => {}));
@@ -330,6 +361,7 @@ main();
   } catch (error) {
     try {
       const files = await readdir(TEMP_DIR).catch(() => []);
+      await unlink(resultsPath).catch(() => {});
       const deletePromises = files
         .filter(file => file.endsWith('_runner.js'))
         .map(file => unlink(join(TEMP_DIR, file)).catch(() => {}));
@@ -368,12 +400,10 @@ function stripTestResultLines(text = '') {
     .join('\n');
 }
 
-async function parseTestResults(output, testCases, stderr = '') {
-  const results = [];
+function extractTestErrors(stderr = '', testCount = 0) {
   const testErrors = {};
   const errorText = stripTestResultLines(stderr);
-
-  for (let i = 0; i < testCases.length; i++) {
+  for (let i = 0; i < testCount; i++) {
     const errorStartPattern = `ERROR in test ${i} (method invocation):`;
     const errorStartIndex = errorText.indexOf(errorStartPattern);
     if (errorStartIndex !== -1) {
@@ -384,6 +414,44 @@ async function parseTestResults(output, testCases, stderr = '') {
       testErrors[i] = errorSection.trim();
     }
   }
+  return testErrors;
+}
+
+async function readResultsFile(resultsPath, testCases, stderr = '') {
+  try {
+    const raw = await readFile(resultsPath, 'utf8');
+    if (!raw) {
+      return null;
+    }
+    const payload = JSON.parse(raw);
+    const rawResults = Array.isArray(payload) ? payload : payload?.results;
+    if (!Array.isArray(rawResults)) {
+      return null;
+    }
+    const testErrors = extractTestErrors(stderr, testCases.length);
+    return testCases.map((testCase, index) => {
+      const entry = rawResults[index] || {};
+      const durationMs = Number.isFinite(entry.durationMs)
+        ? entry.durationMs
+        : Number.parseInt(entry.durationMs ?? entry.executionTime ?? entry.timeMs, 10) || 0;
+      return {
+        testCase,
+        actual: entry.actual ?? entry.actualStr ?? null,
+        expected: entry.expected ?? entry.expectedStr ?? null,
+        passed: typeof entry.passed === 'boolean' ? entry.passed : false,
+        executionTime: durationMs,
+        stdout: entry.stdout ?? entry.stdoutValue ?? '',
+        error: entry.error ?? testErrors[index] ?? null
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function parseTestResults(output, testCases, stderr = '') {
+  const results = [];
+  const testErrors = extractTestErrors(stderr, testCases.length);
 
   if (!output || typeof output !== 'string') {
     for (let i = 0; i < testCases.length; i++) {
@@ -479,5 +547,7 @@ export const __testUtils = {
   spawnAsync,
   stripBlockComments,
   extractClassNameFromTemplate,
-  hasClassDefinition
+  hasClassDefinition,
+  readResultsFile,
+  extractTestErrors
 };

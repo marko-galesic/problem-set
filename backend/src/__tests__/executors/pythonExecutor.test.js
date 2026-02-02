@@ -203,6 +203,48 @@ describe('Python Executor', () => {
     expect(result.error).toContain('Runtime error: spawn failed');
   });
 
+  test('prefers results file when available', async () => {
+    const payload = {
+      results: [
+        {
+          actual: '1',
+          expected: '1',
+          passed: true,
+          durationMs: 4,
+          stdout: 'from file',
+          error: null
+        }
+      ]
+    };
+    readFileMock.mockImplementation((filePath) => {
+      if (filePath.includes('_results_')) {
+        return Promise.resolve(JSON.stringify(payload));
+      }
+      return Promise.reject(new Error('not found'));
+    });
+
+    const stderr = [
+      'TEST_0_ACTUAL:0',
+      'TEST_0_EXPECTED:1',
+      'TEST_0_RESULT:FAIL',
+      'TEST_0_TIME:5',
+      'TEST_0_STDOUT:bad'
+    ].join('\n');
+
+    mockSpawnWithOutput({ stderr, exitCode: 0 });
+
+    const result = await executePythonCode(
+      'class Fallback:\n    def solve(self, i):\n        return i',
+      [{ id: 1, input: '1', expected: 1 }],
+      createAdapter(),
+      'results_file'
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.results[0].passed).toBe(true);
+    expect(result.results[0].stdout).toBe('from file');
+  });
+
   test('returns timeout when execution exceeds limit', async () => {
     jest.useFakeTimers();
     spawnMock.mockImplementation(() => {

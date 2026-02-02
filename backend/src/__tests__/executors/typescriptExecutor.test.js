@@ -110,6 +110,44 @@ afterEach(() => {
 });
 
 describe('TypeScript Executor', () => {
+  test('throws when adapter is missing', async () => {
+    const templateContent = 'class MissingAdapter {}\n';
+    const fsMocks = createFsMocks({ templateContent });
+    const { spawnMock } = createSpawnMock({});
+    const executeTypeScriptCode = await loadExecutor({ spawnMock, fsMocks });
+
+    await expect(
+      executeTypeScriptCode('class MissingAdapter {}', sampleTestCases, null, 'sample_challenge')
+    ).rejects.toThrow('Adapter is required');
+  });
+
+  test('throws when class name cannot be resolved', async () => {
+    const templateContent = '// no class definition\n';
+    const fsMocks = createFsMocks({ templateContent });
+    const { spawnMock } = createSpawnMock({});
+    const adapter = { ...adapterStub, getDefaultClassName: () => '' };
+    fsMocks.readFile.mockRejectedValue(new Error('missing template'));
+    const executeTypeScriptCode = await loadExecutor({ spawnMock, fsMocks });
+
+    await expect(
+      executeTypeScriptCode('function solve() { return 1; }', sampleTestCases, adapter, 'missing')
+    ).rejects.toThrow('Could not determine class name');
+  });
+
+  test('throws when default class name is unavailable', async () => {
+    const templateContent = '// no class definition\n';
+    const fsMocks = createFsMocks({ templateContent });
+    fsMocks.readFile.mockRejectedValue(new Error('missing template'));
+    const { spawnMock } = createSpawnMock({});
+    const adapter = { ...adapterStub };
+    delete adapter.getDefaultClassName;
+    const executeTypeScriptCode = await loadExecutor({ spawnMock, fsMocks });
+
+    await expect(
+      executeTypeScriptCode('function solve() { return 1; }', sampleTestCases, adapter, 'missing')
+    ).rejects.toThrow('Could not determine class name');
+  });
+
   test('falls back to JS runner when ts-node is unavailable', async () => {
     const templateContent = 'class TsSolver {}\n';
     const fsMocks = createFsMocks({
@@ -201,6 +239,137 @@ describe('TypeScript Executor', () => {
       expect(spawnArgs).toContain('ts-node/esm');
       expect(spawnOptions.env.TS_NODE_TRANSPILE_ONLY).toBe('1');
     }
+  });
+
+  test('includes helper content and transformed user code when needed', async () => {
+    const templateContent = 'class TsSolver { solve(i) { return i; } }\n';
+    const fsMocks = createFsMocks({
+      templateContent,
+      helperContents: { TreeNode: 'class TreeNode {}' },
+      readdirEntries: ['TsSolver_runner.js']
+    });
+
+    const output = [
+      'TEST_0_ACTUAL:7',
+      'TEST_0_EXPECTED:7',
+      'TEST_0_RESULT:PASS',
+      'TEST_0_TIME:3',
+      'TEST_0_STDOUT:ok'
+    ].join('\n');
+
+    const adapter = {
+      ...adapterStub,
+      generateInvocation: () => 'actual = parser.solve(i);',
+      transformUserCode: (code) => `${code}\n// transformed`
+    };
+
+    const { spawnMock } = createSpawnMock({ stderr: output });
+    const executeTypeScriptCode = await loadExecutor({
+      spawnMock,
+      fsMocks,
+      forceTsNodeMissing: true
+    });
+
+    const result = await executeTypeScriptCode(
+      'class TsSolver { solve(i) { return i; } }',
+      sampleTestCases,
+      adapter,
+      'sample_challenge'
+    );
+
+    expect(result.success).toBe(true);
+    const [, writtenContent] = fsMocks.writeFile.mock.calls[0];
+    expect(writtenContent).toContain('class TreeNode');
+    expect(writtenContent).toContain('// transformed');
+    expect(writtenContent).toContain('parser = new TsSolver');
+  });
+
+  test('skips helper content when user defines helper class', async () => {
+    const templateContent = 'class TsSolver { solve(i) { return i; } }\n';
+    const fsMocks = createFsMocks({
+      templateContent,
+      helperContents: { TreeNode: '// helper\nclass TreeNode {}' },
+      readdirEntries: ['TsSolver_runner.js']
+    });
+
+    const output = [
+      'TEST_0_ACTUAL:7',
+      'TEST_0_EXPECTED:7',
+      'TEST_0_RESULT:PASS',
+      'TEST_0_TIME:3',
+      'TEST_0_STDOUT:ok'
+    ].join('\n');
+
+    const adapter = {
+      ...adapterStub,
+      generateInvocation: () => 'actual = parser.solve(i);'
+    };
+
+    const { spawnMock } = createSpawnMock({ stderr: output });
+    const executeTypeScriptCode = await loadExecutor({
+      spawnMock,
+      fsMocks,
+      forceTsNodeMissing: true
+    });
+
+    await executeTypeScriptCode(
+      'class TreeNode {}\nclass TsSolver { solve(i) { return i; } }',
+      sampleTestCases,
+      adapter,
+      'sample_challenge'
+    );
+
+    const [, writtenContent] = fsMocks.writeFile.mock.calls[0];
+    expect(writtenContent).not.toContain('// helper');
+  });
+
+  test('prefers results file when available', async () => {
+    const templateContent = 'class TemplateSolver { solve(): number { return 7; } }\n';
+    const fsMocks = createFsMocks({ templateContent });
+    const payload = {
+      results: [
+        {
+          actual: '7',
+          expected: '7',
+          passed: true,
+          durationMs: 2,
+          stdout: 'from file',
+          error: null
+        }
+      ]
+    };
+    const readFileImpl = fsMocks.readFile.getMockImplementation();
+    fsMocks.readFile.mockImplementation((filePath) => {
+      if (filePath.includes('_results_')) {
+        return Promise.resolve(JSON.stringify(payload));
+      }
+      return readFileImpl(filePath);
+    });
+
+    const stderr = [
+      'TEST_0_ACTUAL:0',
+      'TEST_0_EXPECTED:7',
+      'TEST_0_RESULT:FAIL',
+      'TEST_0_TIME:5',
+      'TEST_0_STDOUT:bad'
+    ].join('\n');
+    const { spawnMock } = createSpawnMock({ stderr });
+    const executeTypeScriptCode = await loadExecutor({
+      spawnMock,
+      fsMocks,
+      forceTsNodeAvailable: true
+    });
+
+    const result = await executeTypeScriptCode(
+      'class TemplateSolver { solve(): number { return 7; } }',
+      sampleTestCases,
+      adapterStub,
+      'sample_challenge'
+    );
+
+    expect(result.success).toBe(true);
+    expect(result.results[0].passed).toBe(true);
+    expect(result.results[0].stdout).toBe('from file');
   });
 
   test('returns runtime error on non-zero exit code', async () => {

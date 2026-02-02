@@ -37,7 +37,8 @@ const {
   indentCode,
   stripTripleQuotedStrings,
   extractClassNameFromTemplate,
-  hasClassDefinition
+  hasClassDefinition,
+  readResultsFile
 } = __testUtils;
 
 function createProc({ trackKilled = true } = {}) {
@@ -184,5 +185,51 @@ describe('Python Executor utils', () => {
 
     await jest.advanceTimersByTimeAsync(1000);
     expect(proc.kill).toHaveBeenCalledWith('SIGKILL');
+  });
+
+  test('readResultsFile maps array payload and uses stderr errors', async () => {
+    const payload = [
+      {
+        actual: '1',
+        expected: '1',
+        passed: true,
+        durationMs: 6,
+        stdout: 'ok',
+        error: null
+      },
+      {
+        actualStr: '2',
+        expectedStr: '3',
+        passed: false,
+        durationMs: '9',
+        stdoutValue: '',
+        error: null
+      }
+    ];
+    readFileMock.mockResolvedValue(JSON.stringify(payload));
+    const stderr = 'ERROR in test 1 (method invocation): Boom';
+    const results = await readResultsFile('/tmp/results.json', [{ id: 1 }, { id: 2 }], stderr);
+    expect(results).toHaveLength(2);
+    expect(results[0].passed).toBe(true);
+    expect(results[1].executionTime).toBe(9);
+    expect(results[1].error).toContain('ERROR in test 1');
+  });
+
+  test('readResultsFile returns null on invalid json', async () => {
+    readFileMock.mockResolvedValue('not-json');
+    const results = await readResultsFile('/tmp/results.json', [], '');
+    expect(results).toBeNull();
+  });
+
+  test('readResultsFile returns null on empty content', async () => {
+    readFileMock.mockResolvedValue('');
+    const results = await readResultsFile('/tmp/results.json', [], '');
+    expect(results).toBeNull();
+  });
+
+  test('readResultsFile returns null when results are not an array', async () => {
+    readFileMock.mockResolvedValue(JSON.stringify({ results: 'nope' }));
+    const results = await readResultsFile('/tmp/results.json', [], '');
+    expect(results).toBeNull();
   });
 });
