@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@mui/material';
 import Timer from './Timer';
+import ResetPopover from './ResetPopover';
 
 export default function Header({ 
   onRun, 
   onSubmit, 
-  onReset, 
+  onResetSolution,
+  onResetTimer,
   onToggleMaximize, 
   isRunning, 
   isRunningRun, 
@@ -23,6 +25,30 @@ export default function Header({
   isProgressDisabled,
   progressTitle
 }) {
+  const [resetAnchorEl, setResetAnchorEl] = useState(null);
+
+  function handleResetPopoverOpen(event) {
+    setResetAnchorEl(event.currentTarget);
+  }
+
+  function handleResetPopoverClose() {
+    setResetAnchorEl(null);
+  }
+
+  function handleResetSolutionClick() {
+    if (onResetSolution) {
+      onResetSolution();
+    }
+    handleResetPopoverClose();
+  }
+
+  function handleResetTimerClick() {
+    if (onResetTimer) {
+      onResetTimer();
+    }
+    handleResetPopoverClose();
+  }
+
   return (
     <div className="header">
       <div className="header-left">
@@ -90,15 +116,22 @@ export default function Header({
           {isMaximized ? '⊟' : '⊞'}
         </Button>
         <Button 
-          onClick={onReset}
+          onClick={handleResetPopoverOpen}
           disabled={isRunning}
           className="btn btn-reset"
           type="button"
-          aria-label="Reset to template"
-          title="Reset to template"
+          aria-label="Reset options"
+          title="Reset options"
         >
           <span aria-hidden="true">↻</span>
         </Button>
+        <ResetPopover
+          isOpen={Boolean(resetAnchorEl)}
+          anchorEl={resetAnchorEl}
+          onClose={handleResetPopoverClose}
+          onResetSolution={handleResetSolutionClick}
+          onResetTimer={handleResetTimerClick}
+        />
         <Button 
           onClick={onRun} 
           disabled={isRunning}

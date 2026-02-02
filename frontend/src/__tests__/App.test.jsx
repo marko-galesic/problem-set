@@ -8,7 +8,8 @@ vi.mock('../components/Header', () => ({
   default: ({
     onRun,
     onSubmit,
-    onReset,
+    onResetSolution,
+    onResetTimer,
     onToggleMaximize,
     onBugHunt,
     onGuide,
@@ -17,7 +18,8 @@ vi.mock('../components/Header', () => ({
     <div>
       <button type="button" onClick={onRun}>run</button>
       <button type="button" onClick={onSubmit}>submit</button>
-      <button type="button" onClick={onReset}>reset</button>
+      <button type="button" onClick={onResetSolution}>reset-solution</button>
+      <button type="button" onClick={onResetTimer}>reset-timer</button>
       <button type="button" onClick={onToggleMaximize}>maximize</button>
       <button type="button" onClick={onBugHunt}>bug</button>
       <button type="button" onClick={onGuide}>guide</button>
@@ -367,7 +369,7 @@ describe('App', () => {
     fireEvent.click(await screen.findByText('send'));
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/guide-chat', expect.any(Object)));
 
-    fireEvent.click(screen.getByText('reset'));
+    fireEvent.click(screen.getByText('reset-solution'));
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/cleanup?challenge=two_sum', expect.any(Object)));
 
     fireEvent.click(screen.getByText('maximize'));
@@ -426,7 +428,7 @@ describe('App', () => {
     expect(await screen.findByText('next-challenge')).toBeInTheDocument();
     fireEvent.click(screen.getByText('next-close'));
 
-    fireEvent.click(screen.getByText('reset'));
+    fireEvent.click(screen.getByText('reset-solution'));
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/cleanup?challenge=two_sum', expect.any(Object)));
   });
 });

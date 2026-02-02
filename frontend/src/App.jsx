@@ -713,15 +713,10 @@ function App() {
     setCurrentActionType(null);
   }
 
-  async function handleReset() {
+  async function handleResetSolution() {
     try {
       setExtraRunTestIds([]);
-      // Reset the timer
-      timerRef.current?.reset();
-      // Save reset timer state
-      saveTimerState(currentChallenge, 0, false, 0, currentLanguage);
-      setTimerInitialState({ elapsedTime: 0, isRunning: false, accumulatedTime: 0 });
-      
+
       // First, cleanup the challenge-specific temp directory
       try {
         await fetch(`/api/cleanup?challenge=${currentChallenge}`, {
@@ -750,6 +745,12 @@ function App() {
       setCode(DEFAULT_CODE[currentLanguage] || DEFAULT_CODE.java);
       saveCurrentCode(DEFAULT_CODE[currentLanguage] || DEFAULT_CODE.java, currentChallenge, currentLanguage);
     }
+  }
+
+  function handleResetTimer() {
+    timerRef.current?.reset();
+    saveTimerState(currentChallenge, 0, false, 0, currentLanguage);
+    setTimerInitialState({ elapsedTime: 0, isRunning: false, accumulatedTime: 0 });
   }
 
   async function handleRun() {
@@ -1269,7 +1270,8 @@ function App() {
       <Header 
         onRun={handleRun}
         onSubmit={handleSubmit}
-        onReset={handleReset}
+        onResetSolution={handleResetSolution}
+        onResetTimer={handleResetTimer}
         onToggleMaximize={handleToggleMaximize}
         isRunning={runningAction !== null}
         isRunningRun={runningAction === 'run'}

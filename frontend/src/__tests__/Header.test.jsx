@@ -8,11 +8,12 @@ vi.mock('../components/Timer', () => ({
 }));
 
 describe('Header', () => {
-  it('renders actions and handles events', () => {
+  it('renders actions and handles events', async () => {
     const handlers = {
       onRun: vi.fn(),
       onSubmit: vi.fn(),
-      onReset: vi.fn(),
+      onResetSolution: vi.fn(),
+      onResetTimer: vi.fn(),
       onToggleMaximize: vi.fn(),
       onBugHunt: vi.fn(),
       onGuide: vi.fn(),
@@ -34,14 +35,19 @@ describe('Header', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /run/i }));
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
-    fireEvent.click(screen.getByRole('button', { name: /reset/i }));
+    const resetButton = screen.getByRole('button', { name: /reset/i });
+    fireEvent.click(resetButton);
+    fireEvent.click(await screen.findByRole('button', { name: /reset solution/i }));
+    fireEvent.click(resetButton);
+    fireEvent.click(await screen.findByRole('button', { name: /reset timer to zero/i }));
     fireEvent.click(screen.getByRole('button', { name: /guide me/i }));
     fireEvent.click(screen.getByRole('button', { name: /your progress/i }));
     fireEvent.click(screen.getByRole('button', { name: /where's the bug/i }));
 
     expect(handlers.onRun).toHaveBeenCalled();
     expect(handlers.onSubmit).toHaveBeenCalled();
-    expect(handlers.onReset).toHaveBeenCalled();
+    expect(handlers.onResetSolution).toHaveBeenCalled();
+    expect(handlers.onResetTimer).toHaveBeenCalled();
     expect(handlers.onGuide).toHaveBeenCalled();
     expect(handlers.onProgress).toHaveBeenCalled();
     expect(handlers.onBugHunt).toHaveBeenCalled();
