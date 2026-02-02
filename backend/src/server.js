@@ -3636,7 +3636,8 @@ app.post('/api/bug-hunt', async (req, res) => {
       "You're a senior debugging assistant.",
       "Where's the bug? Answer in markdown.",
       'Be concise, concrete, and actionable.',
-      'Use at most one short paragraph or a short bullet list.'
+      'Use at most one short paragraph or a short bullet list.',
+      'Only provide full code if a significant or material rewrite is necessary or the high-level approach is mostly off.'
     ].join(' ');
 
     const displayChallenge = challengeName || challengeId || 'unknown';
