@@ -52,6 +52,80 @@ const FITNESS_GRADE_BANDS = [
 ];
 
 const ACTIVITY_WINDOW_DAYS = 7;
+const FITNESS_GROUP_CHART_VIEWBOX = { width: 100, height: 100 };
+const FITNESS_GROUP_CHART_PADDING = { top: 8, right: 6, bottom: 10, left: 6 };
+const FITNESS_GROUP_DEFINITIONS = [
+  {
+    id: 'data-structures',
+    label: 'Data Structures',
+    color: '#2f6fdd',
+    topics: new Set([
+      'array',
+      'string',
+      'matrix',
+      'hash table',
+      'stack',
+      'queue',
+      'heap (priority queue)',
+      'linked list',
+      'tree',
+      'binary tree',
+      'binary search tree',
+      'trie',
+      'union-find',
+      'graph theory',
+      'data stream'
+    ])
+  },
+  {
+    id: 'algorithms',
+    label: 'Algorithms & Paradigms',
+    color: '#e07a2f',
+    topics: new Set([
+      'dynamic programming',
+      'memoization',
+      'backtracking',
+      'recursion',
+      'greedy',
+      'divide and conquer',
+      'binary search',
+      'sorting',
+      'merge sort',
+      'bucket sort',
+      'quickselect',
+      'two pointers',
+      'sliding window',
+      'prefix sum',
+      'monotonic stack',
+      'monotonic queue',
+      'breadth-first search',
+      'depth-first search',
+      'sweep line',
+      'simulation',
+      'counting',
+      'enumeration',
+      'string matching'
+    ])
+  },
+  {
+    id: 'math-bit',
+    label: 'Math & Bit',
+    color: '#1f9d6a',
+    topics: new Set([
+      'math',
+      'number theory',
+      'bit manipulation',
+      'combinatorics',
+      'geometry'
+    ])
+  },
+  {
+    id: 'other',
+    label: 'Other (General/Design)',
+    color: '#6b7280',
+    topics: new Set(['general', 'design'])
+  }
+];
 
 function createLanguageMap(defaultValue) {
   return LANGUAGE_OPTIONS.reduce((acc, option) => {
@@ -130,6 +204,13 @@ function extractTopics(value) {
   return [];
 }
 
+function normalizeTopicLabel(value) {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  return value.trim().toLowerCase();
+}
+
 function getTopicTimerKey(topic, difficulty) {
   return `${topic}::${difficulty}`;
 }
@@ -174,6 +255,12 @@ function buildTopicTimerStats(allSubmissions, challengeMap) {
   return averages;
 }
 
+function getEntrySubmissionCount(entry) {
+  const count = entry?.submission_count ?? entry?.submissionCount ?? 0;
+  const parsed = Number(count);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 function getLocalDateKey(date = new Date()) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -203,6 +290,68 @@ function buildRecentDayBuckets(days) {
   return buckets;
 }
 
+function buildFitnessGroupTrend(historyEntries, days) {
+  const buckets = buildRecentDayBuckets(days);
+  if (!Array.isArray(historyEntries) || historyEntries.length === 0) {
+    return { buckets, series: [] };
+  }
+
+  const daySnapshots = new Map();
+  historyEntries.forEach((entry) => {
+    const snapshot = entry?.snapshot_at ?? entry?.snapshotAt;
+    const timestamp = snapshot ? Date.parse(snapshot) : NaN;
+    if (Number.isNaN(timestamp)) {
+      return;
+    }
+    const date = new Date(timestamp);
+    const dayKey = getLocalDateKey(date);
+    const existing = daySnapshots.get(dayKey);
+    if (!existing || timestamp > existing.timestamp) {
+      daySnapshots.set(dayKey, { timestamp, entries: [entry] });
+      return;
+    }
+    if (timestamp === existing.timestamp) {
+      existing.entries.push(entry);
+    }
+  });
+
+  const series = FITNESS_GROUP_DEFINITIONS.map((group) => {
+    const data = buckets.map((bucket) => {
+      const daySnapshot = daySnapshots.get(bucket.key);
+      if (!daySnapshot) {
+        return { ...bucket, value: null };
+      }
+      const entries = daySnapshot.entries || [];
+      const matching = entries.filter((entry) => {
+        const topic = normalizeTopicLabel(entry?.topic);
+        if (!topic || !group.topics.has(topic)) {
+          return false;
+        }
+        return getEntrySubmissionCount(entry) > 0;
+      });
+      if (matching.length === 0) {
+        return { ...bucket, value: null };
+      }
+      const total = matching.reduce((sum, entry) => {
+        const fitness = Number(entry?.fitness);
+        return sum + (Number.isFinite(fitness) ? fitness : 0);
+      }, 0);
+      const avg = total / matching.length;
+      const clamped = Math.max(0, Math.min(1, avg));
+      return { ...bucket, value: clamped };
+    });
+
+    return {
+      id: group.id,
+      label: group.label,
+      color: group.color,
+      data
+    };
+  }).filter((groupSeries) => groupSeries.data.some((point) => Number.isFinite(point.value)));
+
+  return { buckets, series };
+}
+
 function buildSubmissionTrend(submissions, days) {
   const buckets = buildRecentDayBuckets(days);
   const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
@@ -218,6 +367,37 @@ function buildSubmissionTrend(submissions, days) {
     }
   });
   return buckets;
+}
+
+function buildLinePoints(values, viewBox, padding) {
+  const width = viewBox.width;
+  const height = viewBox.height;
+  const plotWidth = Math.max(1, width - padding.left - padding.right);
+  const plotHeight = Math.max(1, height - padding.top - padding.bottom);
+  const totalPoints = values.length;
+  return values.map((point, index) => {
+    if (!Number.isFinite(point?.value)) {
+      return null;
+    }
+    const normalized = Math.max(0, Math.min(1, point.value));
+    const ratio = totalPoints > 1 ? index / (totalPoints - 1) : 0;
+    const x = padding.left + ratio * plotWidth;
+    const y = padding.top + (1 - normalized) * plotHeight;
+    return { x, y };
+  });
+}
+
+function buildLinePath(points) {
+  let path = '';
+  let started = false;
+  points.forEach((point) => {
+    if (!point) {
+      return;
+    }
+    path += `${started ? ' L' : 'M'} ${point.x} ${point.y}`;
+    started = true;
+  });
+  return path.trim();
 }
 
 function findChallengeByName(name, challenges) {
@@ -260,6 +440,12 @@ export default function SubmissionsPage() {
   const [activityData, setActivityData] = useState([]);
   const [activityLoading, setActivityLoading] = useState(false);
   const [activityError, setActivityError] = useState(null);
+  const [groupFitnessTrend, setGroupFitnessTrend] = useState(() => ({
+    buckets: buildRecentDayBuckets(ACTIVITY_WINDOW_DAYS),
+    series: []
+  }));
+  const [groupFitnessLoading, setGroupFitnessLoading] = useState(false);
+  const [groupFitnessError, setGroupFitnessError] = useState(null);
   const [topicTimerStats, setTopicTimerStats] = useState({});
   const [topicTimerStatsLoading, setTopicTimerStatsLoading] = useState(false);
   const [topicTimerStatsError, setTopicTimerStatsError] = useState(null);
@@ -475,6 +661,25 @@ export default function SubmissionsPage() {
     return all;
   }
 
+  async function fetchTopicFitnessHistory({ since, until, language } = {}) {
+    const params = new URLSearchParams();
+    if (since) {
+      params.set('since', since);
+    }
+    if (until) {
+      params.set('until', until);
+    }
+    if (language) {
+      params.set('language', normalizeLanguage(language));
+    }
+    const response = await fetch(`/api/topic-fitness-history?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error('Failed to load topic fitness history');
+    }
+    const data = await response.json();
+    return Array.isArray(data.history) ? data.history : [];
+  }
+
   function getRecentDateRange(days) {
     const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     return { from: fromDate.toISOString() };
@@ -674,6 +879,48 @@ export default function SubmissionsPage() {
   }, [activeTopicTab, selectedLanguage]);
 
   useEffect(() => {
+    if (activeTopicTab !== 'activity') {
+      return undefined;
+    }
+    let isMounted = true;
+
+    async function loadGroupFitnessTrend() {
+      setGroupFitnessLoading(true);
+      setGroupFitnessError(null);
+      try {
+        const start = getStartOfLocalDay(new Date());
+        start.setDate(start.getDate() - (ACTIVITY_WINDOW_DAYS - 1));
+        const history = await fetchTopicFitnessHistory({
+          since: start.toISOString(),
+          language: selectedLanguage
+        });
+        if (!isMounted) {
+          return;
+        }
+        setGroupFitnessTrend(buildFitnessGroupTrend(history, ACTIVITY_WINDOW_DAYS));
+      } catch (loadError) {
+        if (isMounted) {
+          setGroupFitnessError(loadError.message || 'Failed to load fitness history.');
+          setGroupFitnessTrend({
+            buckets: buildRecentDayBuckets(ACTIVITY_WINDOW_DAYS),
+            series: []
+          });
+        }
+      } finally {
+        if (isMounted) {
+          setGroupFitnessLoading(false);
+        }
+      }
+    }
+
+    loadGroupFitnessTrend();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTopicTab, selectedLanguage]);
+
+  useEffect(() => {
     let isMounted = true;
 
     async function loadRecommendations() {
@@ -860,6 +1107,20 @@ export default function SubmissionsPage() {
   const isFitnessTab = activeTopicTab === 'fitness';
   const isSubmissionsTab = activeTopicTab === 'submissions';
   const isActivityTab = activeTopicTab === 'activity';
+  const groupFitnessSeries = groupFitnessTrend.series || [];
+  const groupFitnessBuckets = groupFitnessTrend.buckets || [];
+  const groupFitnessChartSeries = groupFitnessSeries.map((series) => {
+    const points = buildLinePoints(
+      series.data || [],
+      FITNESS_GROUP_CHART_VIEWBOX,
+      FITNESS_GROUP_CHART_PADDING
+    );
+    return {
+      ...series,
+      points,
+      path: buildLinePath(points)
+    };
+  });
   const gradePopoverKey = gradePopoverInfo
     ? getTopicTimerKey(gradePopoverInfo.topic, gradePopoverInfo.difficulty)
     : null;
@@ -1209,6 +1470,78 @@ export default function SubmissionsPage() {
                         No submissions in the last 7 days.
                       </div>
                     )}
+                    <div className="topic-fitness-group-activity">
+                      <div className="topic-fitness-group-activity-header">
+                        <div>
+                          <div className="topic-fitness-group-activity-title">
+                            Average fitness by topic group
+                          </div>
+                          <div className="topic-fitness-group-activity-subtitle">
+                            Last 7 days
+                          </div>
+                        </div>
+                        <div className="topic-fitness-group-activity-range">Scale: 0-1</div>
+                      </div>
+                      {groupFitnessLoading && (
+                        <div className="topic-fitness-status">Loading fitness history...</div>
+                      )}
+                      {groupFitnessError && !groupFitnessLoading && (
+                        <div className="topic-fitness-error">{groupFitnessError}</div>
+                      )}
+                      {!groupFitnessLoading &&
+                        !groupFitnessError &&
+                        groupFitnessChartSeries.length === 0 && (
+                          <div className="topic-fitness-status">
+                            No fitness history in the last 7 days.
+                          </div>
+                        )}
+                      {!groupFitnessLoading &&
+                        !groupFitnessError &&
+                        groupFitnessChartSeries.length > 0 && (
+                          <>
+                            <div className="topic-fitness-group-activity-legend">
+                              {groupFitnessChartSeries.map((series) => (
+                                <div
+                                  key={series.id}
+                                  className="topic-fitness-group-activity-legend-item"
+                                >
+                                  <span
+                                    className="topic-fitness-group-activity-legend-swatch"
+                                    style={{ backgroundColor: series.color }}
+                                  />
+                                  <span>{series.label}</span>
+                                </div>
+                              ))}
+                            </div>
+                            <div
+                              className="topic-fitness-group-activity-chart"
+                              role="img"
+                              aria-label="Average fitness by topic group for the last 7 days"
+                            >
+                              <svg
+                                viewBox={`0 0 ${FITNESS_GROUP_CHART_VIEWBOX.width} ${FITNESS_GROUP_CHART_VIEWBOX.height}`}
+                                className="topic-fitness-group-activity-svg"
+                                aria-hidden="true"
+                                preserveAspectRatio="none"
+                              >
+                                {groupFitnessChartSeries.map((series) => (
+                                  <path
+                                    key={series.id}
+                                    d={series.path}
+                                    className="topic-fitness-group-activity-line"
+                                    style={{ stroke: series.color }}
+                                  />
+                                ))}
+                              </svg>
+                            </div>
+                            <div className="topic-fitness-group-activity-labels">
+                              {groupFitnessBuckets.map((bucket) => (
+                                <div key={bucket.key}>{bucket.label}</div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                    </div>
                   </div>
                 )}
               </div>

@@ -3162,6 +3162,105 @@ body {
   text-align: center;
 }
 
+.topic-fitness-group-activity {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #ffffff;
+}
+
+.topic-fitness-group-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.topic-fitness-group-activity-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.topic-fitness-group-activity-subtitle {
+  font-size: 11px;
+  color: #666666;
+}
+
+.topic-fitness-group-activity-range {
+  font-size: 11px;
+  font-weight: 600;
+  color: #0052a3;
+  background-color: #f0f7ff;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.topic-fitness-group-activity-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.topic-fitness-group-activity-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.topic-fitness-group-activity-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.topic-fitness-group-activity-chart {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(226, 232, 240, 0.65),
+      rgba(226, 232, 240, 0.65) 1px,
+      transparent 1px,
+      transparent 28px
+    ),
+    linear-gradient(180deg, #f9fbff 0%, #ffffff 100%);
+}
+
+.topic-fitness-group-activity-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.topic-fitness-group-activity-line {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.topic-fitness-group-activity-labels {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  font-size: 10px;
+  color: #666666;
+  text-align: center;
+}
+
 .submissions-legend {
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
