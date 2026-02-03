@@ -176,6 +176,22 @@ function formatDifficultyLabel(value) {
   return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
 
+function formatScore(value, digits = 2) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return 'N/A';
+  }
+  return numeric.toFixed(digits);
+}
+
+function formatCount(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return 'N/A';
+  }
+  return String(numeric);
+}
+
 function normalizeDifficultyLevel(value) {
   if (!value) {
     return null;
@@ -449,6 +465,13 @@ export default function SubmissionsPage() {
   const [topicTimerStats, setTopicTimerStats] = useState({});
   const [topicTimerStatsLoading, setTopicTimerStatsLoading] = useState(false);
   const [topicTimerStatsError, setTopicTimerStatsError] = useState(null);
+  const [retentionMetrics, setRetentionMetrics] = useState([]);
+  const [retentionMetricsLoading, setRetentionMetricsLoading] = useState(false);
+  const [retentionMetricsError, setRetentionMetricsError] = useState(null);
+  const [retentionMetricsMeta, setRetentionMetricsMeta] = useState({
+    computedAt: null,
+    fitnessSnapshotAt: null
+  });
   const [selectedLanguage, setSelectedLanguage] = useState('java');
   const [recommendationLoading, setRecommendationLoading] = useState(createLanguageMap(false));
   const [recommendationError, setRecommendationError] = useState(createLanguageMap(null));
@@ -680,6 +703,34 @@ export default function SubmissionsPage() {
     return Array.isArray(data.history) ? data.history : [];
   }
 
+  async function loadRetentionMetrics({ language, refresh = true } = {}) {
+    const normalizedLanguage = language || selectedLanguage;
+    setRetentionMetricsLoading(true);
+    setRetentionMetricsError(null);
+    try {
+      const params = new URLSearchParams({
+        language: normalizedLanguage,
+        refresh: refresh ? '1' : '0'
+      });
+      const response = await fetch(`/api/retention-metrics?${params.toString()}`);
+      if (!response.ok) {
+        throw new Error('Failed to load retention metrics.');
+      }
+      const data = await response.json();
+      setRetentionMetrics(Array.isArray(data.metrics) ? data.metrics : []);
+      setRetentionMetricsMeta({
+        computedAt: data.computedAt ?? null,
+        fitnessSnapshotAt: data.fitnessSnapshotAt ?? null
+      });
+    } catch (loadError) {
+      setRetentionMetrics([]);
+      setRetentionMetricsMeta({ computedAt: null, fitnessSnapshotAt: null });
+      setRetentionMetricsError(loadError.message || 'Failed to load retention metrics.');
+    } finally {
+      setRetentionMetricsLoading(false);
+    }
+  }
+
   function getRecentDateRange(days) {
     const fromDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     return { from: fromDate.toISOString() };
@@ -838,6 +889,23 @@ export default function SubmissionsPage() {
       isMounted = false;
     };
   }, [page, pageSize, selectedLanguage]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function refreshRetentionMetrics() {
+      if (!isMounted) {
+        return;
+      }
+      await loadRetentionMetrics({ language: selectedLanguage, refresh: true });
+    }
+
+    refreshRetentionMetrics();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedLanguage]);
 
   useEffect(() => {
     if (activeTopicTab !== 'activity') {
@@ -1149,6 +1217,40 @@ export default function SubmissionsPage() {
   const pageCount = Math.max(1, Math.ceil(totalSubmissions / pageSize));
   const isFirstPage = page <= 1;
   const isLastPage = page >= pageCount;
+  const retentionMetricsComputedAt = retentionMetricsMeta?.computedAt;
+  const retentionMetricsSnapshotAt = retentionMetricsMeta?.fitnessSnapshotAt;
+  const retentionMetricsMetaLabel = [
+    retentionMetricsComputedAt ? `Computed: ${formatDate(retentionMetricsComputedAt)}` : null,
+    retentionMetricsSnapshotAt ? `Fitness snapshot: ${formatDate(retentionMetricsSnapshotAt)}` : null
+  ].filter(Boolean).join(' • ');
+  const retentionMetricsRows = retentionMetrics.map((metric) => {
+    const challengeId = metric.challenge_id || metric.challengeId || metric.challenge;
+    const challenge = challengeId ? challengeMap[challengeId] : null;
+    const title = challenge?.name || metric.challenge_name || challengeId || 'Unknown';
+    const difficultyValue = metric.difficulty || challenge?.difficulty || UNKNOWN_DIFFICULTY;
+    const difficultyLabel = normalizeDifficultyLevel(difficultyValue)
+      ? formatDifficultyLabel(difficultyValue)
+      : difficultyValue;
+    const topics = extractTopics(metric.topics || challenge?.topics);
+    const topicLabel = topics.length > 0 ? topics.join(', ') : '—';
+
+    return {
+      key: `${challengeId || title}-${metric.language || selectedLanguage}`,
+      title,
+      difficulty: difficultyLabel,
+      topics: topicLabel,
+      submissions: formatCount(metric.submission_count),
+      lastSubmission: metric.last_submission_at,
+      guidanceScore: formatScore(metric.guidance_score),
+      attemptScore: formatScore(metric.attempt_score),
+      timeScore: formatScore(metric.time_score),
+      masteryScore: formatScore(metric.mastery_score),
+      recencyDays: formatScore(metric.recency_days, 1),
+      recencyScore: formatScore(metric.recency_score),
+      weaknessScore: formatScore(metric.weakness_score),
+      priorityScore: formatScore(metric.priority_score)
+    };
+  });
 
   return (
     <div className="submissions-page">
@@ -1246,6 +1348,81 @@ export default function SubmissionsPage() {
                 )}
               </div>
             ) : null}
+          </div>
+        </section>
+        <section className="retention-metrics-panel">
+          <div className="retention-metrics-header">
+            <div>
+              <h2>Retention Metrics</h2>
+              <p>Raw scoring data used for review scheduling</p>
+              {retentionMetricsMetaLabel && (
+                <div className="retention-metrics-meta">{retentionMetricsMetaLabel}</div>
+              )}
+            </div>
+            <Button
+              className="btn btn--outline btn--xs retention-metrics-refresh"
+              type="button"
+              onClick={() => loadRetentionMetrics({ language: selectedLanguage, refresh: true })}
+              disabled={retentionMetricsLoading}
+            >
+              {retentionMetricsLoading ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          </div>
+          <div className="retention-metrics-body">
+            {retentionMetricsLoading && (
+              <div className="retention-metrics-status">
+                <span className="spinner" aria-hidden="true" />
+                <span>Loading retention metrics...</span>
+              </div>
+            )}
+            {!retentionMetricsLoading && retentionMetricsError && (
+              <div className="retention-metrics-error">{retentionMetricsError}</div>
+            )}
+            {!retentionMetricsLoading && !retentionMetricsError && retentionMetricsRows.length === 0 && (
+              <div className="retention-metrics-status">No retention metrics available yet.</div>
+            )}
+            {!retentionMetricsLoading && !retentionMetricsError && retentionMetricsRows.length > 0 && (
+              <TableContainer className="retention-metrics-table-wrapper">
+                <Table className="retention-metrics-table" size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Challenge</TableCell>
+                      <TableCell>Difficulty</TableCell>
+                      <TableCell>Topics</TableCell>
+                      <TableCell>Submissions</TableCell>
+                      <TableCell>Last Submission</TableCell>
+                      <TableCell>Guidance</TableCell>
+                      <TableCell>Attempts</TableCell>
+                      <TableCell>Time</TableCell>
+                      <TableCell>Mastery</TableCell>
+                      <TableCell>Recency (days)</TableCell>
+                      <TableCell>Recency</TableCell>
+                      <TableCell>Weakness</TableCell>
+                      <TableCell>Priority</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {retentionMetricsRows.map((row) => (
+                      <TableRow key={row.key}>
+                        <TableCell>{row.title}</TableCell>
+                        <TableCell>{row.difficulty}</TableCell>
+                        <TableCell>{row.topics}</TableCell>
+                        <TableCell>{row.submissions}</TableCell>
+                        <TableCell>{formatDate(row.lastSubmission)}</TableCell>
+                        <TableCell>{row.guidanceScore}</TableCell>
+                        <TableCell>{row.attemptScore}</TableCell>
+                        <TableCell>{row.timeScore}</TableCell>
+                        <TableCell>{row.masteryScore}</TableCell>
+                        <TableCell>{row.recencyDays}</TableCell>
+                        <TableCell>{row.recencyScore}</TableCell>
+                        <TableCell>{row.weaknessScore}</TableCell>
+                        <TableCell>{row.priorityScore}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
           </div>
         </section>
         <section className="topic-fitness-panel">

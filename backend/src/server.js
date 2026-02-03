@@ -41,6 +41,7 @@ import {
   setLanguagePreference as setLanguagePreferenceInDb,
   insertFitnessSnapshot,
   getFitnessHistory,
+  getRetentionMetrics,
   getNextChallengeRecommendation as getNextChallengeRecommendationFromDb,
   upsertNextChallengeRecommendation as upsertNextChallengeRecommendationToDb
 } from './db/queries.js';
@@ -4809,6 +4810,35 @@ app.get('/api/topic-fitness-history', (req, res) => {
     console.error('Get topic fitness history error:', error);
     res.status(500).json({
       error: error.message || 'Failed to load topic fitness history'
+    });
+  }
+});
+
+// Retention metrics (raw data for review selection)
+app.get('/api/retention-metrics', (req, res) => {
+  try {
+    const { refresh } = req.query || {};
+    const language = normalizeLanguage(req.query.language);
+    const shouldRefresh = refresh === '1' || refresh === 'true';
+    let meta = null;
+
+    if (shouldRefresh) {
+      meta = refreshRetentionMetrics({ language });
+    }
+
+    const metrics = getRetentionMetrics(language);
+    const computedAt = meta?.computedAt ?? (metrics?.[0]?.computed_at ?? null);
+
+    res.json({
+      metrics,
+      count: metrics.length,
+      computedAt,
+      fitnessSnapshotAt: meta?.fitnessSnapshotAt ?? null
+    });
+  } catch (error) {
+    console.error('Get retention metrics error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to load retention metrics'
     });
   }
 });
