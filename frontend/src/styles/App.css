@@ -3609,6 +3609,77 @@ body {
   cursor: not-allowed;
 }
 
+.challenge-search {
+  position: relative;
+  min-width: 220px;
+}
+
+.challenge-search-input {
+  padding: 6px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #333333;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 200px;
+}
+
+.challenge-search-input:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.12);
+}
+
+.challenge-search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 20;
+}
+
+.challenge-search-option {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #333333;
+}
+
+.challenge-search-option:hover,
+.challenge-search-option.is-active {
+  background-color: #f0f7ff;
+  color: #0052a3;
+}
+
+.challenge-search-option-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.challenge-search-option-meta {
+  font-size: 11px;
+  color: #666666;
+}
+
+.challenge-search-empty {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #666666;
+}
+
 .challenge-list-meta {
   display: flex;
   gap: 12px;

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 const PAGE_SIZE = 25;
 const FALLBACK_DIFFICULTY = 'Not set';
+const MAX_SEARCH_SUGGESTIONS = 5;
 const MAX_SUBMISSIONS_PAGES = 50;
 const SUBMISSIONS_PAGE_SIZE = 200;
 
@@ -38,6 +39,122 @@ function normalizeTopics(value) {
     }
   }
   return [];
+}
+
+function normalizeSearchValue(value) {
+  if (!value) {
+    return '';
+  }
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getSearchText(challenge) {
+  if (!challenge) {
+    return '';
+  }
+  return [challenge.name, challenge.id].filter(Boolean).join(' ');
+}
+
+function getLevenshteinDistance(source, target) {
+  if (source === target) {
+    return 0;
+  }
+  if (!source) {
+    return target.length;
+  }
+  if (!target) {
+    return source.length;
+  }
+
+  const sourceLength = source.length;
+  const targetLength = target.length;
+  const previous = new Array(targetLength + 1);
+  const current = new Array(targetLength + 1);
+
+  for (let index = 0; index <= targetLength; index += 1) {
+    previous[index] = index;
+  }
+
+  for (let row = 1; row <= sourceLength; row += 1) {
+    current[0] = row;
+    const sourceChar = source.charAt(row - 1);
+    for (let column = 1; column <= targetLength; column += 1) {
+      const targetChar = target.charAt(column - 1);
+      const cost = sourceChar === targetChar ? 0 : 1;
+      current[column] = Math.min(
+        previous[column] + 1,
+        current[column - 1] + 1,
+        previous[column - 1] + cost
+      );
+    }
+
+    for (let column = 0; column <= targetLength; column += 1) {
+      previous[column] = current[column];
+    }
+  }
+
+  return previous[targetLength];
+}
+
+function getSearchScore(challenge, query) {
+  if (!query) {
+    return Number.POSITIVE_INFINITY;
+  }
+  const target = normalizeSearchValue(getSearchText(challenge));
+  if (!target) {
+    return Number.POSITIVE_INFINITY;
+  }
+  if (target === query) {
+    return 0;
+  }
+
+  const index = target.indexOf(query);
+  if (index === 0) {
+    return 0.25;
+  }
+  if (index > 0) {
+    return 1 + index / Math.max(1, target.length);
+  }
+
+  const distance = getLevenshteinDistance(target, query);
+  return 2 + distance / Math.max(target.length, query.length, 1);
+}
+
+function buildSearchSuggestions(challenges, query) {
+  if (!query) {
+    return [];
+  }
+  return (challenges || [])
+    .map((challenge) => ({
+      challenge,
+      score: getSearchScore(challenge, query)
+    }))
+    .filter((item) => Number.isFinite(item.score))
+    .sort((a, b) => {
+      if (a.score !== b.score) {
+        return a.score - b.score;
+      }
+      return String(a.challenge?.name || '').localeCompare(String(b.challenge?.name || ''));
+    })
+    .slice(0, MAX_SEARCH_SUGGESTIONS)
+    .map((item) => item.challenge);
+}
+
+function matchesSearch(challenge, query) {
+  if (!query) {
+    return true;
+  }
+  const target = normalizeSearchValue(getSearchText(challenge));
+  if (!target) {
+    return false;
+  }
+  const tokens = query.split(' ').filter(Boolean);
+  return tokens.every((token) => target.includes(token));
 }
 
 async function fetchChallengesMetadata() {
@@ -157,6 +274,9 @@ export default function ChallengeListPage() {
   const [completedChallenges, setCompletedChallenges] = useState(new Set());
   const [difficultyFilter, setDifficultyFilter] = useState('all');
   const [topicFilter, setTopicFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -203,12 +323,21 @@ export default function ChallengeListPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [difficultyFilter, topicFilter]);
+  }, [difficultyFilter, topicFilter, searchQuery]);
+
+  const normalizedSearch = useMemo(() => normalizeSearchValue(searchQuery), [searchQuery]);
+
+  useEffect(() => {
+    if (!normalizedSearch) {
+      setActiveSuggestionIndex(-1);
+      setIsSearchOpen(false);
+    }
+  }, [normalizedSearch]);
 
   const difficultyOptions = useMemo(() => buildDifficultyOptions(challenges), [challenges]);
   const topicOptions = useMemo(() => buildTopicOptions(challenges), [challenges]);
 
-  const filteredChallenges = useMemo(() => {
+  const searchBaseChallenges = useMemo(() => {
     return challenges.filter((challenge) => {
       const normalizedDifficulty = normalizeDifficulty(challenge.difficulty);
       const normalizedTopics = normalizeTopics(challenge.topics);
@@ -228,6 +357,83 @@ export default function ChallengeListPage() {
       return true;
     });
   }, [challenges, difficultyFilter, topicFilter]);
+
+  const filteredChallenges = useMemo(() => {
+    if (!normalizedSearch) {
+      return searchBaseChallenges;
+    }
+    return searchBaseChallenges.filter((challenge) => matchesSearch(challenge, normalizedSearch));
+  }, [searchBaseChallenges, normalizedSearch]);
+
+  const searchSuggestions = useMemo(() => {
+    if (!normalizedSearch) {
+      return [];
+    }
+    return buildSearchSuggestions(searchBaseChallenges, normalizedSearch);
+  }, [searchBaseChallenges, normalizedSearch]);
+
+  const showSuggestions = isSearchOpen && normalizedSearch.length > 0;
+  const activeSuggestion =
+    activeSuggestionIndex >= 0 ? searchSuggestions[activeSuggestionIndex] : null;
+
+  function handleSearchChange(event) {
+    setSearchQuery(event.target.value);
+    setIsSearchOpen(true);
+  }
+
+  function handleSearchKeyDown(event) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setIsSearchOpen(true);
+      if (searchSuggestions.length === 0) {
+        return;
+      }
+      setActiveSuggestionIndex((prev) =>
+        prev < searchSuggestions.length - 1 ? prev + 1 : 0
+      );
+      return;
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setIsSearchOpen(true);
+      if (searchSuggestions.length === 0) {
+        return;
+      }
+      setActiveSuggestionIndex((prev) =>
+        prev > 0 ? prev - 1 : searchSuggestions.length - 1
+      );
+      return;
+    }
+    if (event.key === 'Enter' && activeSuggestion) {
+      event.preventDefault();
+      setSearchQuery(activeSuggestion.name || '');
+      setIsSearchOpen(false);
+      setActiveSuggestionIndex(-1);
+      return;
+    }
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setIsSearchOpen(false);
+      setActiveSuggestionIndex(-1);
+    }
+  }
+
+  function handleSuggestionSelect(challenge) {
+    if (!challenge) {
+      return;
+    }
+    setSearchQuery(challenge.name || '');
+    setIsSearchOpen(false);
+    setActiveSuggestionIndex(-1);
+  }
+
+  function handleSearchBlur(event) {
+    if (event.currentTarget.contains(event.relatedTarget)) {
+      return;
+    }
+    setIsSearchOpen(false);
+    setActiveSuggestionIndex(-1);
+  }
 
   const totalPages = Math.max(1, Math.ceil(filteredChallenges.length / PAGE_SIZE));
   const safePage = Math.min(currentPage, totalPages);
@@ -286,6 +492,62 @@ export default function ChallengeListPage() {
                 </option>
               ))}
             </select>
+          </div>
+          <div
+            className="challenge-list-filter challenge-search"
+            onBlur={handleSearchBlur}
+            onFocus={() => setIsSearchOpen(true)}
+          >
+            <label htmlFor="challenge-search">Search</label>
+            <input
+              id="challenge-search"
+              type="text"
+              className="challenge-search-input"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onKeyDown={handleSearchKeyDown}
+              placeholder="Search challenges..."
+              autoComplete="off"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={showSuggestions}
+              aria-controls="challenge-search-listbox"
+              aria-activedescendant={
+                activeSuggestion
+                  ? `challenge-search-option-${activeSuggestion.id || activeSuggestionIndex}`
+                  : undefined
+              }
+            />
+            {showSuggestions ? (
+              <div className="challenge-search-dropdown" role="listbox" id="challenge-search-listbox">
+                {searchSuggestions.length > 0 ? (
+                  searchSuggestions.map((challenge, index) => {
+                    const normalizedDifficulty = normalizeDifficulty(challenge.difficulty);
+                    const difficultyLabel = normalizedDifficulty
+                      ? formatDifficulty(normalizedDifficulty)
+                      : null;
+                    const meta = [challenge.id, difficultyLabel].filter(Boolean).join(' · ');
+                    const isActive = index === activeSuggestionIndex;
+                    return (
+                      <button
+                        key={challenge.id || `${challenge.name}-${index}`}
+                        type="button"
+                        className={`challenge-search-option${isActive ? ' is-active' : ''}`}
+                        onClick={() => handleSuggestionSelect(challenge)}
+                        role="option"
+                        aria-selected={isActive}
+                        id={`challenge-search-option-${challenge.id || index}`}
+                      >
+                        <span className="challenge-search-option-name">{challenge.name}</span>
+                        {meta ? <span className="challenge-search-option-meta">{meta}</span> : null}
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="challenge-search-empty">No close matches yet.</div>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
         <div className="challenge-list-meta">
