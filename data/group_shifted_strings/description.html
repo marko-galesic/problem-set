@@ -1,0 +1,20 @@
+<p>
+    Group strings that can be shifted to each other by the same amount (e.g., "abc" -> "bcd").
+  </p>
+
+  <h3>Method Signature</h3>
+  <pre><code>public String[][] groupShiftedStrings(String[] strings)</code></pre>
+
+  <h3>Requirements</h3>
+  <ul>
+    <li>Strings belong to the same group if they share the same shift pattern.</li>
+<li>Sort each group in ascending lexicographic order.</li>
+<li>Sort the list of groups by the first string in each group.</li>
+  </ul>
+
+  <h3>Example</h3>
+  <p><strong>Input:</strong></p>
+  <pre><code>strings = ["abc", "bcd", "acef", "xyz", "az", "ba", "a", "z"]</code></pre>
+
+  <p><strong>Output:</strong></p>
+  <pre><code>[["a", "z"], ["abc", "bcd", "xyz"], ["acef"], ["az", "ba"]]</code></pre>

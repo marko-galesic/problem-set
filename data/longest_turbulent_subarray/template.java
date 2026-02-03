@@ -1,0 +1,5 @@
+class LongestTurbulentSubarray {
+    public int maxTurbulenceSize(int[] arr) {
+        return 0;
+    }
+}

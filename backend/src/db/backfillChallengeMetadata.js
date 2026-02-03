@@ -94,7 +94,32 @@ const MEDIUM_OVERRIDES = new Set([
   'unique_paths_with_obstacles',
   'validate_binary_search_tree',
   'valid_sudoku',
-  'word_search'
+  'word_search',
+  'longest_consecutive_sequence',
+  'min_increment_to_make_array_unique',
+  'check_subarray_sum_multiple_of_k',
+  'maximum_sum_circular_subarray',
+  'min_cost_climbing_stairs',
+  'find_k_closest_elements',
+  'k_diff_pairs_in_array',
+  'minimum_time_difference',
+  'reorganize_string',
+  'remove_k_digits',
+  'smallest_subsequence_of_distinct_chars',
+  'longest_common_substring',
+  'group_shifted_strings',
+  'validate_ip_address',
+  'minimum_deletions_to_make_string_balanced',
+  'maximal_rectangle',
+  'minimum_falling_path_sum',
+  'number_of_enclaves',
+  'count_sub_islands',
+  'shortest_bridge',
+  'equal_row_and_column_pairs',
+  'longest_turbulent_subarray',
+  'max_chunks_to_make_sorted',
+  'subarray_bitwise_ors',
+  'peak_index_in_mountain_array'
 ]);
 
 function parseArgs(argv) {

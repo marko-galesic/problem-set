@@ -2595,4 +2595,346 @@ export const standardAdapterDefinitions = {
       }
     ]
   },
+  longestConsecutiveSequence: {
+    method: 'longestConsecutive',
+    className: 'LongestConsecutiveSequence',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  minIncrementToMakeArrayUnique: {
+    method: 'minIncrementForUnique',
+    className: 'MinIncrementToMakeArrayUnique',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  checkSubarraySumMultipleOfK: {
+    method: 'checkSubarraySum',
+    className: 'CheckSubarraySumMultipleOfK',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  maximumSumCircularSubarray: {
+    method: 'maxSubarraySumCircular',
+    className: 'MaximumSumCircularSubarray',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      }
+    ]
+  },
+  minCostClimbingStairs: {
+    method: 'minCostClimbingStairs',
+    className: 'MinCostClimbingStairs',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'cost',
+        type: 'intArray',
+        helperBase: 'Cost',
+      }
+    ]
+  },
+  findKClosestElements: {
+    method: 'findClosestElements',
+    className: 'FindKClosestElements',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      },
+      {
+        name: 'x',
+        type: 'int',
+        helperBase: 'X',
+      }
+    ]
+  },
+  kDiffPairsInArray: {
+    method: 'findPairs',
+    className: 'KDiffPairsInArray',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'nums',
+        type: 'intArray',
+        helperBase: 'Nums',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  minimumTimeDifference: {
+    method: 'findMinDifference',
+    className: 'MinimumTimeDifference',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'timePoints',
+        type: 'stringArray',
+        helperBase: 'TimePoints',
+      }
+    ]
+  },
+  reorganizeString: {
+    method: 'reorganizeString',
+    className: 'ReorganizeString',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  removeKDigits: {
+    method: 'removeKdigits',
+    className: 'RemoveKDigits',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 'num',
+        type: 'string',
+        helperBase: 'Num',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+      }
+    ]
+  },
+  smallestSubsequenceOfDistinctChars: {
+    method: 'smallestSubsequence',
+    className: 'SmallestSubsequenceOfDistinctChars',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  longestCommonSubstring: {
+    method: 'longestCommonSubstring',
+    className: 'LongestCommonSubstring',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'a',
+        type: 'string',
+        helperBase: 'A',
+        stringEscape: 'basic',
+      },
+      {
+        name: 'b',
+        type: 'string',
+        helperBase: 'B',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  groupShiftedStrings: {
+    method: 'groupShiftedStrings',
+    className: 'GroupShiftedStrings',
+    returnType: 'stringMatrix',
+    inputs: [
+      {
+        name: 'strings',
+        type: 'stringArray',
+        helperBase: 'Strings',
+      }
+    ]
+  },
+  validateIPAddress: {
+    method: 'validIPAddress',
+    className: 'ValidateIPAddress',
+    returnType: 'string',
+    inputs: [
+      {
+        name: 'queryIP',
+        type: 'string',
+        helperBase: 'QueryIP',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  minimumDeletionsToMakeStringBalanced: {
+    method: 'minimumDeletions',
+    className: 'MinimumDeletionsToMakeStringBalanced',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 's',
+        type: 'string',
+        helperBase: 'S',
+        stringEscape: 'basic',
+      }
+    ]
+  },
+  maximalRectangle: {
+    method: 'maximalRectangle',
+    className: 'MaximalRectangle',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'matrix',
+        type: 'charGrid',
+        helperBase: 'Matrix',
+      }
+    ]
+  },
+  minimumFallingPathSum: {
+    method: 'minFallingPathSum',
+    className: 'MinimumFallingPathSum',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'matrix',
+        type: 'intGrid',
+        helperBase: 'Matrix',
+      }
+    ]
+  },
+  numberOfEnclaves: {
+    method: 'numEnclaves',
+    className: 'NumberOfEnclaves',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  countSubIslands: {
+    method: 'countSubIslands',
+    className: 'CountSubIslands',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid1',
+        type: 'intGrid',
+        helperBase: 'Grid1',
+      },
+      {
+        name: 'grid2',
+        type: 'intGrid',
+        helperBase: 'Grid2',
+      }
+    ]
+  },
+  shortestBridge: {
+    method: 'shortestBridge',
+    className: 'ShortestBridge',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  equalRowAndColumnPairs: {
+    method: 'equalPairs',
+    className: 'EqualRowAndColumnPairs',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  longestTurbulentSubarray: {
+    method: 'maxTurbulenceSize',
+    className: 'LongestTurbulentSubarray',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      }
+    ]
+  },
+  maxChunksToMakeSorted: {
+    method: 'maxChunksToSorted',
+    className: 'MaxChunksToMakeSorted',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      }
+    ]
+  },
+  subarrayBitwiseORs: {
+    method: 'subarrayBitwiseORs',
+    className: 'SubarrayBitwiseOrs',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      }
+    ]
+  },
+  peakIndexInMountainArray: {
+    method: 'peakIndexInMountainArray',
+    className: 'PeakIndexInMountainArray',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      }
+    ]
+  },
 };

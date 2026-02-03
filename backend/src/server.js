@@ -2155,6 +2155,156 @@ export const CHALLENGES = {
     testFile: './testCases/countBattleshipsTests.js',
     adapter: 'standard:countBattleships:java'
   },
+  longest_consecutive_sequence: {
+    name: 'Longest Consecutive Sequence',
+    folder: 'longest_consecutive_sequence',
+    testFile: './testCases/longestConsecutiveSequenceTests.js',
+    adapter: 'standard:longestConsecutiveSequence:java'
+  },
+  min_increment_to_make_array_unique: {
+    name: 'Min Increment to Make Array Unique',
+    folder: 'min_increment_to_make_array_unique',
+    testFile: './testCases/minIncrementToMakeArrayUniqueTests.js',
+    adapter: 'standard:minIncrementToMakeArrayUnique:java'
+  },
+  check_subarray_sum_multiple_of_k: {
+    name: 'Check Subarray Sum Multiple of K',
+    folder: 'check_subarray_sum_multiple_of_k',
+    testFile: './testCases/checkSubarraySumMultipleOfKTests.js',
+    adapter: 'standard:checkSubarraySumMultipleOfK:java'
+  },
+  maximum_sum_circular_subarray: {
+    name: 'Maximum Sum Circular Subarray',
+    folder: 'maximum_sum_circular_subarray',
+    testFile: './testCases/maximumSumCircularSubarrayTests.js',
+    adapter: 'standard:maximumSumCircularSubarray:java'
+  },
+  min_cost_climbing_stairs: {
+    name: 'Min Cost Climbing Stairs',
+    folder: 'min_cost_climbing_stairs',
+    testFile: './testCases/minCostClimbingStairsTests.js',
+    adapter: 'standard:minCostClimbingStairs:java'
+  },
+  find_k_closest_elements: {
+    name: 'Find K Closest Elements',
+    folder: 'find_k_closest_elements',
+    testFile: './testCases/findKClosestElementsTests.js',
+    adapter: 'standard:findKClosestElements:java'
+  },
+  k_diff_pairs_in_array: {
+    name: 'K-diff Pairs in Array',
+    folder: 'k_diff_pairs_in_array',
+    testFile: './testCases/kDiffPairsInArrayTests.js',
+    adapter: 'standard:kDiffPairsInArray:java'
+  },
+  minimum_time_difference: {
+    name: 'Minimum Time Difference',
+    folder: 'minimum_time_difference',
+    testFile: './testCases/minimumTimeDifferenceTests.js',
+    adapter: 'standard:minimumTimeDifference:java'
+  },
+  reorganize_string: {
+    name: 'Reorganize String',
+    folder: 'reorganize_string',
+    testFile: './testCases/reorganizeStringTests.js',
+    adapter: 'standard:reorganizeString:java'
+  },
+  remove_k_digits: {
+    name: 'Remove K Digits',
+    folder: 'remove_k_digits',
+    testFile: './testCases/removeKDigitsTests.js',
+    adapter: 'standard:removeKDigits:java'
+  },
+  smallest_subsequence_of_distinct_chars: {
+    name: 'Smallest Subsequence of Distinct Characters',
+    folder: 'smallest_subsequence_of_distinct_chars',
+    testFile: './testCases/smallestSubsequenceOfDistinctCharsTests.js',
+    adapter: 'standard:smallestSubsequenceOfDistinctChars:java'
+  },
+  longest_common_substring: {
+    name: 'Longest Common Substring',
+    folder: 'longest_common_substring',
+    testFile: './testCases/longestCommonSubstringTests.js',
+    adapter: 'standard:longestCommonSubstring:java'
+  },
+  group_shifted_strings: {
+    name: 'Group Shifted Strings',
+    folder: 'group_shifted_strings',
+    testFile: './testCases/groupShiftedStringsTests.js',
+    adapter: 'standard:groupShiftedStrings:java'
+  },
+  validate_ip_address: {
+    name: 'Validate IP Address',
+    folder: 'validate_ip_address',
+    testFile: './testCases/validateIpAddressTests.js',
+    adapter: 'standard:validateIPAddress:java'
+  },
+  minimum_deletions_to_make_string_balanced: {
+    name: 'Minimum Deletions to Make String Balanced',
+    folder: 'minimum_deletions_to_make_string_balanced',
+    testFile: './testCases/minimumDeletionsToMakeStringBalancedTests.js',
+    adapter: 'standard:minimumDeletionsToMakeStringBalanced:java'
+  },
+  maximal_rectangle: {
+    name: 'Maximal Rectangle',
+    folder: 'maximal_rectangle',
+    testFile: './testCases/maximalRectangleTests.js',
+    adapter: 'standard:maximalRectangle:java'
+  },
+  minimum_falling_path_sum: {
+    name: 'Minimum Falling Path Sum',
+    folder: 'minimum_falling_path_sum',
+    testFile: './testCases/minimumFallingPathSumTests.js',
+    adapter: 'standard:minimumFallingPathSum:java'
+  },
+  number_of_enclaves: {
+    name: 'Number of Enclaves',
+    folder: 'number_of_enclaves',
+    testFile: './testCases/numberOfEnclavesTests.js',
+    adapter: 'standard:numberOfEnclaves:java'
+  },
+  count_sub_islands: {
+    name: 'Count Sub Islands',
+    folder: 'count_sub_islands',
+    testFile: './testCases/countSubIslandsTests.js',
+    adapter: 'standard:countSubIslands:java'
+  },
+  shortest_bridge: {
+    name: 'Shortest Bridge',
+    folder: 'shortest_bridge',
+    testFile: './testCases/shortestBridgeTests.js',
+    adapter: 'standard:shortestBridge:java'
+  },
+  equal_row_and_column_pairs: {
+    name: 'Equal Row and Column Pairs',
+    folder: 'equal_row_and_column_pairs',
+    testFile: './testCases/equalRowAndColumnPairsTests.js',
+    adapter: 'standard:equalRowAndColumnPairs:java'
+  },
+  longest_turbulent_subarray: {
+    name: 'Longest Turbulent Subarray',
+    folder: 'longest_turbulent_subarray',
+    testFile: './testCases/longestTurbulentSubarrayTests.js',
+    adapter: 'standard:longestTurbulentSubarray:java'
+  },
+  max_chunks_to_make_sorted: {
+    name: 'Max Chunks to Make Sorted',
+    folder: 'max_chunks_to_make_sorted',
+    testFile: './testCases/maxChunksToMakeSortedTests.js',
+    adapter: 'standard:maxChunksToMakeSorted:java'
+  },
+  subarray_bitwise_ors: {
+    name: 'Subarray Bitwise ORs',
+    folder: 'subarray_bitwise_ors',
+    testFile: './testCases/subarrayBitwiseOrsTests.js',
+    adapter: 'standard:subarrayBitwiseORs:java'
+  },
+  peak_index_in_mountain_array: {
+    name: 'Peak Index in Mountain Array',
+    folder: 'peak_index_in_mountain_array',
+    testFile: './testCases/peakIndexInMountainArrayTests.js',
+    adapter: 'standard:peakIndexInMountainArray:java'
+  },
 };
 
 const STANDARD_ADAPTER_OVERRIDES = new Set([
