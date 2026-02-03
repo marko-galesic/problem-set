@@ -3,7 +3,6 @@ import { Button, Popover } from '@mui/material';
 
 export default function ResetPopover({
   isOpen,
-  anchorEl,
   onClose,
   onResetSolution,
   onResetTimer
@@ -12,50 +11,56 @@ export default function ResetPopover({
     return null;
   }
 
-  function handleResetSolution() {
-    if (onResetSolution) {
-      onResetSolution();
-    }
-    if (onClose) {
-      onClose();
-    }
-  }
-
-  function handleResetTimer() {
-    if (onResetTimer) {
-      onResetTimer();
-    }
-    if (onClose) {
-      onClose();
-    }
-  }
-
   function handlePopoverClose() {
     if (onClose) {
       onClose();
     }
   }
 
+  async function handleConfirmReset() {
+    if (onResetTimer) {
+      onResetTimer();
+    }
+    if (onResetSolution) {
+      await onResetSolution();
+    }
+    if (onClose) {
+      onClose();
+    }
+  }
+
+  const anchorPosition = (() => {
+    if (typeof window === 'undefined') {
+      return { top: 0, left: 0 };
+    }
+    return {
+      top: window.scrollY + window.innerHeight / 2,
+      left: window.scrollX + window.innerWidth / 2
+    };
+  })();
+
   return (
     <Popover
-      open={Boolean(isOpen && anchorEl)}
-      anchorEl={anchorEl}
+      open={Boolean(isOpen)}
+      anchorReference="anchorPosition"
+      anchorPosition={anchorPosition}
       onClose={handlePopoverClose}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+      transformOrigin={{ vertical: 'center', horizontal: 'center' }}
       PaperProps={{ className: 'reset-popover' }}
     >
       <div className="reset-popover-header">
-        <span>Reset options</span>
+        <span>Reset solution and timer</span>
       </div>
       <div className="reset-popover-content">
-        <div className="reset-popover-question">What would you like to reset?</div>
+        <div className="reset-popover-question">
+          This will reset both your solution and the timer.
+        </div>
         <div className="reset-popover-actions">
-          <Button className="btn btn--sm btn-reset-option" onClick={handleResetSolution} type="button">
-            Reset solution
+          <Button className="btn btn--sm btn--outline" onClick={handlePopoverClose} type="button">
+            Cancel
           </Button>
-          <Button className="btn btn--sm btn-reset-option" onClick={handleResetTimer} type="button">
-            Reset timer to zero (all progress will be cleared)
+          <Button className="btn btn--sm" onClick={handleConfirmReset} type="button">
+            Confirm reset
           </Button>
         </div>
       </div>

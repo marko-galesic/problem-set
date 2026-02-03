@@ -25,28 +25,14 @@ export default function Header({
   isProgressDisabled,
   progressTitle
 }) {
-  const [resetAnchorEl, setResetAnchorEl] = useState(null);
+  const [isResetOpen, setIsResetOpen] = useState(false);
 
-  function handleResetPopoverOpen(event) {
-    setResetAnchorEl(event.currentTarget);
+  function handleResetPopoverOpen() {
+    setIsResetOpen(true);
   }
 
   function handleResetPopoverClose() {
-    setResetAnchorEl(null);
-  }
-
-  function handleResetSolutionClick() {
-    if (onResetSolution) {
-      onResetSolution();
-    }
-    handleResetPopoverClose();
-  }
-
-  function handleResetTimerClick() {
-    if (onResetTimer) {
-      onResetTimer();
-    }
-    handleResetPopoverClose();
+    setIsResetOpen(false);
   }
 
   return (
@@ -126,11 +112,10 @@ export default function Header({
           <span aria-hidden="true">↻</span>
         </Button>
         <ResetPopover
-          isOpen={Boolean(resetAnchorEl)}
-          anchorEl={resetAnchorEl}
+          isOpen={isResetOpen}
           onClose={handleResetPopoverClose}
-          onResetSolution={handleResetSolutionClick}
-          onResetTimer={handleResetTimerClick}
+          onResetSolution={onResetSolution}
+          onResetTimer={onResetTimer}
         />
         <Button 
           onClick={onRun} 

@@ -37,9 +37,7 @@ describe('Header', () => {
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
     const resetButton = screen.getByRole('button', { name: /reset/i });
     fireEvent.click(resetButton);
-    fireEvent.click(await screen.findByRole('button', { name: /reset solution/i }));
-    fireEvent.click(resetButton);
-    fireEvent.click(await screen.findByRole('button', { name: /reset timer to zero/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /confirm reset/i }));
     fireEvent.click(screen.getByRole('button', { name: /guide me/i }));
     fireEvent.click(screen.getByRole('button', { name: /your progress/i }));
     fireEvent.click(screen.getByRole('button', { name: /where's the bug/i }));
