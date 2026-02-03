@@ -329,9 +329,9 @@ export default function ChallengeListPage() {
                         <span className="challenge-row-status-placeholder" aria-hidden="true" />
                       )}
                     </div>
-                    <div className="challenge-row-topics">Topics: {topicLabel}</div>
+                    <div className="challenge-row-topics">{topicLabel}</div>
                     <div className={`challenge-row-difficulty difficulty-${normalizedDifficulty || 'unknown'}`}>
-                      Difficulty: {difficultyLabel}
+                      {difficultyLabel}
                     </div>
                   </li>
                 );
