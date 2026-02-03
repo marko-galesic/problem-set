@@ -13,6 +13,7 @@ import { executeTypeScriptCode } from './executors/typescriptExecutor.js';
 import { loadAdapter } from './adapters/index.js';
 import { standardAdapterDefinitions } from './adapters/standardAdapterDefinitions.js';
 import { initDatabase } from './db/database.js';
+import { refreshRetentionMetrics } from './db/retentionMetrics.js';
 import {
   getChallengeById,
   getAllChallenges,
@@ -4149,6 +4150,11 @@ app.post('/api/submissions', async (req, res) => {
         createFitnessSnapshot();
       } catch (snapshotError) {
         console.error('Fitness snapshot error:', snapshotError);
+      }
+      try {
+        refreshRetentionMetrics({ language });
+      } catch (retentionError) {
+        console.error('Retention metrics error:', retentionError);
       }
       void evaluateTechBarForSubmission({
         submissionId,

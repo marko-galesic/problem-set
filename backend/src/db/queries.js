@@ -577,6 +577,34 @@ export function getTopicStats() {
  * Fitness history queries
  */
 
+export function getLatestFitnessSnapshot(language) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    SELECT snapshot_at
+    FROM fitness_history
+    WHERE language = ?
+    ORDER BY snapshot_at DESC
+    LIMIT 1
+  `);
+  const row = stmt.get(language);
+  return row?.snapshot_at ?? null;
+}
+
+export function getFitnessSnapshotEntries(snapshotAt, language) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    SELECT
+      topic,
+      difficulty,
+      fitness,
+      submission_count,
+      last_submission
+    FROM fitness_history
+    WHERE snapshot_at = ? AND language = ?
+  `);
+  return stmt.all(snapshotAt, language);
+}
+
 export function insertFitnessSnapshot(snapshotAt, entries) {
   const db = getDatabase();
   const transaction = db.transaction((snapshotAt, entries) => {
@@ -661,6 +689,88 @@ export function getFitnessHistory({ topic, difficulty, since, until, limit, lang
   `);
 
   return stmt.all(...values);
+}
+
+/**
+ * Retention metrics queries
+ */
+
+export function replaceRetentionMetrics(language, metrics, computedAt) {
+  const db = getDatabase();
+  const transaction = db.transaction((language, metrics, computedAt) => {
+    const deleteStmt = db.prepare('DELETE FROM retention_metrics WHERE language = ?');
+    deleteStmt.run(language);
+
+    if (!Array.isArray(metrics) || metrics.length === 0) {
+      return;
+    }
+
+    const insertStmt = db.prepare(`
+      INSERT INTO retention_metrics (
+        challenge_id,
+        language,
+        computed_at,
+        last_submission_at,
+        last_guidance_level,
+        last_submit_attempts,
+        last_timer_time,
+        last_avg_time,
+        submission_count,
+        guidance_score,
+        attempt_score,
+        time_score,
+        mastery_score,
+        recency_days,
+        recency_score,
+        weakness_score,
+        priority_score,
+        difficulty,
+        topics
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    for (const metric of metrics) {
+      insertStmt.run(
+        metric.challenge_id,
+        metric.language,
+        computedAt,
+        metric.last_submission_at ?? null,
+        metric.last_guidance_level ?? null,
+        Number.isFinite(metric.last_submit_attempts) ? metric.last_submit_attempts : null,
+        Number.isFinite(metric.last_timer_time) ? metric.last_timer_time : null,
+        Number.isFinite(metric.last_avg_time) ? metric.last_avg_time : null,
+        metric.submission_count ?? 0,
+        metric.guidance_score ?? 0,
+        metric.attempt_score ?? 0,
+        metric.time_score ?? 0,
+        metric.mastery_score ?? 0,
+        metric.recency_days ?? 0,
+        metric.recency_score ?? 0,
+        metric.weakness_score ?? null,
+        metric.priority_score ?? null,
+        metric.difficulty ?? null,
+        metric.topics ?? '[]'
+      );
+    }
+  });
+
+  return transaction(language, metrics, computedAt);
+}
+
+export function getRetentionMetrics(language) {
+  const db = getDatabase();
+  if (!language) {
+    const stmt = db.prepare('SELECT * FROM retention_metrics ORDER BY computed_at DESC');
+    return stmt.all();
+  }
+  const stmt = db.prepare(`
+    SELECT *
+    FROM retention_metrics
+    WHERE language = ?
+    ORDER BY computed_at DESC
+  `);
+  return stmt.all(language);
 }
 
 /**

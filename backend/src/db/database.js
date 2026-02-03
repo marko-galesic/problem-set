@@ -195,6 +195,33 @@ function createSchema(database) {
     )
   `);
 
+  // Retention metrics per challenge (computed data for review scheduling)
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS retention_metrics (
+      challenge_id TEXT NOT NULL,
+      language TEXT NOT NULL DEFAULT 'java',
+      computed_at DATETIME NOT NULL,
+      last_submission_at DATETIME,
+      last_guidance_level TEXT,
+      last_submit_attempts INTEGER,
+      last_timer_time INTEGER,
+      last_avg_time INTEGER,
+      submission_count INTEGER NOT NULL DEFAULT 0,
+      guidance_score REAL NOT NULL DEFAULT 0,
+      attempt_score REAL NOT NULL DEFAULT 0,
+      time_score REAL NOT NULL DEFAULT 0,
+      mastery_score REAL NOT NULL DEFAULT 0,
+      recency_days REAL NOT NULL DEFAULT 0,
+      recency_score REAL NOT NULL DEFAULT 0,
+      weakness_score REAL,
+      priority_score REAL,
+      difficulty TEXT,
+      topics TEXT DEFAULT '[]',
+      PRIMARY KEY (challenge_id, language),
+      FOREIGN KEY (challenge_id) REFERENCES challenges(id) ON DELETE CASCADE
+    )
+  `);
+
   // Next challenge recommendation cache
   database.exec(`
     CREATE TABLE IF NOT EXISTS next_challenge_recommendations (
@@ -215,6 +242,12 @@ function createSchema(database) {
     
     CREATE INDEX IF NOT EXISTS idx_fitness_history_snapshot
     ON fitness_history(snapshot_at DESC);
+
+    CREATE INDEX IF NOT EXISTS idx_retention_metrics_language
+    ON retention_metrics(language);
+
+    CREATE INDEX IF NOT EXISTS idx_retention_metrics_computed
+    ON retention_metrics(computed_at DESC);
 
     CREATE INDEX IF NOT EXISTS idx_challenges_folder 
     ON challenges(folder);
