@@ -27,6 +27,7 @@ const Timer = forwardRef(function Timer(props, ref) {
   const autoStartTimeoutRef = useRef(null);
   const autoStartActiveRef = useRef(false);
   const autoStartSuppressedRef = useRef(false);
+  const resumeAfterEditRef = useRef(false);
 
   // Update ref when callback changes
   useEffect(() => {
@@ -179,15 +180,25 @@ const Timer = forwardRef(function Timer(props, ref) {
     if (isAutoStartPopoverOpen) {
       return;
     }
+    resumeAfterEditRef.current = isRunning;
+    if (isRunning) {
+      setIsRunning(false);
+    }
     setIsPopoverOpen(true);
   }
 
   function handlePopoverClose() {
     setIsPopoverOpen(false);
+    if (resumeAfterEditRef.current) {
+      resumeAfterEditRef.current = false;
+      setIsRunning(true);
+    }
   }
 
   function handlePopoverSave(newTime) {
-    handleSetTime(newTime);
+    const shouldResume = resumeAfterEditRef.current;
+    resumeAfterEditRef.current = false;
+    handleSetTime(newTime, { resume: shouldResume });
   }
 
   function handleSetTime(newTime, options = {}) {
