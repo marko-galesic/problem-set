@@ -2305,6 +2305,157 @@ export const CHALLENGES = {
     testFile: './testCases/peakIndexInMountainArrayTests.js',
     adapter: 'standard:peakIndexInMountainArray:java'
   },
+  word_ladder_length: {
+    name: 'Word Ladder Length',
+    folder: 'word_ladder_length',
+    testFile: './testCases/wordLadderLengthTests.js',
+    adapter: 'standard:wordLadderLength:java'
+  },
+  open_the_lock: {
+    name: 'Open the Lock',
+    folder: 'open_the_lock',
+    testFile: './testCases/openTheLockTests.js',
+    adapter: 'standard:openTheLock:java'
+  },
+  nearest_exit_in_maze: {
+    name: 'Nearest Exit in Maze',
+    folder: 'nearest_exit_in_maze',
+    testFile: './testCases/nearestExitInMazeTests.js',
+    adapter: 'standard:nearestExitInMaze:java'
+  },
+  walls_and_gates: {
+    name: 'Walls and Gates',
+    folder: 'walls_and_gates',
+    testFile: './testCases/wallsAndGatesTests.js',
+    adapter: 'standard:wallsAndGates:java'
+  },
+  zero_one_matrix: {
+    name: 'Zero One Matrix',
+    folder: 'zero_one_matrix',
+    testFile: './testCases/zeroOneMatrixTests.js',
+    adapter: 'standard:zeroOneMatrix:java'
+  },
+  shortest_path_to_food: {
+    name: 'Shortest Path to Food',
+    folder: 'shortest_path_to_food',
+    testFile: './testCases/shortestPathToFoodTests.js',
+    adapter: 'standard:shortestPathToFood:java'
+  },
+  minimum_knight_moves: {
+    name: 'Minimum Knight Moves',
+    folder: 'minimum_knight_moves',
+    testFile: './testCases/minimumKnightMovesTests.js',
+    adapter: 'standard:minimumKnightMoves:java'
+  },
+  minimum_genetic_mutation: {
+    name: 'Minimum Genetic Mutation',
+    folder: 'minimum_genetic_mutation',
+    testFile: './testCases/minimumGeneticMutationTests.js',
+    adapter: 'standard:minimumGeneticMutation:java'
+  },
+  shortest_path_unweighted_graph: {
+    name: 'Shortest Path in Unweighted Graph',
+    folder: 'shortest_path_unweighted_graph',
+    testFile: './testCases/shortestPathUnweightedGraphTests.js',
+    adapter: 'standard:shortestPathUnweightedGraph:java'
+  },
+  shortest_path_with_obstacles_elimination: {
+    name: 'Shortest Path With Obstacles Elimination',
+    folder: 'shortest_path_with_obstacles_elimination',
+    testFile: './testCases/shortestPathWithObstaclesEliminationTests.js',
+    adapter: 'standard:shortestPathWithObstaclesElimination:java'
+  },
+  min_steps_to_reach_target: {
+    name: 'Min Steps to Reach Target',
+    folder: 'min_steps_to_reach_target',
+    testFile: './testCases/minStepsToReachTargetTests.js',
+    adapter: 'standard:minStepsToReachTarget:java'
+  },
+  jump_game_iv_min_jumps: {
+    name: 'Jump Game IV Min Jumps',
+    folder: 'jump_game_iv_min_jumps',
+    testFile: './testCases/jumpGameIvMinJumpsTests.js',
+    adapter: 'standard:jumpGameIvMinJumps:java'
+  },
+  bus_routes_min_buses: {
+    name: 'Bus Routes Min Buses',
+    folder: 'bus_routes_min_buses',
+    testFile: './testCases/busRoutesMinBusesTests.js',
+    adapter: 'standard:busRoutesMinBuses:java'
+  },
+  rolling_ball_maze_shortest_path: {
+    name: 'Rolling Ball Maze Shortest Path',
+    folder: 'rolling_ball_maze_shortest_path',
+    testFile: './testCases/rollingBallMazeShortestPathTests.js',
+    adapter: 'standard:rollingBallMazeShortestPath:java'
+  },
+  shortest_path_in_binary_matrix_4dir: {
+    name: 'Shortest Path in Binary Matrix (4 Directions)',
+    folder: 'shortest_path_in_binary_matrix_4dir',
+    testFile: './testCases/shortestPathInBinaryMatrix4DirTests.js',
+    adapter: 'standard:shortestPathInBinaryMatrix4Dir:java'
+  },
+  shortest_path_collect_all_keys: {
+    name: 'Shortest Path to Collect All Keys',
+    folder: 'shortest_path_collect_all_keys',
+    testFile: './testCases/shortestPathCollectAllKeysTests.js',
+    adapter: 'standard:shortestPathCollectAllKeys:java'
+  },
+  max_distance_from_land: {
+    name: 'Max Distance From Land',
+    folder: 'max_distance_from_land',
+    testFile: './testCases/maxDistanceFromLandTests.js',
+    adapter: 'standard:maxDistanceFromLand:java'
+  },
+  shortest_path_with_portals: {
+    name: 'Shortest Path With Portals',
+    folder: 'shortest_path_with_portals',
+    testFile: './testCases/shortestPathWithPortalsTests.js',
+    adapter: 'standard:shortestPathWithPortals:java'
+  },
+  word_ladder_paths_count: {
+    name: 'Word Ladder Paths Count',
+    folder: 'word_ladder_paths_count',
+    testFile: './testCases/wordLadderPathsCountTests.js',
+    adapter: 'standard:wordLadderPathsCount:java'
+  },
+  word_graph_distances: {
+    name: 'Word Graph Distances',
+    folder: 'word_graph_distances',
+    testFile: './testCases/wordGraphDistancesTests.js',
+    adapter: 'standard:wordGraphDistances:java'
+  },
+  graph_distances_from_source: {
+    name: 'Graph Distances From Source',
+    folder: 'graph_distances_from_source',
+    testFile: './testCases/graphDistancesFromSourceTests.js',
+    adapter: 'standard:graphDistancesFromSource:java'
+  },
+  is_graph_bipartite_matrix: {
+    name: 'Is Graph Bipartite',
+    folder: 'is_graph_bipartite_matrix',
+    testFile: './testCases/isGraphBipartiteMatrixTests.js',
+    adapter: 'standard:isGraphBipartiteMatrix:java'
+  },
+  count_connected_components: {
+    name: 'Count Connected Components',
+    folder: 'count_connected_components',
+    testFile: './testCases/countConnectedComponentsTests.js',
+    adapter: 'standard:countConnectedComponents:java'
+  },
+  nodes_at_distance_k: {
+    name: 'Nodes at Distance K',
+    folder: 'nodes_at_distance_k',
+    testFile: './testCases/nodesAtDistanceKTests.js',
+    adapter: 'standard:nodesAtDistanceK:java'
+  },
+  jump_game_iii_min_steps: {
+    name: 'Jump Game III Min Steps',
+    folder: 'jump_game_iii_min_steps',
+    testFile: './testCases/jumpGameIiiMinStepsTests.js',
+    adapter: 'standard:jumpGameIiiMinSteps:java'
+  },
+
 };
 
 const STANDARD_ADAPTER_OVERRIDES = new Set([

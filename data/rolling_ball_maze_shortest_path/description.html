@@ -1,0 +1,20 @@
+<p>
+    In a maze with 0 as open and 1 as wall, a move rolls the ball in one direction until it hits a wall. Return the minimum number of rolls to reach the destination.
+  </p>
+
+  <h3>Method Signature</h3>
+  <pre><code>public int shortestDistance(int[][] maze, int[] start, int[] destination)</code></pre>
+
+  <h3>Requirements</h3>
+  <ul>
+    <li>Each roll counts as one move regardless of distance.</li>
+<li>You may move only in four directions.</li>
+<li>Return -1 if the destination cannot be reached.</li>
+  </ul>
+
+  <h3>Example</h3>
+  <p><strong>Input:</strong></p>
+  <pre><code>maze = [[0,0,0],[0,1,0],[0,0,0]], start = [0,0], destination = [2,2]</code></pre>
+
+  <p><strong>Output:</strong></p>
+  <pre><code>2</code></pre>

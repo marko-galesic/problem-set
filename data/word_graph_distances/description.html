@@ -1,0 +1,20 @@
+<p>
+    Given a list of words, treat words with one-letter differences as connected and return distances from the start word for each word in order.
+  </p>
+
+  <h3>Method Signature</h3>
+  <pre><code>public int[] wordGraphDistances(String[] words, String start)</code></pre>
+
+  <h3>Requirements</h3>
+  <ul>
+    <li>Words are connected if they have the same length and differ by exactly one character.</li>
+<li>Return -1 for words that are unreachable.</li>
+<li>If the start word is not in the list, return all -1.</li>
+  </ul>
+
+  <h3>Example</h3>
+  <p><strong>Input:</strong></p>
+  <pre><code>words = ["hot","dot","dog","lot"], start = "hot"</code></pre>
+
+  <p><strong>Output:</strong></p>
+  <pre><code>[0, 1, 2, 1]</code></pre>

@@ -1,0 +1,20 @@
+<p>
+    You have a 4-wheel lock starting at "0000". Each move turns one wheel up or down by one. Return the minimum number of moves to reach the target without entering any deadend states, or -1 if impossible.
+  </p>
+
+  <h3>Method Signature</h3>
+  <pre><code>public int openLock(String[] deadends, String target)</code></pre>
+
+  <h3>Requirements</h3>
+  <ul>
+    <li>Each move changes exactly one digit by +1 or -1 with wraparound.</li>
+<li>You may not visit any deadend combination.</li>
+<li>Return -1 if the target cannot be reached.</li>
+  </ul>
+
+  <h3>Example</h3>
+  <p><strong>Input:</strong></p>
+  <pre><code>deadends = ["0201","0101","0102","1212","2002"], target = "0202"</code></pre>
+
+  <p><strong>Output:</strong></p>
+  <pre><code>6</code></pre>

@@ -2937,4 +2937,456 @@ export const standardAdapterDefinitions = {
       }
     ]
   },
+  wordLadderLength: {
+    method: 'ladderLength',
+    className: 'WordLadderLength',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'beginWord',
+        type: 'string',
+        helperBase: 'BeginWord',
+      },
+      {
+        name: 'endWord',
+        type: 'string',
+        helperBase: 'EndWord',
+      },
+      {
+        name: 'wordList',
+        type: 'stringArray',
+        helperBase: 'WordList',
+      }
+    ]
+  },
+  openTheLock: {
+    method: 'openLock',
+    className: 'OpenTheLock',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'deadends',
+        type: 'stringArray',
+        helperBase: 'Deadends',
+      },
+      {
+        name: 'target',
+        type: 'string',
+        helperBase: 'Target',
+      }
+    ]
+  },
+  nearestExitInMaze: {
+    method: 'nearestExit',
+    className: 'NearestExitInMaze',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'maze',
+        type: 'charGrid',
+        helperBase: 'Maze',
+      },
+      {
+        name: 'entrance',
+        type: 'intArray',
+        helperBase: 'Entrance',
+      }
+    ]
+  },
+  wallsAndGates: {
+    method: 'wallsAndGates',
+    className: 'WallsAndGates',
+    returnType: 'intMatrix',
+    inputs: [
+      {
+        name: 'rooms',
+        type: 'intGrid',
+        helperBase: 'Rooms',
+      }
+    ]
+  },
+  zeroOneMatrix: {
+    method: 'updateMatrix',
+    className: 'ZeroOneMatrix',
+    returnType: 'intMatrix',
+    inputs: [
+      {
+        name: 'mat',
+        type: 'intGrid',
+        helperBase: 'Mat',
+      }
+    ]
+  },
+  shortestPathToFood: {
+    method: 'shortestPathToFood',
+    className: 'ShortestPathToFood',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'charGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  minimumKnightMoves: {
+    method: 'minKnightMoves',
+    className: 'MinimumKnightMoves',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+      {
+        name: 'start',
+        type: 'intArray',
+        helperBase: 'Start',
+      },
+      {
+        name: 'end',
+        type: 'intArray',
+        helperBase: 'End',
+      }
+    ]
+  },
+  minimumGeneticMutation: {
+    method: 'minMutation',
+    className: 'MinimumGeneticMutation',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'start',
+        type: 'string',
+        helperBase: 'Start',
+      },
+      {
+        name: 'end',
+        type: 'string',
+        helperBase: 'End',
+      },
+      {
+        name: 'bank',
+        type: 'stringArray',
+        helperBase: 'Bank',
+      }
+    ]
+  },
+  shortestPathUnweightedGraph: {
+    method: 'shortestPath',
+    className: 'ShortestPathUnweightedGraph',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+      {
+        name: 'edges',
+        type: 'intGrid',
+        helperBase: 'Edges',
+      },
+      {
+        name: 'start',
+        type: 'int',
+        helperBase: 'Start',
+        javaArrayName: 'starts',
+      },
+      {
+        name: 'end',
+        type: 'int',
+        helperBase: 'End',
+        javaArrayName: 'ends',
+      }
+    ]
+  },
+  shortestPathWithObstaclesElimination: {
+    method: 'shortestPath',
+    className: 'ShortestPathWithObstaclesElimination',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      }
+    ]
+  },
+  minStepsToReachTarget: {
+    method: 'minStepsToReachTarget',
+    className: 'MinStepsToReachTarget',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'start',
+        type: 'int',
+        helperBase: 'Start',
+        javaArrayName: 'starts',
+      },
+      {
+        name: 'target',
+        type: 'int',
+        helperBase: 'Target',
+        javaArrayName: 'targets',
+      }
+    ]
+  },
+  jumpGameIvMinJumps: {
+    method: 'minJumps',
+    className: 'JumpGameIvMinJumps',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      }
+    ]
+  },
+  busRoutesMinBuses: {
+    method: 'numBusesToDestination',
+    className: 'BusRoutesMinBuses',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'routes',
+        type: 'intGrid',
+        helperBase: 'Routes',
+      },
+      {
+        name: 'source',
+        type: 'int',
+        helperBase: 'Source',
+        javaArrayName: 'sources',
+      },
+      {
+        name: 'target',
+        type: 'int',
+        helperBase: 'Target',
+        javaArrayName: 'targets',
+      }
+    ]
+  },
+  rollingBallMazeShortestPath: {
+    method: 'shortestDistance',
+    className: 'RollingBallMazeShortestPath',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'maze',
+        type: 'intGrid',
+        helperBase: 'Maze',
+      },
+      {
+        name: 'start',
+        type: 'intArray',
+        helperBase: 'Start',
+      },
+      {
+        name: 'destination',
+        type: 'intArray',
+        helperBase: 'Destination',
+      }
+    ]
+  },
+  shortestPathInBinaryMatrix4Dir: {
+    method: 'shortestPathBinaryMatrix4Dir',
+    className: 'ShortestPathInBinaryMatrix4Dir',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  shortestPathCollectAllKeys: {
+    method: 'shortestPathAllKeys',
+    className: 'ShortestPathCollectAllKeys',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'charGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  maxDistanceFromLand: {
+    method: 'maxDistance',
+    className: 'MaxDistanceFromLand',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'intGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  shortestPathWithPortals: {
+    method: 'shortestPathWithPortals',
+    className: 'ShortestPathWithPortals',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'grid',
+        type: 'charGrid',
+        helperBase: 'Grid',
+      }
+    ]
+  },
+  wordLadderPathsCount: {
+    method: 'ladderPathCount',
+    className: 'WordLadderPathsCount',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'beginWord',
+        type: 'string',
+        helperBase: 'BeginWord',
+      },
+      {
+        name: 'endWord',
+        type: 'string',
+        helperBase: 'EndWord',
+      },
+      {
+        name: 'wordList',
+        type: 'stringArray',
+        helperBase: 'WordList',
+      }
+    ]
+  },
+  wordGraphDistances: {
+    method: 'wordGraphDistances',
+    className: 'WordGraphDistances',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'words',
+        type: 'stringArray',
+        helperBase: 'Words',
+      },
+      {
+        name: 'start',
+        type: 'string',
+        helperBase: 'Start',
+      }
+    ]
+  },
+  graphDistancesFromSource: {
+    method: 'distancesFromSource',
+    className: 'GraphDistancesFromSource',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+      {
+        name: 'edges',
+        type: 'intGrid',
+        helperBase: 'Edges',
+      },
+      {
+        name: 'source',
+        type: 'int',
+        helperBase: 'Source',
+        javaArrayName: 'sources',
+      }
+    ]
+  },
+  isGraphBipartiteMatrix: {
+    method: 'isBipartite',
+    className: 'IsGraphBipartiteMatrix',
+    returnType: 'boolean',
+    inputs: [
+      {
+        name: 'graph',
+        type: 'intGrid',
+        helperBase: 'Graph',
+      }
+    ]
+  },
+  countConnectedComponents: {
+    method: 'countComponents',
+    className: 'CountConnectedComponents',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+      {
+        name: 'edges',
+        type: 'intGrid',
+        helperBase: 'Edges',
+      }
+    ]
+  },
+  nodesAtDistanceK: {
+    method: 'nodesAtDistanceK',
+    className: 'NodesAtDistanceK',
+    returnType: 'intArray',
+    inputs: [
+      {
+        name: 'n',
+        type: 'int',
+        helperBase: 'N',
+        javaArrayName: 'ns',
+      },
+      {
+        name: 'edges',
+        type: 'intGrid',
+        helperBase: 'Edges',
+      },
+      {
+        name: 'start',
+        type: 'int',
+        helperBase: 'Start',
+        javaArrayName: 'starts',
+      },
+      {
+        name: 'k',
+        type: 'int',
+        helperBase: 'K',
+        javaArrayName: 'ks',
+      }
+    ]
+  },
+  jumpGameIiiMinSteps: {
+    method: 'minStepsToReachZero',
+    className: 'JumpGameIiiMinSteps',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'arr',
+        type: 'intArray',
+        helperBase: 'Arr',
+      },
+      {
+        name: 'start',
+        type: 'int',
+        helperBase: 'Start',
+        javaArrayName: 'starts',
+      }
+    ]
+  }
+
 };

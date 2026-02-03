@@ -1,0 +1,20 @@
+<p>
+    Given a grid with start S, end E, walls #, open cells ., and portal letters a-z, return the minimum steps from S to E using portals.
+  </p>
+
+  <h3>Method Signature</h3>
+  <pre><code>public int shortestPathWithPortals(char[][] grid)</code></pre>
+
+  <h3>Requirements</h3>
+  <ul>
+    <li>Move only up, down, left, or right.</li>
+<li>Stepping onto a portal letter instantly teleports to its matching letter.</li>
+<li>Return -1 if the end is unreachable.</li>
+  </ul>
+
+  <h3>Example</h3>
+  <p><strong>Input:</strong></p>
+  <pre><code>grid = [["S",".","a"],["#","#","."],["a",".","E"]]</code></pre>
+
+  <p><strong>Output:</strong></p>
+  <pre><code>4</code></pre>
