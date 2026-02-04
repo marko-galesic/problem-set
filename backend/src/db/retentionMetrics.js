@@ -245,6 +245,142 @@ export function computeRetentionMetricsData({
   return results;
 }
 
+export function computeTopicRetentionMetricsData({
+  challenges,
+  submissions,
+  fitnessEntries,
+  language,
+  now = Date.now(),
+  timeBaselineMs = DEFAULT_TIME_BASELINE_MS,
+  recencyWindowDays = DEFAULT_RECENCY_WINDOW_DAYS
+} = {}) {
+  const normalizedLanguage = normalizeLanguage(language);
+  const nowMs = now instanceof Date ? now.getTime() : Number(now);
+  const safeNowMs = Number.isFinite(nowMs) ? nowMs : Date.now();
+
+  const challengeMeta = new Map(
+    (challenges || []).map((challenge) => {
+      const difficulty = typeof challenge?.difficulty === 'string'
+        ? challenge.difficulty.trim().toLowerCase()
+        : null;
+      const topics = parseTopics(challenge?.topics);
+      return [challenge.id, { difficulty, topics }];
+    })
+  );
+
+  const topicGroups = new Map();
+  const fitnessMap = buildFitnessMap(fitnessEntries);
+
+  const getGroupKey = (topic, difficulty) => `${topic}::${difficulty ?? ''}`;
+  const getOrCreateGroup = (topic, difficulty) => {
+    const key = getGroupKey(topic, difficulty);
+    if (!topicGroups.has(key)) {
+      topicGroups.set(key, {
+        topic,
+        difficulty: difficulty ?? null,
+        lastSubmission: null,
+        lastTimestamp: -Infinity,
+        submissionCount: 0
+      });
+    }
+    return topicGroups.get(key);
+  };
+
+  for (const submission of submissions || []) {
+    if (!submission || typeof submission !== 'object') {
+      continue;
+    }
+    const subLanguage = normalizeLanguage(submission.language);
+    if (subLanguage !== normalizedLanguage) {
+      continue;
+    }
+    const challengeId = submission.challenge_id || submission.challenge || submission.challengeId;
+    if (!challengeId) {
+      continue;
+    }
+    const meta = challengeMeta.get(challengeId);
+    const topics = meta?.topics || [];
+    if (!Array.isArray(topics) || topics.length === 0) {
+      continue;
+    }
+    const difficulty = meta?.difficulty ?? null;
+    const timestamp = toTimestamp(submission.date, safeNowMs);
+
+    for (const topic of topics) {
+      const group = getOrCreateGroup(topic, difficulty);
+      group.submissionCount += 1;
+      if (timestamp >= group.lastTimestamp) {
+        group.lastTimestamp = timestamp;
+        group.lastSubmission = submission;
+      }
+    }
+  }
+
+  const results = [];
+  for (const group of topicGroups.values()) {
+    if (!group.lastSubmission) {
+      continue;
+    }
+
+    const lastSubmission = group.lastSubmission;
+    const guidanceLevel = lastSubmission.guidance_level || lastSubmission.guidanceLevel || 'Independent';
+    const guidanceScore = GUIDANCE_SCORES[guidanceLevel] ?? DEFAULT_GUIDANCE_SCORE;
+
+    const attemptsRaw = Number(lastSubmission.submit_attempts ?? lastSubmission.submitAttempts);
+    const attempts = Number.isFinite(attemptsRaw) && attemptsRaw > 0 ? attemptsRaw : 1;
+    const attemptScore = 1 / Math.sqrt(attempts);
+
+    const timerTime = Number(lastSubmission.timer_time ?? lastSubmission.timerTime);
+    const avgTime = Number(lastSubmission.avg_time ?? lastSubmission.avgTime);
+    let timeScore = DEFAULT_TIME_SCORE;
+    if (Number.isFinite(timerTime) && timerTime > 0) {
+      timeScore = 1 / (1 + timerTime / timeBaselineMs);
+    } else if (Number.isFinite(avgTime) && avgTime > 0) {
+      timeScore = 1 / (1 + avgTime / timeBaselineMs);
+    }
+
+    const masteryScore = clampScore(
+      0.4 * guidanceScore + 0.3 * attemptScore + 0.3 * timeScore
+    );
+
+    const recencyDays = Math.max(0, (safeNowMs - group.lastTimestamp) / DAY_MS);
+    const recencyScore = clampScore(1 - Math.exp(-recencyDays / recencyWindowDays));
+
+    const weaknessScore = computeWeaknessScore([group.topic], group.difficulty, fitnessMap);
+    const priorityScore = weaknessScore === null
+      ? null
+      : clampScore(
+        0.5 * recencyScore + 0.3 * weaknessScore + 0.2 * (1 - masteryScore)
+      );
+
+    const lastSubmissionAt = Number.isFinite(Date.parse(lastSubmission.date))
+      ? new Date(Date.parse(lastSubmission.date)).toISOString()
+      : null;
+
+    results.push({
+      topic: group.topic,
+      difficulty: group.difficulty,
+      language: normalizedLanguage,
+      last_submission_at: lastSubmissionAt,
+      last_guidance_level: typeof guidanceLevel === 'string' ? guidanceLevel : null,
+      last_submit_attempts: Number.isFinite(attemptsRaw) ? attemptsRaw : null,
+      last_timer_time: Number.isFinite(timerTime) ? timerTime : null,
+      last_avg_time: Number.isFinite(avgTime) ? avgTime : null,
+      submission_count: group.submissionCount,
+      guidance_score: clampScore(guidanceScore),
+      attempt_score: clampScore(attemptScore),
+      time_score: clampScore(timeScore),
+      mastery_score: masteryScore,
+      recency_days: recencyDays,
+      recency_score: recencyScore,
+      weakness_score: weaknessScore,
+      priority_score: priorityScore
+    });
+  }
+
+  return results;
+}
+
 export function refreshRetentionMetrics({
   language = 'java',
   now = new Date(),
@@ -277,5 +413,39 @@ export function refreshRetentionMetrics({
     count: metrics.length,
     computedAt,
     fitnessSnapshotAt: snapshotAt ?? null
+  };
+}
+
+export function getTopicRetentionMetrics({
+  language = 'java',
+  now = new Date(),
+  timeBaselineMs = DEFAULT_TIME_BASELINE_MS,
+  recencyWindowDays = DEFAULT_RECENCY_WINDOW_DAYS
+} = {}) {
+  const normalizedLanguage = normalizeLanguage(language);
+  const challenges = getAllChallenges();
+  const submissions = getAllSubmissions();
+  const snapshotAt = getLatestFitnessSnapshot(normalizedLanguage);
+  const fitnessEntries = snapshotAt
+    ? getFitnessSnapshotEntries(snapshotAt, normalizedLanguage)
+    : [];
+  const computedAt = (now instanceof Date ? now : new Date(now)).toISOString();
+
+  const metrics = computeTopicRetentionMetricsData({
+    challenges,
+    submissions,
+    fitnessEntries,
+    language: normalizedLanguage,
+    now,
+    timeBaselineMs,
+    recencyWindowDays
+  });
+
+  return {
+    language: normalizedLanguage,
+    count: metrics.length,
+    computedAt,
+    fitnessSnapshotAt: snapshotAt ?? null,
+    metrics
   };
 }

@@ -1,6 +1,10 @@
 import { initDatabase, getDatabase } from '../db/database.js';
 import { insertChallenge, insertSubmission, insertFitnessSnapshot } from '../db/queries.js';
-import { computeRetentionMetricsData, refreshRetentionMetrics } from '../db/retentionMetrics.js';
+import {
+  computeRetentionMetricsData,
+  computeTopicRetentionMetricsData,
+  refreshRetentionMetrics
+} from '../db/retentionMetrics.js';
 
 describe('retention metrics data', () => {
   test('computeRetentionMetricsData builds component scores', () => {
@@ -77,6 +81,83 @@ describe('retention metrics data', () => {
     expect(c2).toBeTruthy();
     expect(c2.weakness_score).toBeNull();
     expect(c2.priority_score).toBeNull();
+  });
+
+  test('computeTopicRetentionMetricsData builds topic-level scores', () => {
+    const challenges = [
+      {
+        id: 'c1',
+        difficulty: 'easy',
+        topics: JSON.stringify(['arrays', 'hashing'])
+      },
+      {
+        id: 'c2',
+        difficulty: 'medium',
+        topics: JSON.stringify(['graphs'])
+      }
+    ];
+
+    const submissions = [
+      {
+        challenge_id: 'c1',
+        language: 'javascript',
+        guidance_level: 'Independent',
+        submit_attempts: 1,
+        timer_time: 600000,
+        avg_time: 600000,
+        date: '2026-01-20T00:00:00.000Z'
+      },
+      {
+        challenge_id: 'c1',
+        language: 'javascript',
+        guidance_level: 'Minor',
+        submit_attempts: 4,
+        timer_time: 1200000,
+        avg_time: 1200000,
+        date: '2026-02-01T00:00:00.000Z'
+      },
+      {
+        challenge_id: 'c2',
+        language: 'javascript',
+        guidance_level: 'Guided',
+        submit_attempts: 2,
+        timer_time: 1200000,
+        avg_time: 1200000,
+        date: '2026-02-02T00:00:00.000Z'
+      }
+    ];
+
+    const fitnessEntries = [
+      { topic: 'arrays', difficulty: 'easy', fitness: 0.8 },
+      { topic: 'hashing', difficulty: 'easy', fitness: 0.4 }
+    ];
+
+    const now = new Date('2026-02-03T00:00:00.000Z');
+    const metrics = computeTopicRetentionMetricsData({
+      challenges,
+      submissions,
+      fitnessEntries,
+      language: 'javascript',
+      now
+    });
+
+    const arrays = metrics.find((metric) => metric.topic === 'arrays');
+    const hashing = metrics.find((metric) => metric.topic === 'hashing');
+    const graphs = metrics.find((metric) => metric.topic === 'graphs');
+
+    expect(arrays).toBeTruthy();
+    expect(arrays.submission_count).toBe(2);
+    expect(arrays.weakness_score).toBeCloseTo(0.2, 5);
+    expect(arrays.mastery_score).toBeCloseTo(0.58, 2);
+    expect(arrays.priority_score).toBeCloseTo(0.21, 2);
+
+    expect(hashing).toBeTruthy();
+    expect(hashing.weakness_score).toBeCloseTo(0.6, 5);
+    expect(hashing.priority_score).toBeCloseTo(0.33, 2);
+
+    expect(graphs).toBeTruthy();
+    expect(graphs.weakness_score).toBeNull();
+    expect(graphs.priority_score).toBeNull();
   });
 
   test('refreshRetentionMetrics writes retention_metrics rows', () => {

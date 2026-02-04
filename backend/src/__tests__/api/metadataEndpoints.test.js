@@ -190,6 +190,17 @@ describe('API metadata and analytics endpoints', () => {
     expect(Array.isArray(historyResponse.body.history)).toBe(true);
   });
 
+  test('returns retention metrics views', async () => {
+    const retentionResponse = await client.get('/api/retention-metrics?language=java&refresh=true');
+    expect(retentionResponse.status).toBe(200);
+    expect(Array.isArray(retentionResponse.body.metrics)).toBe(true);
+
+    const topicRetentionResponse = await client.get('/api/retention-metrics/topics?language=java');
+    expect(topicRetentionResponse.status).toBe(200);
+    expect(Array.isArray(topicRetentionResponse.body.metrics)).toBe(true);
+    expect(topicRetentionResponse.body.computedAt).toBeTruthy();
+  });
+
   test('validates submission update payload', async () => {
     const response = await client.put('/api/submissions', { timerTime: 10 });
     expect(response.status).toBe(400);

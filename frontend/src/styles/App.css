@@ -3377,7 +3377,7 @@ body {
 .retention-metrics-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 16px 20px;
   border-bottom: 1px solid #e0e0e0;
   background-color: #f9f9f9;
@@ -3399,6 +3399,51 @@ body {
   margin-top: 6px;
   font-size: 11px;
   color: #7a7a7a;
+}
+
+.retention-metrics-header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.retention-metrics-tabs {
+  display: inline-flex;
+  background-color: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 999px;
+  padding: 2px;
+  gap: 4px;
+  min-height: 0;
+}
+
+.retention-metrics-tabs .MuiTabs-flexContainer {
+  gap: 4px;
+}
+
+.retention-metrics-tabs .MuiTabs-indicator {
+  display: none;
+}
+
+.retention-metrics-tab {
+  border: none;
+  background: transparent;
+  color: #555555;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  min-height: 0;
+  min-width: 0;
+}
+
+.retention-metrics-tab:hover {
+  color: #1b1b1b;
+}
+
+.retention-metrics-tab.is-active {
+  background-color: #0052a3;
+  color: #ffffff;
 }
 
 .retention-metrics-body {

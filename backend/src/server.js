@@ -13,7 +13,7 @@ import { executeTypeScriptCode } from './executors/typescriptExecutor.js';
 import { loadAdapter } from './adapters/index.js';
 import { standardAdapterDefinitions } from './adapters/standardAdapterDefinitions.js';
 import { initDatabase } from './db/database.js';
-import { refreshRetentionMetrics } from './db/retentionMetrics.js';
+import { getTopicRetentionMetrics, refreshRetentionMetrics } from './db/retentionMetrics.js';
 import {
   getChallengeById,
   getAllChallenges,
@@ -4839,6 +4839,26 @@ app.get('/api/retention-metrics', (req, res) => {
     console.error('Get retention metrics error:', error);
     res.status(500).json({
       error: error.message || 'Failed to load retention metrics'
+    });
+  }
+});
+
+// Topic retention metrics (Codex approach)
+app.get('/api/retention-metrics/topics', (req, res) => {
+  try {
+    const language = normalizeLanguage(req.query.language);
+    const result = getTopicRetentionMetrics({ language });
+
+    res.json({
+      metrics: result.metrics,
+      count: result.count,
+      computedAt: result.computedAt,
+      fitnessSnapshotAt: result.fitnessSnapshotAt
+    });
+  } catch (error) {
+    console.error('Get topic retention metrics error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to load topic retention metrics'
     });
   }
 });
