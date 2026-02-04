@@ -10,5 +10,6 @@ temp/
 logs/
 .env
 .vite/
+.cursor
 backend/data/challenges.db
 data/*/submissions.json
