@@ -19,6 +19,7 @@ const Timer = forwardRef(function Timer(props, ref) {
   const [isVisible, setIsVisible] = useState(true);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isAutoStartPopoverOpen, setIsAutoStartPopoverOpen] = useState(false);
+  const [autoStartPromptMode, setAutoStartPromptMode] = useState('start');
   const startTimeRef = useRef(null);
   const accumulatedTimeRef = useRef(initialAccumulatedTime);
   const intervalRef = useRef(null);
@@ -27,6 +28,8 @@ const Timer = forwardRef(function Timer(props, ref) {
   const autoStartTimeoutRef = useRef(null);
   const autoStartActiveRef = useRef(false);
   const autoStartSuppressedRef = useRef(false);
+  const autoResumeSuppressedRef = useRef(false);
+  const autoStartModeRef = useRef(null);
   const resumeAfterEditRef = useRef(false);
 
   // Update ref when callback changes
@@ -41,6 +44,9 @@ const Timer = forwardRef(function Timer(props, ref) {
     accumulatedTimeRef.current = initialAccumulatedTime;
     autoStartActiveRef.current = false;
     autoStartSuppressedRef.current = false;
+    autoResumeSuppressedRef.current = false;
+    autoStartModeRef.current = null;
+    setAutoStartPromptMode('start');
     if (autoStartTimeoutRef.current) {
       clearTimeout(autoStartTimeoutRef.current);
       autoStartTimeoutRef.current = null;
@@ -99,39 +105,51 @@ const Timer = forwardRef(function Timer(props, ref) {
 
   function cancelAutoStartTracking() {
     autoStartActiveRef.current = false;
+    autoStartModeRef.current = null;
     if (autoStartTimeoutRef.current) {
       clearTimeout(autoStartTimeoutRef.current);
       autoStartTimeoutRef.current = null;
     }
   }
 
-  function showAutoStartPrompt() {
+  function showAutoStartPrompt(mode) {
     cancelAutoStartTracking();
     setIsPopoverOpen(false);
+    autoStartModeRef.current = mode;
+    setAutoStartPromptMode(mode);
     setIsAutoStartPopoverOpen(true);
   }
 
   function handleAutoStartConfirm() {
     setIsAutoStartPopoverOpen(false);
+    const mode = autoStartModeRef.current || autoStartPromptMode;
+    if (mode === 'resume') {
+      autoResumeSuppressedRef.current = false;
+      const baseTime = Number(accumulatedTimeRef.current) || 0;
+      handleSetTime(baseTime + AUTO_START_TIME_MS, { resume: true });
+      return;
+    }
     autoStartSuppressedRef.current = false;
     handleSetTime(AUTO_START_TIME_MS, { resume: true });
   }
 
   function handleAutoStartDismiss() {
     setIsAutoStartPopoverOpen(false);
+    const mode = autoStartModeRef.current || autoStartPromptMode;
+    if (mode === 'resume') {
+      autoResumeSuppressedRef.current = true;
+      const baseTime = Number(accumulatedTimeRef.current) || 0;
+      handleSetTime(baseTime, { resume: false });
+      return;
+    }
     autoStartSuppressedRef.current = true;
     handleSetTime(0, { resume: false });
   }
 
-  function handleTypingDetected() {
-    if (autoStartSuppressedRef.current || autoStartActiveRef.current || isAutoStartPopoverOpen) {
-      return;
-    }
-    if (isRunning || elapsedTime > 0) {
-      return;
-    }
-
+  function scheduleAutoStartPrompt(mode) {
     autoStartActiveRef.current = true;
+    autoStartModeRef.current = mode;
+    setAutoStartPromptMode(mode);
     if (autoStartTimeoutRef.current) {
       clearTimeout(autoStartTimeoutRef.current);
     }
@@ -140,8 +158,30 @@ const Timer = forwardRef(function Timer(props, ref) {
         return;
       }
       autoStartActiveRef.current = false;
-      showAutoStartPrompt();
+      showAutoStartPrompt(mode);
     }, AUTO_START_DELAY_MS);
+  }
+
+  function handleTypingDetected() {
+    if (autoStartActiveRef.current || isAutoStartPopoverOpen) {
+      return;
+    }
+    if (isRunning) {
+      return;
+    }
+
+    if (elapsedTime > 0) {
+      if (autoResumeSuppressedRef.current) {
+        return;
+      }
+      scheduleAutoStartPrompt('resume');
+      return;
+    }
+
+    if (autoStartSuppressedRef.current) {
+      return;
+    }
+    scheduleAutoStartPrompt('start');
   }
 
   function handleStartPause() {
@@ -152,6 +192,9 @@ const Timer = forwardRef(function Timer(props, ref) {
     }
     const newRunning = !isRunning;
     setIsRunning(newRunning);
+    if (newRunning) {
+      autoResumeSuppressedRef.current = false;
+    }
     // State change will be notified in useEffect, but also notify immediately for running state
     if (onStateChangeRef.current) {
       onStateChangeRef.current(elapsedTime, newRunning, accumulatedTimeRef.current);
@@ -161,6 +204,7 @@ const Timer = forwardRef(function Timer(props, ref) {
   function handleReset() {
     cancelAutoStartTracking();
     autoStartSuppressedRef.current = false;
+    autoResumeSuppressedRef.current = false;
     setIsAutoStartPopoverOpen(false);
     setIsRunning(false);
     setElapsedTime(0);
@@ -218,6 +262,7 @@ const Timer = forwardRef(function Timer(props, ref) {
     
     // If timer was running, restart it with new time
     if (shouldResume) {
+      autoResumeSuppressedRef.current = false;
       startTimeRef.current = Date.now() - newTime;
       setIsRunning(true);
     } else {
@@ -316,6 +361,7 @@ const Timer = forwardRef(function Timer(props, ref) {
         isOpen={isAutoStartPopoverOpen}
         onConfirm={handleAutoStartConfirm}
         onDismiss={handleAutoStartDismiss}
+        mode={autoStartPromptMode}
       />
     </div>
   );

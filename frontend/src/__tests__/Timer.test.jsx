@@ -69,4 +69,28 @@ describe('Timer', () => {
 
     expect(screen.getByText('01:00')).toBeInTheDocument();
   });
+
+  it('prompts to resume after typing when paused', () => {
+    const ref = createRef();
+    render(<Timer ref={ref} />);
+
+    fireEvent.click(screen.getByTitle('Start'));
+    act(() => {
+      vi.advanceTimersByTime(30000);
+    });
+    fireEvent.click(screen.getByTitle('Pause'));
+
+    act(() => {
+      ref.current.notifyTyping();
+      vi.advanceTimersByTime(60000);
+    });
+
+    expect(screen.getByText('auto-start')).toBeInTheDocument();
+
+    act(() => {
+      fireEvent.click(screen.getByText('confirm'));
+    });
+
+    expect(screen.getByText('01:30')).toBeInTheDocument();
+  });
 });
