@@ -1350,81 +1350,6 @@ export default function SubmissionsPage() {
             ) : null}
           </div>
         </section>
-        <section className="retention-metrics-panel">
-          <div className="retention-metrics-header">
-            <div>
-              <h2>Retention Metrics</h2>
-              <p>Raw scoring data used for review scheduling</p>
-              {retentionMetricsMetaLabel && (
-                <div className="retention-metrics-meta">{retentionMetricsMetaLabel}</div>
-              )}
-            </div>
-            <Button
-              className="btn btn--outline btn--xs retention-metrics-refresh"
-              type="button"
-              onClick={() => loadRetentionMetrics({ language: selectedLanguage, refresh: true })}
-              disabled={retentionMetricsLoading}
-            >
-              {retentionMetricsLoading ? 'Refreshing...' : 'Refresh'}
-            </Button>
-          </div>
-          <div className="retention-metrics-body">
-            {retentionMetricsLoading && (
-              <div className="retention-metrics-status">
-                <span className="spinner" aria-hidden="true" />
-                <span>Loading retention metrics...</span>
-              </div>
-            )}
-            {!retentionMetricsLoading && retentionMetricsError && (
-              <div className="retention-metrics-error">{retentionMetricsError}</div>
-            )}
-            {!retentionMetricsLoading && !retentionMetricsError && retentionMetricsRows.length === 0 && (
-              <div className="retention-metrics-status">No retention metrics available yet.</div>
-            )}
-            {!retentionMetricsLoading && !retentionMetricsError && retentionMetricsRows.length > 0 && (
-              <TableContainer className="retention-metrics-table-wrapper">
-                <Table className="retention-metrics-table" size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Challenge</TableCell>
-                      <TableCell>Difficulty</TableCell>
-                      <TableCell>Topics</TableCell>
-                      <TableCell>Submissions</TableCell>
-                      <TableCell>Last Submission</TableCell>
-                      <TableCell>Guidance</TableCell>
-                      <TableCell>Attempts</TableCell>
-                      <TableCell>Time</TableCell>
-                      <TableCell>Mastery</TableCell>
-                      <TableCell>Recency (days)</TableCell>
-                      <TableCell>Recency</TableCell>
-                      <TableCell>Weakness</TableCell>
-                      <TableCell>Priority</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {retentionMetricsRows.map((row) => (
-                      <TableRow key={row.key}>
-                        <TableCell>{row.title}</TableCell>
-                        <TableCell>{row.difficulty}</TableCell>
-                        <TableCell>{row.topics}</TableCell>
-                        <TableCell>{row.submissions}</TableCell>
-                        <TableCell>{formatDate(row.lastSubmission)}</TableCell>
-                        <TableCell>{row.guidanceScore}</TableCell>
-                        <TableCell>{row.attemptScore}</TableCell>
-                        <TableCell>{row.timeScore}</TableCell>
-                        <TableCell>{row.masteryScore}</TableCell>
-                        <TableCell>{row.recencyDays}</TableCell>
-                        <TableCell>{row.recencyScore}</TableCell>
-                        <TableCell>{row.weaknessScore}</TableCell>
-                        <TableCell>{row.priorityScore}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </div>
-        </section>
         <section className="topic-fitness-panel">
           <div className="topic-fitness-header">
             <div className="topic-fitness-header-main">
@@ -1722,6 +1647,81 @@ export default function SubmissionsPage() {
                   </div>
                 )}
               </div>
+            )}
+          </div>
+        </section>
+        <section className="retention-metrics-panel">
+          <div className="retention-metrics-header">
+            <div>
+              <h2>Retention Metrics</h2>
+              <p>Raw scoring data used for review scheduling</p>
+              {retentionMetricsMetaLabel && (
+                <div className="retention-metrics-meta">{retentionMetricsMetaLabel}</div>
+              )}
+            </div>
+            <Button
+              className="btn btn--outline btn--xs retention-metrics-refresh"
+              type="button"
+              onClick={() => loadRetentionMetrics({ language: selectedLanguage, refresh: true })}
+              disabled={retentionMetricsLoading}
+            >
+              {retentionMetricsLoading ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          </div>
+          <div className="retention-metrics-body">
+            {retentionMetricsLoading && (
+              <div className="retention-metrics-status">
+                <span className="spinner" aria-hidden="true" />
+                <span>Loading retention metrics...</span>
+              </div>
+            )}
+            {!retentionMetricsLoading && retentionMetricsError && (
+              <div className="retention-metrics-error">{retentionMetricsError}</div>
+            )}
+            {!retentionMetricsLoading && !retentionMetricsError && retentionMetricsRows.length === 0 && (
+              <div className="retention-metrics-status">No retention metrics available yet.</div>
+            )}
+            {!retentionMetricsLoading && !retentionMetricsError && retentionMetricsRows.length > 0 && (
+              <TableContainer className="retention-metrics-table-wrapper">
+                <Table className="retention-metrics-table" size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Challenge</TableCell>
+                      <TableCell>Difficulty</TableCell>
+                      <TableCell>Topics</TableCell>
+                      <TableCell>Submissions</TableCell>
+                      <TableCell>Last Submission</TableCell>
+                      <TableCell>Guidance</TableCell>
+                      <TableCell>Attempts</TableCell>
+                      <TableCell>Time</TableCell>
+                      <TableCell>Mastery</TableCell>
+                      <TableCell>Recency (days)</TableCell>
+                      <TableCell>Recency</TableCell>
+                      <TableCell>Weakness</TableCell>
+                      <TableCell>Priority</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {retentionMetricsRows.map((row) => (
+                      <TableRow key={row.key}>
+                        <TableCell>{row.title}</TableCell>
+                        <TableCell>{row.difficulty}</TableCell>
+                        <TableCell>{row.topics}</TableCell>
+                        <TableCell>{row.submissions}</TableCell>
+                        <TableCell>{formatDate(row.lastSubmission)}</TableCell>
+                        <TableCell>{row.guidanceScore}</TableCell>
+                        <TableCell>{row.attemptScore}</TableCell>
+                        <TableCell>{row.timeScore}</TableCell>
+                        <TableCell>{row.masteryScore}</TableCell>
+                        <TableCell>{row.recencyDays}</TableCell>
+                        <TableCell>{row.recencyScore}</TableCell>
+                        <TableCell>{row.weaknessScore}</TableCell>
+                        <TableCell>{row.priorityScore}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             )}
           </div>
         </section>
