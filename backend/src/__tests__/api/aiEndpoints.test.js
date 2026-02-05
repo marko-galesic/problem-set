@@ -111,6 +111,19 @@ describe('AI-assisted endpoints', () => {
   });
 
   test('selects a new challenge when mix EMA favors new', async () => {
+    mockCreate.mockResolvedValueOnce({
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              name: 'Valid Parentheses',
+              explanation: 'Stack practice in a weaker topic.'
+            })
+          }
+        }
+      ]
+    });
+
     insertChallenge({
       id: 'two_sum',
       name: 'Two Sum',
@@ -149,17 +162,137 @@ describe('AI-assisted endpoints', () => {
 
     const response = await client.post('/api/recommend-next-challenge', {
       submissions: [],
-      challenges: [
-        { id: 'two_sum', name: 'Two Sum', difficulty: 'easy', topics: ['arrays'] },
-        { id: 'valid_parentheses', name: 'Valid Parentheses', difficulty: 'easy', topics: ['stack'] }
-      ]
+      challenges: []
     });
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('name', 'Valid Parentheses');
     expect(response.body).toHaveProperty('mode', 'new');
+    expect(mockCreate).toHaveBeenCalledTimes(1);
     const updated = db.prepare('SELECT ema_seen_share FROM recommendation_mix_state WHERE language = ?').get('java');
     expect(updated.ema_seen_share).toBeCloseTo(0.72, 2);
+  });
+
+  test('retries when AI suggests a recent challenge', async () => {
+    mockCreate
+      .mockResolvedValueOnce({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                name: 'Two Sum',
+                explanation: 'Recent pick.'
+              })
+            }
+          }
+        ]
+      })
+      .mockResolvedValueOnce({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                name: 'Valid Parentheses',
+                explanation: 'Stack practice.'
+              })
+            }
+          }
+        ]
+      });
+
+    insertChallenge({
+      id: 'two_sum',
+      name: 'Two Sum',
+      folder: 'two_sum',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertChallenge({
+      id: 'valid_parentheses',
+      name: 'Valid Parentheses',
+      folder: 'valid_parentheses',
+      test_file: './testCases/validParenthesesTests.js',
+      adapter: 'standard:validParentheses:java',
+      difficulty: 'easy',
+      topics: ['stack']
+    });
+    insertSubmission({
+      id: 'sub-recent',
+      challenge_id: 'two_sum',
+      avg_time: 90,
+      timer_time: 1200,
+      date: new Date().toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
+    });
+
+    const db = getDatabase();
+    db.prepare(`
+      INSERT INTO recommendation_mix_state (language, ema_seen_share, updated_at)
+      VALUES (?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(language) DO UPDATE SET ema_seen_share = excluded.ema_seen_share
+    `).run('java', 0.9);
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: []
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('name', 'Valid Parentheses');
+    expect(response.body).toHaveProperty('mode', 'new');
+    expect(mockCreate).toHaveBeenCalledTimes(2);
+  });
+
+  test('errors after retry when AI response remains invalid', async () => {
+    mockCreate
+      .mockResolvedValueOnce({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({ name: '', explanation: '' })
+            }
+          }
+        ]
+      })
+      .mockResolvedValueOnce({
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({ name: '', explanation: '' })
+            }
+          }
+        ]
+      });
+
+    insertChallenge({
+      id: 'two_sum',
+      name: 'Two Sum',
+      folder: 'two_sum',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+
+    const db = getDatabase();
+    db.prepare(`
+      INSERT INTO recommendation_mix_state (language, ema_seen_share, updated_at)
+      VALUES (?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(language) DO UPDATE SET ema_seen_share = excluded.ema_seen_share
+    `).run('java', 0.9);
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: []
+    });
+
+    expect(response.status).toBe(502);
+    expect(response.body).toHaveProperty('error');
+    expect(mockCreate).toHaveBeenCalledTimes(2);
   });
 
   test('evaluates tech bar label asynchronously on submission', async () => {

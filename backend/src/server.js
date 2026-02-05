@@ -2983,12 +2983,8 @@ function getOpenAiClient() {
 const MIX_TARGET_SEEN_SHARE = 2 / 3;
 const MIX_EMA_ALPHA = 0.2;
 const RECOMMENDATION_TOPIC_WINDOW = 5;
-const DIFFICULTY_RANK = {
-  easy: 0,
-  medium: 1,
-  hard: 2
-};
-
+const RECOMMENDATION_RECENT_DAYS = 14;
+const RECOMMENDATION_MODEL = 'gpt-5';
 function normalizeDifficulty(value) {
   if (typeof value !== 'string') {
     return null;
@@ -3820,7 +3816,6 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       normalizedSubmissions.map((submission) => submission.challenge_id).filter(Boolean)
     );
     const seenChallenges = challengeCatalog.filter((challenge) => seenChallengeIds.has(challenge.id));
-    const newChallenges = challengeCatalog.filter((challenge) => !seenChallengeIds.has(challenge.id));
 
     const topicFitness = buildTopicFitnessWithTransfer(
       challengeCatalog,
@@ -3863,6 +3858,56 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       ? mixState.ema_seen_share
       : 0;
     let mode = currentSeenShare < MIX_TARGET_SEEN_SHARE ? 'seen' : 'new';
+
+    const challengeNameById = new Map(
+      challengeCatalog.map((challenge) => [challenge.id, challenge.name])
+    );
+    const catalogByName = new Map(
+      challengeCatalog.map((challenge) => [challenge.name.toLowerCase(), challenge])
+    );
+    const catalogById = new Map(
+      challengeCatalog.map((challenge) => [challenge.id.toLowerCase(), challenge])
+    );
+
+    const recentCutoffMs = Date.now() - RECOMMENDATION_RECENT_DAYS * 24 * 60 * 60 * 1000;
+    const recentSubmissions = normalizedSubmissions.filter((submission) => {
+      if (!submission || typeof submission !== 'object') {
+        return false;
+      }
+      if (normalizeLanguage(submission.language) !== normalizedLanguage) {
+        return false;
+      }
+      if (!submission.date) {
+        return true;
+      }
+      const submittedAt = Date.parse(submission.date);
+      if (Number.isNaN(submittedAt)) {
+        return true;
+      }
+      return submittedAt >= recentCutoffMs;
+    });
+
+    const recentSummary = recentSubmissions.map((submission) => {
+      const challengeId = submission.challenge_id;
+      const challengeName = challengeNameById.get(challengeId)
+        ?? submission.challengeName
+        ?? challengeId;
+      return {
+        challengeId,
+        challengeName,
+        date: submission.date ?? null
+      };
+    });
+
+    const recentLookup = new Set();
+    for (const entry of recentSummary) {
+      if (entry?.challengeId) {
+        recentLookup.add(String(entry.challengeId).trim().toLowerCase());
+      }
+      if (entry?.challengeName) {
+        recentLookup.add(String(entry.challengeName).trim().toLowerCase());
+      }
+    }
 
     const pickSeenChallenge = () => {
       if (seenChallenges.length === 0) {
@@ -3934,31 +3979,83 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       };
     };
 
-    const pickNewChallenge = () => {
-      if (newChallenges.length === 0) {
-        return null;
-      }
-      const weakestTopics = topicFitnessScores
-        .slice(0, RECOMMENDATION_TOPIC_WINDOW)
-        .map((entry) => entry.topic);
-      const weakestSet = new Set(weakestTopics);
-      let candidates = weakestTopics.length > 0
-        ? newChallenges.filter((challenge) => challenge.topics.some((topic) => weakestSet.has(topic)))
-        : newChallenges;
-
-      if (candidates.length === 0) {
-        candidates = newChallenges;
+    const pickNewChallengeWithAi = async () => {
+      const client = getOpenAiClient();
+      if (!client) {
+        const error = new Error('Missing OPENAI_API_KEY');
+        error.statusCode = 503;
+        throw error;
       }
 
-      const sortedCandidates = candidates
-        .map((challenge) => {
-          const topicScores = challenge.topics
-            .map((topic) => topicFitnessScoreMap.get(topic))
-            .filter((score) => Number.isFinite(score));
-          const weakestScore = topicScores.length > 0 ? Math.min(...topicScores) : 1;
-          const difficultyRank = DIFFICULTY_RANK[challenge.difficulty] ?? 3;
-          let weakestTopic = null;
-          for (const topic of challenge.topics) {
+      const systemPrompt = [
+        'You are a coach recommending the next LeetCode challenge.',
+        'Do not choose any challenge attempted in the last 14 days.',
+        'Use topic fitness; lower fitness = higher priority.',
+        'Prefer foundational topics and easier problems first.',
+        'Return only JSON with keys: name, explanation.'
+      ].join(' ');
+
+      const userPrompt = [
+        'Topic fitness (JSON):',
+        JSON.stringify(topicFitness),
+        'Recent submissions (last 14 days; do not recommend):',
+        JSON.stringify(recentSummary)
+      ].join('\n\n');
+
+      let lastError = 'Failed to generate recommendation';
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const retryNote = attempt > 0
+          ? 'Your previous response was invalid. Choose a different challenge name that follows the rules.'
+          : null;
+        const messages = retryNote
+          ? [
+            { role: 'system', content: systemPrompt },
+            { role: 'system', content: retryNote },
+            { role: 'user', content: userPrompt }
+          ]
+          : [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ];
+
+        const response = await client.chat.completions.create({
+          model: RECOMMENDATION_MODEL,
+          response_format: { type: 'json_object' },
+          messages
+        });
+
+        const content = response.choices?.[0]?.message?.content?.trim();
+        if (!content) {
+          lastError = 'OpenAI response missing content';
+          continue;
+        }
+
+        let parsed;
+        try {
+          parsed = JSON.parse(content);
+        } catch {
+          lastError = 'Failed to parse OpenAI JSON response';
+          continue;
+        }
+
+        const name = typeof parsed?.name === 'string' ? parsed.name.trim() : '';
+        const explanation = typeof parsed?.explanation === 'string' ? parsed.explanation.trim() : '';
+        if (!name || !explanation) {
+          lastError = 'OpenAI response missing required fields';
+          continue;
+        }
+
+        if (recentLookup.has(name.toLowerCase())) {
+          lastError = 'OpenAI response violates the 14-day rule';
+          continue;
+        }
+
+        const matched = catalogByName.get(name.toLowerCase())
+          ?? catalogById.get(name.toLowerCase())
+          ?? null;
+        let weakestTopic = null;
+        if (matched && Array.isArray(matched.topics)) {
+          for (const topic of matched.topics) {
             const score = topicFitnessScoreMap.get(topic);
             if (!Number.isFinite(score)) {
               continue;
@@ -3967,38 +4064,33 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
               weakestTopic = topic;
             }
           }
-          return {
-            challenge,
-            weakestScore,
-            weakestTopic,
-            difficultyRank
-          };
-        })
-        .sort((a, b) => {
-          if (a.weakestScore !== b.weakestScore) {
-            return a.weakestScore - b.weakestScore;
-          }
-          if (a.difficultyRank !== b.difficultyRank) {
-            return a.difficultyRank - b.difficultyRank;
-          }
-          return a.challenge.name.localeCompare(b.challenge.name);
-        });
+        }
 
-      const top = sortedCandidates[0];
-      if (!top) {
-        return null;
+        return {
+          name,
+          explanation,
+          challenge: matched,
+          topic: weakestTopic
+        };
       }
-      return {
-        challenge: top.challenge,
-        topic: top.weakestTopic,
-        fitness: Number.isFinite(top.weakestScore) ? top.weakestScore : null
-      };
+
+      const error = new Error(lastError);
+      error.statusCode = 502;
+      throw error;
     };
 
-    let selection = mode === 'seen' ? pickSeenChallenge() : pickNewChallenge();
-    if (!selection) {
-      mode = mode === 'seen' ? 'new' : 'seen';
-      selection = mode === 'seen' ? pickSeenChallenge() : pickNewChallenge();
+    let selection;
+    try {
+      selection = mode === 'seen' ? pickSeenChallenge() : await pickNewChallengeWithAi();
+      if (!selection) {
+        mode = mode === 'seen' ? 'new' : 'seen';
+        selection = mode === 'seen' ? pickSeenChallenge() : await pickNewChallengeWithAi();
+      }
+    } catch (error) {
+      if (error?.statusCode) {
+        return res.status(error.statusCode).json({ error: error.message || 'Failed to recommend challenge' });
+      }
+      throw error;
     }
 
     if (!selection) {
@@ -4017,7 +4109,6 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       console.warn('Failed to update recommendation mix state:', dbError.message);
     }
 
-    const difficulty = selection.challenge.difficulty ?? 'easy';
     let explanation = '';
     if (mode === 'seen') {
       const daysAgo = Number.isFinite(selection.metrics?.recency_days)
@@ -4044,22 +4135,13 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       }
       explanation = parts.join(' ');
     } else {
-      const fitness = Number.isFinite(selection.fitness)
-        ? selection.fitness.toFixed(2)
-        : null;
-      const topicText = selection.topic ? `topic "${selection.topic}"` : 'a weaker topic';
-      const parts = [
-        `New pick from ${topicText}.`
-      ];
-      if (fitness) {
-        parts.push(`Topic fitness ${fitness}.`);
-      }
-      parts.push('You have not attempted this challenge yet.');
-      explanation = parts.join(' ');
+      explanation = selection.explanation ?? '';
     }
 
+    const difficulty = selection.challenge?.difficulty ?? null;
+
     return res.json({
-      name: selection.challenge.name,
+      name: mode === 'new' ? selection.name : selection.challenge.name,
       difficulty,
       explanation,
       mode,
