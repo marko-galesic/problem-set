@@ -44,6 +44,7 @@ export function initDatabase() {
   ensureSubmissionsGuidanceColumn(db);
   ensureSubmissionsLanguageColumn(db);
   ensureFitnessHistoryLanguageColumn(db);
+  ensureNextChallengeRecommendationColumns(db);
 
   return db;
 }
@@ -230,6 +231,10 @@ function createSchema(database) {
       difficulty TEXT NOT NULL,
       explanation TEXT NOT NULL,
       model TEXT NOT NULL,
+      mode TEXT,
+      topic TEXT,
+      ema_seen_share REAL,
+      target_seen_share REAL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
@@ -450,6 +455,27 @@ function ensureFitnessHistoryLanguageColumn(database) {
 
   transaction();
   database.exec('PRAGMA foreign_keys = ON');
+}
+
+function ensureNextChallengeRecommendationColumns(database) {
+  const columns = database.prepare('PRAGMA table_info(next_challenge_recommendations)').all();
+  const hasMode = columns.some(column => column.name === 'mode');
+  const hasTopic = columns.some(column => column.name === 'topic');
+  const hasEmaSeenShare = columns.some(column => column.name === 'ema_seen_share');
+  const hasTargetSeenShare = columns.some(column => column.name === 'target_seen_share');
+
+  if (!hasMode) {
+    database.exec('ALTER TABLE next_challenge_recommendations ADD COLUMN mode TEXT');
+  }
+  if (!hasTopic) {
+    database.exec('ALTER TABLE next_challenge_recommendations ADD COLUMN topic TEXT');
+  }
+  if (!hasEmaSeenShare) {
+    database.exec('ALTER TABLE next_challenge_recommendations ADD COLUMN ema_seen_share REAL');
+  }
+  if (!hasTargetSeenShare) {
+    database.exec('ALTER TABLE next_challenge_recommendations ADD COLUMN target_seen_share REAL');
+  }
 }
 
 

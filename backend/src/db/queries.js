@@ -815,6 +815,10 @@ export function getNextChallengeRecommendation(historyHash) {
       difficulty,
       explanation,
       model,
+      mode,
+      topic,
+      ema_seen_share,
+      target_seen_share,
       created_at,
       updated_at
     FROM next_challenge_recommendations
@@ -832,15 +836,23 @@ export function upsertNextChallengeRecommendation(recommendation) {
       difficulty,
       explanation,
       model,
+      mode,
+      topic,
+      ema_seen_share,
+      target_seen_share,
       created_at,
       updated_at
     )
-    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     ON CONFLICT(history_hash) DO UPDATE SET
       name = excluded.name,
       difficulty = excluded.difficulty,
       explanation = excluded.explanation,
       model = excluded.model,
+      mode = excluded.mode,
+      topic = excluded.topic,
+      ema_seen_share = excluded.ema_seen_share,
+      target_seen_share = excluded.target_seen_share,
       updated_at = CURRENT_TIMESTAMP
   `);
   return stmt.run(
@@ -848,7 +860,11 @@ export function upsertNextChallengeRecommendation(recommendation) {
     recommendation.name,
     recommendation.difficulty,
     recommendation.explanation,
-    recommendation.model
+    recommendation.model,
+    recommendation.mode ?? null,
+    recommendation.topic ?? null,
+    recommendation.ema_seen_share ?? null,
+    recommendation.target_seen_share ?? null
   );
 }
 

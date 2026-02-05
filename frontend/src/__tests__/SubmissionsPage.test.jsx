@@ -15,8 +15,7 @@ vi.mock('../components/TopicFitnessCriteriaPopover', () => ({
 
 vi.mock('../utils/storage', () => ({
   getLanguagePreference: vi.fn(async () => 'java'),
-  saveLanguagePreference: vi.fn(async () => 'python'),
-  saveNextChallengeRecommendation: vi.fn()
+  saveLanguagePreference: vi.fn(async () => 'python')
 }));
 
 function createFetchMock() {

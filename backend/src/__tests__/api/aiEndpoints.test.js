@@ -1,7 +1,13 @@
 import { describe, test, expect, beforeAll, beforeEach, afterAll, jest } from '@jest/globals';
 import { createAppTestClient } from '../utils/appTestClient.js';
 import { getDatabase } from '../../db/database.js';
-import { getSubmissionById, insertChallenge, insertSubmission } from '../../db/queries.js';
+import {
+  getSubmissionById,
+  insertChallenge,
+  insertSubmission,
+  upsertNextChallengeRecommendation
+} from '../../db/queries.js';
+import { buildRecommendationHistoryHash } from '../../utils/recommendationCache.js';
 
 const mockCreate = jest.fn();
 
@@ -118,6 +124,97 @@ describe('AI-assisted endpoints', () => {
     expect(response.body).toHaveProperty('difficulty', 'easy');
     expect(response.body).toHaveProperty('explanation');
     expect(response.body).toHaveProperty('mode', 'seen');
+  });
+
+  test('returns cached recommendation when submission count matches', async () => {
+    insertSubmission({
+      id: 'sub-cached',
+      challenge_id: 'two_sum',
+      avg_time: 120,
+      timer_time: 900,
+      date: new Date('2024-01-02T00:00:00Z').toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
+    });
+
+    const historyHash = buildRecommendationHistoryHash('java', 1);
+    upsertNextChallengeRecommendation({
+      history_hash: historyHash,
+      name: 'Cached Pick',
+      difficulty: 'easy',
+      explanation: 'Cached explanation.',
+      model: 'retention',
+      mode: 'seen',
+      topic: 'arrays',
+      ema_seen_share: 0.4,
+      target_seen_share: 0.5
+    });
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: [
+        { id: 'two_sum', name: 'Two Sum', difficulty: 'easy', topics: ['arrays'] }
+      ]
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      name: 'Cached Pick',
+      difficulty: 'easy',
+      explanation: 'Cached explanation.',
+      mode: 'seen',
+      topic: 'arrays',
+      emaSeenShare: 0.4,
+      targetSeenShare: 0.5
+    });
+  });
+
+  test('invalidates cached recommendation when submission count changes', async () => {
+    insertSubmission({
+      id: 'sub-cached-1',
+      challenge_id: 'two_sum',
+      avg_time: 100,
+      timer_time: 800,
+      date: new Date('2024-01-03T00:00:00Z').toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
+    });
+
+    const historyHash = buildRecommendationHistoryHash('java', 1);
+    upsertNextChallengeRecommendation({
+      history_hash: historyHash,
+      name: 'Cached Pick',
+      difficulty: 'easy',
+      explanation: 'Cached explanation.',
+      model: 'retention',
+      mode: 'seen',
+      topic: 'arrays',
+      ema_seen_share: 0.4,
+      target_seen_share: 0.5
+    });
+
+    insertSubmission({
+      id: 'sub-cached-2',
+      challenge_id: 'two_sum',
+      avg_time: 110,
+      timer_time: 850,
+      date: new Date('2024-01-04T00:00:00Z').toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
+    });
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: [
+        { id: 'two_sum', name: 'Two Sum', difficulty: 'easy', topics: ['arrays'] }
+      ]
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.name).toBe('Two Sum');
   });
 
   test('retention prefers eligible seen challenges within the topic', async () => {

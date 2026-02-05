@@ -49,7 +49,9 @@ import {
   insertFitnessSnapshot,
   getFitnessHistory,
   getRetentionMetrics,
+  getNextChallengeRecommendation as getNextChallengeRecommendationFromDb,
   getRecommendationMixState as getRecommendationMixStateFromDb,
+  upsertNextChallengeRecommendation as upsertNextChallengeRecommendationToDb,
   upsertRecommendationMixState as upsertRecommendationMixStateToDb
 } from './db/queries.js';
 import {
@@ -57,6 +59,7 @@ import {
   getChallengeTestCasesWithFallback,
   loadTestCasesFromFile
 } from './db/challengeContent.js';
+import { buildRecommendationHistoryHash } from './utils/recommendationCache.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -3821,6 +3824,26 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       return res.status(404).json({ error: 'No challenges available for recommendation' });
     }
 
+    const submissionCount = dbSubmissions.length > 0
+      ? getSubmissionsCount({ language: normalizedLanguage })
+      : normalizedSubmissions.filter((submission) => submission.language === normalizedLanguage).length;
+    const historyHash = buildRecommendationHistoryHash(normalizedLanguage, submissionCount);
+    const cached = getNextChallengeRecommendationFromDb(historyHash);
+    if (cached && cached.name && cached.explanation) {
+      const cachedDifficulty = typeof cached.difficulty === 'string' && cached.difficulty !== 'unknown'
+        ? cached.difficulty
+        : null;
+      return res.json({
+        name: cached.name,
+        difficulty: cachedDifficulty,
+        explanation: cached.explanation,
+        mode: cached.mode ?? null,
+        topic: cached.topic ?? null,
+        emaSeenShare: Number.isFinite(cached.ema_seen_share) ? cached.ema_seen_share : null,
+        targetSeenShare: Number.isFinite(cached.target_seen_share) ? cached.target_seen_share : null
+      });
+    }
+
     const seenChallengeIds = new Set(
       normalizedSubmissions.map((submission) => submission.challenge_id).filter(Boolean)
     );
@@ -4244,16 +4267,35 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
     }
 
     const difficulty = selection.challenge?.difficulty ?? null;
-
-    return res.json({
-      name: mode === 'new' ? selection.name : selection.challenge.name,
+    const recommendedName = mode === 'new' ? selection.name : selection.challenge.name;
+    const responsePayload = {
+      name: recommendedName,
       difficulty,
       explanation,
       mode,
       topic: selection.topic ?? null,
       emaSeenShare: updatedSeenShare,
       targetSeenShare: MIX_TARGET_SEEN_SHARE
-    });
+    };
+
+    try {
+      const modelName = mode === 'new' ? RECOMMENDATION_MODEL : 'retention';
+      upsertNextChallengeRecommendationToDb({
+        history_hash: historyHash,
+        name: recommendedName,
+        difficulty: typeof difficulty === 'string' && difficulty ? difficulty : 'unknown',
+        explanation,
+        model: modelName,
+        mode,
+        topic: selection.topic ?? null,
+        ema_seen_share: updatedSeenShare,
+        target_seen_share: MIX_TARGET_SEEN_SHARE
+      });
+    } catch (dbError) {
+      console.warn('Failed to update recommendation cache:', dbError.message);
+    }
+
+    return res.json(responsePayload);
   } catch (error) {
     console.error('Recommend next challenge error:', error);
     return res.status(500).json({ error: error.message || 'Failed to recommend challenge' });

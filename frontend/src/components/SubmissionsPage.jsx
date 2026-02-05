@@ -14,7 +14,7 @@ import {
 import RecommendationPromptPopover from './RecommendationPromptPopover';
 import LanguageSwitchPopover from './LanguageSwitchPopover';
 import TopicFitnessCriteriaPopover from './TopicFitnessCriteriaPopover';
-import { getLanguagePreference, saveLanguagePreference, saveNextChallengeRecommendation } from '../utils/storage';
+import { getLanguagePreference, saveLanguagePreference } from '../utils/storage';
 import {
   buildGraphLayout,
   buildGraphEdgePath,
@@ -1266,17 +1266,10 @@ export default function SubmissionsPage() {
           const language = LANGUAGE_OPTIONS[index]?.id;
           if (!language) return;
           if (result.status === 'fulfilled') {
-            const { payload, empty, submissionCount } = result.value;
+            const { payload, empty } = result.value;
             nextRecommendation[language] = payload;
             if (empty) {
               nextRecommendationEmpty[language] = true;
-            } else {
-              const matched = findChallengeByName(payload?.name, challengeMetadata);
-              saveNextChallengeRecommendation(language, {
-                ...payload,
-                challengeId: matched ? matched.id : null,
-                submissionCount
-              });
             }
           } else {
             nextRecommendationError[language] = result.reason?.message || 'Failed to load recommendation.';
