@@ -235,6 +235,15 @@ function createSchema(database) {
     )
   `);
 
+  // Recommendation mix state (seen vs new)
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS recommendation_mix_state (
+      language TEXT PRIMARY KEY,
+      ema_seen_share REAL NOT NULL DEFAULT 0,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Create indexes for better query performance
   database.exec(`
     CREATE INDEX IF NOT EXISTS idx_submissions_challenge_date 

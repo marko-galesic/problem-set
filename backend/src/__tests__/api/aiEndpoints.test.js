@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll, beforeEach, afterAll, jest } from '@jest/globals';
 import { createAppTestClient } from '../utils/appTestClient.js';
 import { getDatabase } from '../../db/database.js';
-import { getSubmissionById } from '../../db/queries.js';
+import { getSubmissionById, insertChallenge, insertSubmission } from '../../db/queries.js';
 
 const mockCreate = jest.fn();
 
@@ -51,6 +51,8 @@ describe('AI-assisted endpoints', () => {
     mockCreate.mockReset();
     const db = getDatabase();
     db.prepare('DELETE FROM next_challenge_recommendations').run();
+    db.prepare('DELETE FROM recommendation_mix_state').run();
+    db.prepare('DELETE FROM submissions').run();
   });
 
   afterAll(() => {
@@ -73,101 +75,91 @@ describe('AI-assisted endpoints', () => {
     expect(response.body).toHaveProperty('error');
   });
 
-  test('recommends next challenge with formatted submissions', async () => {
-    mockCreate.mockResolvedValueOnce({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              name: 'Two Sum',
-              difficulty: 'easy',
-              explanation: 'Solid foundation for hash map practice.'
-            })
-          }
-        }
-      ]
+  test('recommends next challenge based on retention signals', async () => {
+    insertChallenge({
+      id: 'two_sum',
+      name: 'Two Sum',
+      folder: 'two_sum',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertSubmission({
+      id: 'sub-1',
+      challenge_id: 'two_sum',
+      avg_time: 90,
+      timer_time: 1200,
+      date: new Date('2024-01-01T00:00:00Z').toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
     });
 
     const response = await client.post('/api/recommend-next-challenge', {
-      submissions: [
-        {
-          id: 'sub-1',
-          challenge: 'two_sum',
-          timerTime: -5,
-          date: 'invalid-date',
-          solution: 'ignored',
-          techBarStatus: 'pending',
-          techBarLabel: 'label'
-        }
-      ],
-      challenges: []
+      submissions: [],
+      challenges: [
+        { id: 'two_sum', name: 'Two Sum', difficulty: 'easy', topics: ['arrays'] }
+      ]
     });
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty('name', 'Two Sum');
     expect(response.body).toHaveProperty('difficulty', 'easy');
     expect(response.body).toHaveProperty('explanation');
-    expect(response.body).toHaveProperty('systemPrompt');
-    expect(response.body).toHaveProperty('userPrompt');
+    expect(response.body).toHaveProperty('mode', 'seen');
   });
 
-  test('uses cached recommendation when submission count is unchanged', async () => {
-    mockCreate.mockResolvedValueOnce({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              name: 'Two Sum',
-              difficulty: 'easy',
-              explanation: 'Solid foundation for hash map practice.'
-            })
-          }
-        }
+  test('selects a new challenge when mix EMA favors new', async () => {
+    insertChallenge({
+      id: 'two_sum',
+      name: 'Two Sum',
+      folder: 'two_sum',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertChallenge({
+      id: 'valid_parentheses',
+      name: 'Valid Parentheses',
+      folder: 'valid_parentheses',
+      test_file: './testCases/validParenthesesTests.js',
+      adapter: 'standard:validParentheses:java',
+      difficulty: 'easy',
+      topics: ['stack']
+    });
+    insertSubmission({
+      id: 'sub-2',
+      challenge_id: 'two_sum',
+      avg_time: 90,
+      timer_time: 1200,
+      date: new Date('2024-01-01T00:00:00Z').toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
+    });
+
+    const db = getDatabase();
+    db.prepare(`
+      INSERT INTO recommendation_mix_state (language, ema_seen_share, updated_at)
+      VALUES (?, ?, CURRENT_TIMESTAMP)
+      ON CONFLICT(language) DO UPDATE SET ema_seen_share = excluded.ema_seen_share
+    `).run('java', 0.9);
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: [
+        { id: 'two_sum', name: 'Two Sum', difficulty: 'easy', topics: ['arrays'] },
+        { id: 'valid_parentheses', name: 'Valid Parentheses', difficulty: 'easy', topics: ['stack'] }
       ]
     });
 
-    const payload = {
-      submissions: [
-        {
-          id: 'sub-1',
-          challenge: 'two_sum',
-          timerTime: -5,
-          date: 'invalid-date',
-          solution: 'ignored',
-          techBarStatus: 'pending',
-          techBarLabel: 'label'
-        }
-      ],
-      challenges: []
-    };
-
-    const firstResponse = await client.post('/api/recommend-next-challenge', payload);
-    expect(firstResponse.status).toBe(200);
-    expect(firstResponse.body).toHaveProperty('name', 'Two Sum');
-    expect(mockCreate).toHaveBeenCalledTimes(1);
-
-    mockCreate.mockImplementation(() => {
-      throw new Error('AI should not be called for cached recommendation');
-    });
-
-    const secondResponse = await client.post('/api/recommend-next-challenge', {
-      submissions: [
-        {
-          id: 'sub-2',
-          challenge: 'valid_parentheses',
-          timerTime: 1200,
-          date: new Date().toISOString(),
-          solution: 'ignored',
-          techBarStatus: 'pending',
-          techBarLabel: 'label'
-        }
-      ],
-      challenges: []
-    });
-    expect(secondResponse.status).toBe(200);
-    expect(secondResponse.body).toHaveProperty('name', 'Two Sum');
-    expect(secondResponse.body).toHaveProperty('difficulty', 'easy');
-    expect(mockCreate).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('name', 'Valid Parentheses');
+    expect(response.body).toHaveProperty('mode', 'new');
+    const updated = db.prepare('SELECT ema_seen_share FROM recommendation_mix_state WHERE language = ?').get('java');
+    expect(updated.ema_seen_share).toBeCloseTo(0.72, 2);
   });
 
   test('evaluates tech bar label asynchronously on submission', async () => {

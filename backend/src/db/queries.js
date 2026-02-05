@@ -822,3 +822,29 @@ export function upsertNextChallengeRecommendation(recommendation) {
     recommendation.model
   );
 }
+
+/**
+ * Recommendation mix state queries
+ */
+
+export function getRecommendationMixState(language) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    SELECT language, ema_seen_share, updated_at
+    FROM recommendation_mix_state
+    WHERE language = ?
+  `);
+  return stmt.get(language);
+}
+
+export function upsertRecommendationMixState({ language, ema_seen_share }) {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    INSERT INTO recommendation_mix_state (language, ema_seen_share, updated_at)
+    VALUES (?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(language) DO UPDATE SET
+      ema_seen_share = excluded.ema_seen_share,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+  return stmt.run(language, ema_seen_share);
+}

@@ -13,7 +13,12 @@ import { executeTypeScriptCode } from './executors/typescriptExecutor.js';
 import { loadAdapter } from './adapters/index.js';
 import { standardAdapterDefinitions } from './adapters/standardAdapterDefinitions.js';
 import { initDatabase } from './db/database.js';
-import { getTopicRetentionMetrics, refreshRetentionMetrics } from './db/retentionMetrics.js';
+import {
+  computeRetentionMetricsData,
+  computeTopicRetentionMetricsData,
+  getTopicRetentionMetrics,
+  refreshRetentionMetrics
+} from './db/retentionMetrics.js';
 import {
   getChallengeById,
   getAllChallenges,
@@ -42,8 +47,8 @@ import {
   insertFitnessSnapshot,
   getFitnessHistory,
   getRetentionMetrics,
-  getNextChallengeRecommendation as getNextChallengeRecommendationFromDb,
-  upsertNextChallengeRecommendation as upsertNextChallengeRecommendationToDb
+  getRecommendationMixState as getRecommendationMixStateFromDb,
+  upsertRecommendationMixState as upsertRecommendationMixStateToDb
 } from './db/queries.js';
 import {
   getChallengeAssetContent,
@@ -2975,8 +2980,225 @@ function getOpenAiClient() {
   return new OpenAI({ apiKey });
 }
 
-function buildRecommendationCacheKey({ submissionsCount }) {
-  return String(Number.isFinite(submissionsCount) ? submissionsCount : 0);
+const MIX_TARGET_SEEN_SHARE = 2 / 3;
+const MIX_EMA_ALPHA = 0.2;
+const RECOMMENDATION_TOPIC_WINDOW = 5;
+const DIFFICULTY_RANK = {
+  easy: 0,
+  medium: 1,
+  hard: 2
+};
+
+function normalizeDifficulty(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'easy' || normalized === 'medium' || normalized === 'hard') {
+    return normalized;
+  }
+  return null;
+}
+
+function parseTopicsValue(rawTopics) {
+  if (!rawTopics) {
+    return [];
+  }
+  if (Array.isArray(rawTopics)) {
+    return rawTopics
+      .map((topic) => (typeof topic === 'string' ? topic.trim() : ''))
+      .filter((topic) => topic.length > 0);
+  }
+  if (typeof rawTopics !== 'string') {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(rawTopics);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .map((topic) => (typeof topic === 'string' ? topic.trim() : ''))
+      .filter((topic) => topic.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+function normalizeChallengeInput(challenge) {
+  if (!challenge || typeof challenge !== 'object') {
+    return null;
+  }
+  const id = typeof challenge.id === 'string'
+    ? challenge.id.trim()
+    : typeof challenge.challengeId === 'string'
+      ? challenge.challengeId.trim()
+      : '';
+  if (!id) {
+    return null;
+  }
+  const name = typeof challenge.name === 'string' && challenge.name.trim()
+    ? challenge.name.trim()
+    : id;
+  const difficulty = normalizeDifficulty(challenge.difficulty);
+  const topics = parseTopicsValue(challenge.topics);
+  return { id, name, difficulty, topics };
+}
+
+function normalizeSubmissionInput(submission) {
+  if (!submission || typeof submission !== 'object') {
+    return null;
+  }
+  const challengeId = typeof submission.challenge_id === 'string'
+    ? submission.challenge_id.trim()
+    : typeof submission.challenge === 'string'
+      ? submission.challenge.trim()
+      : typeof submission.challengeId === 'string'
+        ? submission.challengeId.trim()
+        : '';
+  if (!challengeId) {
+    return null;
+  }
+  const language = typeof submission.language === 'string' ? normalizeLanguage(submission.language) : 'java';
+  const guidanceLevel = typeof submission.guidance_level === 'string'
+    ? submission.guidance_level
+    : typeof submission.guidanceLevel === 'string'
+      ? submission.guidanceLevel
+      : 'Independent';
+
+  return {
+    id: submission.id,
+    challenge_id: challengeId,
+    challenge: submission.challenge ?? challengeId,
+    challengeId: submission.challengeId ?? challengeId,
+    challengeName: submission.challengeName,
+    avg_time: submission.avg_time ?? submission.avgTime,
+    timer_time: submission.timer_time ?? submission.timerTime,
+    date: submission.date,
+    submit_attempts: submission.submit_attempts ?? submission.submitAttempts,
+    guidance_level: guidanceLevel,
+    language
+  };
+}
+
+function normalizeSubmissionsList(submissions) {
+  return (submissions || [])
+    .map(normalizeSubmissionInput)
+    .filter(Boolean);
+}
+
+function inferLanguage(submissions, fallback) {
+  if (typeof fallback === 'string' && fallback.trim()) {
+    return normalizeLanguage(fallback);
+  }
+  const found = (submissions || []).find(
+    (submission) => submission && typeof submission.language === 'string' && submission.language.trim()
+  );
+  if (found) {
+    return normalizeLanguage(found.language);
+  }
+  return 'java';
+}
+
+function buildChallengeCatalog({ requestChallenges, submissions }) {
+  const baseChallenges = Array.isArray(requestChallenges) && requestChallenges.length > 0
+    ? requestChallenges
+    : getAllChallenges();
+  let normalized = (baseChallenges || [])
+    .map(normalizeChallengeInput)
+    .filter(Boolean);
+
+  if (normalized.length === 0 && Array.isArray(submissions)) {
+    const byId = new Map();
+    for (const submission of submissions) {
+      if (!submission || typeof submission !== 'object') {
+        continue;
+      }
+      const challengeId = submission.challenge_id || submission.challenge || submission.challengeId;
+      if (!challengeId || byId.has(challengeId)) {
+        continue;
+      }
+      const name = typeof submission.challengeName === 'string' && submission.challengeName.trim()
+        ? submission.challengeName.trim()
+        : challengeId;
+      byId.set(challengeId, {
+        id: challengeId,
+        name,
+        difficulty: null,
+        topics: []
+      });
+    }
+    normalized = Array.from(byId.values());
+  }
+
+  return normalized;
+}
+
+function buildFitnessEntriesFromTopicFitness(topicFitness) {
+  const entries = [];
+  for (const entry of topicFitness || []) {
+    if (!entry || typeof entry !== 'object') {
+      continue;
+    }
+    const topic = typeof entry.topic === 'string' ? entry.topic.trim() : '';
+    if (!topic) {
+      continue;
+    }
+    for (const difficulty of ['easy', 'medium', 'hard']) {
+      const fitnessValue = Number(entry?.[difficulty]?.fitness);
+      entries.push({
+        topic,
+        difficulty,
+        fitness: Number.isFinite(fitnessValue) ? fitnessValue : 0
+      });
+    }
+  }
+  return entries;
+}
+
+function computeTopicFitnessScore(entry) {
+  if (!entry || typeof entry !== 'object') {
+    return 0;
+  }
+  const values = ['easy', 'medium', 'hard'].map((difficulty) => {
+    const fitness = Number(entry?.[difficulty]?.fitness);
+    return Number.isFinite(fitness) ? fitness : 0;
+  });
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function normalizeValues(values) {
+  const numericValues = values.filter((value) => Number.isFinite(value));
+  if (numericValues.length === 0) {
+    return values.map(() => 0);
+  }
+  const min = Math.min(...numericValues);
+  const max = Math.max(...numericValues);
+  const range = max - min;
+  if (range === 0) {
+    return values.map((value) => (Number.isFinite(value) ? 0.5 : 0));
+  }
+  return values.map((value) => (Number.isFinite(value) ? (value - min) / range : 0));
+}
+
+function buildTopicPriorityMap(topicRetentionMetrics) {
+  const map = new Map();
+  for (const metric of topicRetentionMetrics || []) {
+    if (!metric || typeof metric !== 'object') {
+      continue;
+    }
+    const topic = typeof metric.topic === 'string' ? metric.topic.trim() : '';
+    if (!topic) {
+      continue;
+    }
+    const priorityValue = Number(metric.priority_score);
+    const priority = Number.isFinite(priorityValue) ? priorityValue : 0;
+    const existing = map.get(topic);
+    if (!Number.isFinite(existing) || priority > existing) {
+      map.set(topic, priority);
+    }
+  }
+  return map;
 }
 
 // Health check
@@ -3574,189 +3796,276 @@ app.get('/api/submissions', async (req, res) => {
 // Recommend next challenge based on submission history
 app.post('/api/recommend-next-challenge', async (req, res) => {
   try {
-    const { submissions, challenges } = req.body || {};
+    const { submissions, challenges, language } = req.body || {};
 
     if (!Array.isArray(submissions)) {
       return res.status(400).json({ error: 'submissions must be an array' });
     }
 
-    const model = 'gpt-5';
-    const systemPrompt = [
-      'You are a coach recommending the next LeetCode challenge.',
-      'Use the submission history to pick a helpful next problem.',
-      'Hard constraint: avoid recommending any challenge attempted in the last 14 days; treat missing or invalid submission dates as recent.',
-      'If every known challenge falls within that 14-day window, recommend the least-recently submitted challenge and say it is a fallback due to coverage.',
-      'Guidance labels: Independent = no help, Minor = small hints, Guided = significant AI guidance.',
-      'Weigh Independent and Minor submissions more than Guided when recommending.',
-      'Topic fitness is a 0-1 score per topic and difficulty (easy, medium, hard) with fields: fitness, submissionCount, lastSubmission.',
-      'Prioritize lower-fitness difficulties; if easy is strong but medium/hard are weak, ramp difficulty gradually.',
-      'Use your judgment to decide which techniques are basic vs advanced for this user.',
-      'Ensure basic techniques reach at least 0.75 fitness before adding or mixing in other topics.',
-      'Return only JSON with keys: name, difficulty, explanation.',
-      'The explanation should be a single string combining justification and rationale.'
-    ].join(' ');
-
-    const topicFitness = buildTopicFitness(
-      getAllChallenges(),
-      getAllSubmissions()
-    );
-
-    const cutoffMs = Date.now() - 14 * 24 * 60 * 60 * 1000;
-
-    function isRecentSubmission(submission) {
-      if (!submission || typeof submission !== 'object') {
-        return false;
-      }
-      if (!submission.date) {
-        return true;
-      }
-      const submittedAt = Date.parse(submission.date);
-      if (Number.isNaN(submittedAt)) {
-        return true;
-      }
-      return submittedAt >= cutoffMs;
-    }
-
-    function formatTimerTime(ms) {
-      if (ms === null || ms === undefined) {
-        return null;
-      }
-      const numeric = Number(ms);
-      if (!Number.isFinite(numeric)) {
-        return null;
-      }
-      if (numeric < 0) {
-        return 'Untracked';
-      }
-      const totalSeconds = Math.floor(numeric / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
-
-    const sanitizedSubmissions = submissions
-      .filter(isRecentSubmission)
-      .map((submission) => {
-      if (!submission || typeof submission !== 'object') {
-        return submission;
-      }
-      const {
-        solution,
-        id,
-        techBarStatus,
-        techBarLabel,
-        ...rest
-      } = submission;
-      const formattedTimerTime = formatTimerTime(rest.timerTime);
-      const sanitized = { ...rest };
-      if (formattedTimerTime !== null) {
-        sanitized.timerTime = formattedTimerTime;
-      } else {
-        delete sanitized.timerTime;
-      }
-      return sanitized;
+    const dbSubmissions = getAllSubmissions();
+    const normalizedSubmissions = dbSubmissions.length > 0
+      ? normalizeSubmissionsList(dbSubmissions)
+      : normalizeSubmissionsList(submissions);
+    const normalizedLanguage = inferLanguage(normalizedSubmissions, language);
+    const challengeCatalog = buildChallengeCatalog({
+      requestChallenges: Array.isArray(challenges) ? challenges : [],
+      submissions: normalizedSubmissions
     });
 
-    const recentChallenges = Array.from(
-      new Map(
-        sanitizedSubmissions
-          .filter((submission) => submission && typeof submission === 'object')
-          .map((submission) => {
-            const challengeId = typeof submission.challenge === 'string' ? submission.challenge.trim() : '';
-            const challengeName = typeof submission.challengeName === 'string' ? submission.challengeName.trim() : '';
-            if (!challengeId && !challengeName) {
-              return null;
+    if (challengeCatalog.length === 0) {
+      return res.status(404).json({ error: 'No challenges available for recommendation' });
+    }
+
+    const seenChallengeIds = new Set(
+      normalizedSubmissions.map((submission) => submission.challenge_id).filter(Boolean)
+    );
+    const seenChallenges = challengeCatalog.filter((challenge) => seenChallengeIds.has(challenge.id));
+    const newChallenges = challengeCatalog.filter((challenge) => !seenChallengeIds.has(challenge.id));
+
+    const topicFitness = buildTopicFitnessWithTransfer(
+      challengeCatalog,
+      normalizedSubmissions,
+      normalizedLanguage
+    );
+    const fitnessEntries = buildFitnessEntriesFromTopicFitness(topicFitness);
+
+    const topicRetentionMetrics = computeTopicRetentionMetricsData({
+      challenges: challengeCatalog,
+      submissions: normalizedSubmissions,
+      fitnessEntries,
+      language: normalizedLanguage
+    });
+    const retentionMetrics = computeRetentionMetricsData({
+      challenges: challengeCatalog,
+      submissions: normalizedSubmissions,
+      fitnessEntries,
+      language: normalizedLanguage
+    });
+    const retentionMetricsMap = new Map(
+      retentionMetrics.map((metric) => [metric.challenge_id, metric])
+    );
+
+    const topicPriorityMap = buildTopicPriorityMap(topicRetentionMetrics);
+    const sortedTopicPriorities = Array.from(topicPriorityMap.entries())
+      .sort((a, b) => b[1] - a[1]);
+
+    const topicFitnessScores = (topicFitness || []).map((entry) => ({
+      topic: entry.topic,
+      score: computeTopicFitnessScore(entry)
+    }));
+    topicFitnessScores.sort((a, b) => a.score - b.score);
+    const topicFitnessScoreMap = new Map(
+      topicFitnessScores.map((entry) => [entry.topic, entry.score])
+    );
+
+    const mixState = getRecommendationMixStateFromDb(normalizedLanguage);
+    const currentSeenShare = Number.isFinite(mixState?.ema_seen_share)
+      ? mixState.ema_seen_share
+      : 0;
+    let mode = currentSeenShare < MIX_TARGET_SEEN_SHARE ? 'seen' : 'new';
+
+    const pickSeenChallenge = () => {
+      if (seenChallenges.length === 0) {
+        return null;
+      }
+      const topTopics = sortedTopicPriorities
+        .slice(0, RECOMMENDATION_TOPIC_WINDOW)
+        .map(([topic]) => topic);
+      const topicSet = new Set(topTopics);
+      let candidates = topTopics.length > 0
+        ? seenChallenges.filter((challenge) => challenge.topics.some((topic) => topicSet.has(topic)))
+        : seenChallenges;
+
+      if (candidates.length === 0) {
+        candidates = seenChallenges;
+      }
+
+      const recencyValues = candidates.map(
+        (challenge) => retentionMetricsMap.get(challenge.id)?.recency_days ?? 0
+      );
+      const submissionValues = candidates.map(
+        (challenge) => retentionMetricsMap.get(challenge.id)?.submission_count ?? 0
+      );
+      const normalizedRecency = normalizeValues(recencyValues);
+      const normalizedSubmissions = normalizeValues(submissionValues);
+
+      let best = null;
+      candidates.forEach((challenge, index) => {
+        const metrics = retentionMetricsMap.get(challenge.id);
+        const mastery = Number.isFinite(metrics?.mastery_score) ? metrics.mastery_score : 0.5;
+        const score = 0.6 * normalizedRecency[index]
+          + 0.3 * (1 - mastery)
+          + 0.1 * (1 - normalizedSubmissions[index]);
+        const lastSubmissionAt = metrics?.last_submission_at
+          ? Date.parse(metrics.last_submission_at)
+          : null;
+        if (!best || score > best.score) {
+          best = { challenge, metrics, score, lastSubmissionAt };
+          return;
+        }
+        if (score === best.score) {
+          const bestTimestamp = Number.isFinite(best.lastSubmissionAt) ? best.lastSubmissionAt : Infinity;
+          const nextTimestamp = Number.isFinite(lastSubmissionAt) ? lastSubmissionAt : Infinity;
+          if (nextTimestamp < bestTimestamp) {
+            best = { challenge, metrics, score, lastSubmissionAt };
+          }
+        }
+      });
+
+      if (!best) {
+        return null;
+      }
+
+      let bestTopic = null;
+      let bestPriority = -Infinity;
+      for (const topic of best.challenge.topics) {
+        const priority = topicPriorityMap.get(topic);
+        if (Number.isFinite(priority) && priority > bestPriority) {
+          bestPriority = priority;
+          bestTopic = topic;
+        }
+      }
+
+      return {
+        challenge: best.challenge,
+        topic: bestTopic,
+        metrics: best.metrics,
+        priority: Number.isFinite(bestPriority) ? bestPriority : null
+      };
+    };
+
+    const pickNewChallenge = () => {
+      if (newChallenges.length === 0) {
+        return null;
+      }
+      const weakestTopics = topicFitnessScores
+        .slice(0, RECOMMENDATION_TOPIC_WINDOW)
+        .map((entry) => entry.topic);
+      const weakestSet = new Set(weakestTopics);
+      let candidates = weakestTopics.length > 0
+        ? newChallenges.filter((challenge) => challenge.topics.some((topic) => weakestSet.has(topic)))
+        : newChallenges;
+
+      if (candidates.length === 0) {
+        candidates = newChallenges;
+      }
+
+      const sortedCandidates = candidates
+        .map((challenge) => {
+          const topicScores = challenge.topics
+            .map((topic) => topicFitnessScoreMap.get(topic))
+            .filter((score) => Number.isFinite(score));
+          const weakestScore = topicScores.length > 0 ? Math.min(...topicScores) : 1;
+          const difficultyRank = DIFFICULTY_RANK[challenge.difficulty] ?? 3;
+          let weakestTopic = null;
+          for (const topic of challenge.topics) {
+            const score = topicFitnessScoreMap.get(topic);
+            if (!Number.isFinite(score)) {
+              continue;
             }
-            const key = challengeId || challengeName.toLowerCase();
-            return [key, { id: challengeId || undefined, name: challengeName || undefined }];
-          })
-          .filter(Boolean)
-      ).values()
-    );
+            if (weakestTopic === null || score < (topicFitnessScoreMap.get(weakestTopic) ?? 1)) {
+              weakestTopic = topic;
+            }
+          }
+          return {
+            challenge,
+            weakestScore,
+            weakestTopic,
+            difficultyRank
+          };
+        })
+        .sort((a, b) => {
+          if (a.weakestScore !== b.weakestScore) {
+            return a.weakestScore - b.weakestScore;
+          }
+          if (a.difficultyRank !== b.difficultyRank) {
+            return a.difficultyRank - b.difficultyRank;
+          }
+          return a.challenge.name.localeCompare(b.challenge.name);
+        });
 
-    const userPrompt = [
-      'Submission history:',
-      JSON.stringify(sanitizedSubmissions),
-      'Recent challenges (last 14 days; do not recommend):',
-      JSON.stringify(recentChallenges),
-      'Topic fitness per topic (0 = not fit, 1 = 100% fit):',
-      JSON.stringify(topicFitness),
-      'Known challenge metadata (may be empty):',
-      JSON.stringify(Array.isArray(challenges) ? challenges : [])
-    ].join('\n\n');
+      const top = sortedCandidates[0];
+      if (!top) {
+        return null;
+      }
+      return {
+        challenge: top.challenge,
+        topic: top.weakestTopic,
+        fitness: Number.isFinite(top.weakestScore) ? top.weakestScore : null
+      };
+    };
 
-    const submissionsCount = sanitizedSubmissions.length;
-    const historyHash = buildRecommendationCacheKey({ submissionsCount });
-    let cachedRecommendation = null;
+    let selection = mode === 'seen' ? pickSeenChallenge() : pickNewChallenge();
+    if (!selection) {
+      mode = mode === 'seen' ? 'new' : 'seen';
+      selection = mode === 'seen' ? pickSeenChallenge() : pickNewChallenge();
+    }
+
+    if (!selection) {
+      return res.status(404).json({ error: 'No challenge available for recommendation' });
+    }
+
+    const isSeenPick = mode === 'seen';
+    const updatedSeenShare = MIX_EMA_ALPHA * (isSeenPick ? 1 : 0)
+      + (1 - MIX_EMA_ALPHA) * currentSeenShare;
     try {
-      cachedRecommendation = getNextChallengeRecommendationFromDb(historyHash);
-    } catch (dbError) {
-      console.warn('Failed to load cached recommendation from DB:', dbError.message);
-    }
-
-    if (cachedRecommendation?.name && cachedRecommendation?.difficulty && cachedRecommendation?.explanation) {
-      return res.json({
-        name: cachedRecommendation.name,
-        difficulty: cachedRecommendation.difficulty,
-        explanation: cachedRecommendation.explanation,
-        systemPrompt,
-        userPrompt
-      });
-    }
-
-    const client = getOpenAiClient();
-    if (!client) {
-      return res.status(503).json({ error: 'Missing OPENAI_API_KEY' });
-    }
-
-    const response = await client.chat.completions.create({
-      model,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    });
-
-    const content = response.choices?.[0]?.message?.content?.trim();
-    if (!content) {
-      return res.status(502).json({ error: 'OpenAI response missing content' });
-    }
-
-    let parsed;
-    try {
-      parsed = JSON.parse(content);
-    } catch (error) {
-      return res.status(502).json({ error: 'Failed to parse OpenAI JSON response' });
-    }
-
-    const name = typeof parsed?.name === 'string' ? parsed.name.trim() : '';
-    const difficulty = typeof parsed?.difficulty === 'string' ? parsed.difficulty.trim() : '';
-    const explanation = typeof parsed?.explanation === 'string' ? parsed.explanation.trim() : '';
-
-    if (!name || !difficulty || !explanation) {
-      return res.status(502).json({ error: 'OpenAI response missing required fields' });
-    }
-
-    try {
-      upsertNextChallengeRecommendationToDb({
-        history_hash: historyHash,
-        name,
-        difficulty,
-        explanation,
-        model
+      upsertRecommendationMixStateToDb({
+        language: normalizedLanguage,
+        ema_seen_share: updatedSeenShare
       });
     } catch (dbError) {
-      console.warn('Failed to cache recommendation in DB:', dbError.message);
+      console.warn('Failed to update recommendation mix state:', dbError.message);
+    }
+
+    const difficulty = selection.challenge.difficulty ?? 'easy';
+    let explanation = '';
+    if (mode === 'seen') {
+      const daysAgo = Number.isFinite(selection.metrics?.recency_days)
+        ? Math.round(selection.metrics.recency_days)
+        : null;
+      const mastery = Number.isFinite(selection.metrics?.mastery_score)
+        ? selection.metrics.mastery_score.toFixed(2)
+        : null;
+      const priority = Number.isFinite(selection.priority)
+        ? selection.priority.toFixed(2)
+        : null;
+      const topicText = selection.topic ? `topic "${selection.topic}"` : 'a high-priority topic';
+      const parts = [
+        `Retention pick from ${topicText}.`
+      ];
+      if (priority) {
+        parts.push(`Priority score ${priority}.`);
+      }
+      if (daysAgo !== null) {
+        parts.push(`Last attempt ${daysAgo} days ago.`);
+      }
+      if (mastery) {
+        parts.push(`Mastery score ${mastery}.`);
+      }
+      explanation = parts.join(' ');
+    } else {
+      const fitness = Number.isFinite(selection.fitness)
+        ? selection.fitness.toFixed(2)
+        : null;
+      const topicText = selection.topic ? `topic "${selection.topic}"` : 'a weaker topic';
+      const parts = [
+        `New pick from ${topicText}.`
+      ];
+      if (fitness) {
+        parts.push(`Topic fitness ${fitness}.`);
+      }
+      parts.push('You have not attempted this challenge yet.');
+      explanation = parts.join(' ');
     }
 
     return res.json({
-      name,
+      name: selection.challenge.name,
       difficulty,
       explanation,
-      systemPrompt,
-      userPrompt
+      mode,
+      topic: selection.topic ?? null,
+      emaSeenShare: updatedSeenShare,
+      targetSeenShare: MIX_TARGET_SEEN_SHARE
     });
   } catch (error) {
     console.error('Recommend next challenge error:', error);
@@ -5121,6 +5430,16 @@ if (process.env.NODE_ENV !== 'test') {
 
 export const __testables = {
   normalizeLanguage,
+  normalizeDifficulty,
+  parseTopicsValue,
+  normalizeChallengeInput,
+  normalizeSubmissionInput,
+  normalizeSubmissionsList,
+  inferLanguage,
+  buildFitnessEntriesFromTopicFitness,
+  computeTopicFitnessScore,
+  normalizeValues,
+  buildTopicPriorityMap,
   stripHtml,
   normalizeChallengeName,
   getTechBarDescriptionText,

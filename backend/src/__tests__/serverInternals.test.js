@@ -23,6 +23,98 @@ describe('Server helper utilities', () => {
     expect(testables.normalizeLanguage('kotlin')).toBe('java');
   });
 
+  test('recommendation helpers normalize input data', () => {
+    expect(testables.normalizeDifficulty()).toBeNull();
+    expect(testables.normalizeDifficulty(' easy ')).toBe('easy');
+    expect(testables.normalizeDifficulty('HARD')).toBe('hard');
+    expect(testables.normalizeDifficulty('unknown')).toBeNull();
+
+    expect(testables.parseTopicsValue()).toEqual([]);
+    expect(testables.parseTopicsValue([' arrays ', '', 12, 'graphs'])).toEqual(['arrays', 'graphs']);
+    expect(testables.parseTopicsValue('["dp"," graphs "]')).toEqual(['dp', 'graphs']);
+    expect(testables.parseTopicsValue('not-json')).toEqual([]);
+
+    expect(testables.normalizeChallengeInput()).toBeNull();
+    expect(testables.normalizeChallengeInput({ id: '  ', name: 'bad' })).toBeNull();
+    expect(testables.normalizeChallengeInput({
+      id: 'two_sum',
+      name: 'Two Sum',
+      difficulty: 'EASY',
+      topics: ['arrays']
+    })).toEqual({
+      id: 'two_sum',
+      name: 'Two Sum',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    expect(testables.normalizeChallengeInput({
+      challengeId: 'valid_parentheses',
+      topics: '["stack"]'
+    })).toEqual({
+      id: 'valid_parentheses',
+      name: 'valid_parentheses',
+      difficulty: null,
+      topics: ['stack']
+    });
+
+    expect(testables.normalizeSubmissionInput()).toBeNull();
+    const normalizedSubmission = testables.normalizeSubmissionInput({
+      challenge: 'two_sum',
+      guidanceLevel: 'Minor',
+      avgTime: 25,
+      timerTime: 50,
+      date: '2024-01-01T00:00:00Z',
+      submitAttempts: 2,
+      language: 'PYTHON'
+    });
+    expect(normalizedSubmission.challenge_id).toBe('two_sum');
+    expect(normalizedSubmission.guidance_level).toBe('Minor');
+    expect(normalizedSubmission.avg_time).toBe(25);
+    expect(normalizedSubmission.timer_time).toBe(50);
+    expect(normalizedSubmission.language).toBe('python');
+
+    expect(testables.normalizeSubmissionsList([null, { challenge: 'two_sum' }]).length).toBe(1);
+
+    expect(testables.inferLanguage([], 'TypeScript')).toBe('typescript');
+    expect(testables.inferLanguage([{ language: 'javascript' }], null)).toBe('javascript');
+    expect(testables.inferLanguage([], null)).toBe('java');
+  });
+
+  test('recommendation helpers score topics and metrics', () => {
+    const entries = testables.buildFitnessEntriesFromTopicFitness([
+      {
+        topic: 'arrays',
+        easy: { fitness: 0.2 },
+        medium: { fitness: 0.4 },
+        hard: { fitness: 0.6 }
+      },
+      null
+    ]);
+    expect(entries).toHaveLength(3);
+
+    expect(testables.computeTopicFitnessScore()).toBe(0);
+    expect(testables.computeTopicFitnessScore({
+      easy: { fitness: 0.2 },
+      medium: { fitness: 0.4 },
+      hard: { fitness: 0.6 }
+    })).toBeCloseTo(0.4, 3);
+
+    expect(testables.normalizeValues([])).toEqual([]);
+    expect(testables.normalizeValues([1, 1])).toEqual([0.5, 0.5]);
+    expect(testables.normalizeValues([0, 10])).toEqual([0, 1]);
+    expect(testables.normalizeValues([Number.NaN, 2])).toEqual([0, 0.5]);
+
+    const priorities = testables.buildTopicPriorityMap([
+      { topic: 'arrays', priority_score: 0.7 },
+      { topic: 'arrays', priority_score: 0.4 },
+      { topic: 'dp', priority_score: null },
+      { topic: '', priority_score: 1 }
+    ]);
+    expect(priorities.get('arrays')).toBeCloseTo(0.7, 3);
+    expect(priorities.get('dp')).toBe(0);
+    expect(priorities.has('')).toBe(false);
+  });
+
   test('stripHtml removes tags and entities', () => {
     expect(testables.stripHtml()).toBe('');
     expect(testables.stripHtml('<div>Hello&nbsp;World &amp; &lt;ok&gt;</div>')).toBe('Hello World & <ok>');
