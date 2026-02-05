@@ -53,6 +53,16 @@ describe('AI-assisted endpoints', () => {
     db.prepare('DELETE FROM next_challenge_recommendations').run();
     db.prepare('DELETE FROM recommendation_mix_state').run();
     db.prepare('DELETE FROM submissions').run();
+    db.prepare('DELETE FROM challenges').run();
+    insertChallenge({
+      id: 'two_sum',
+      name: 'Two Sum',
+      folder: 'two_sum',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: null,
+      topics: []
+    });
   });
 
   afterAll(() => {
@@ -107,6 +117,175 @@ describe('AI-assisted endpoints', () => {
     expect(response.body).toHaveProperty('name', 'Two Sum');
     expect(response.body).toHaveProperty('difficulty', 'easy');
     expect(response.body).toHaveProperty('explanation');
+    expect(response.body).toHaveProperty('mode', 'seen');
+  });
+
+  test('retention prefers eligible seen challenges within the topic', async () => {
+    insertChallenge({
+      id: 'topic_seen',
+      name: 'Topic Seen',
+      folder: 'topic_seen',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertChallenge({
+      id: 'topic_unseen',
+      name: 'Topic Unseen',
+      folder: 'topic_unseen',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertSubmission({
+      id: 'sub-eligible',
+      challenge_id: 'topic_seen',
+      avg_time: 3600,
+      timer_time: 3600000,
+      date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      submit_attempts: 3,
+      guidance_level: 'Guided',
+      language: 'java'
+    });
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: []
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('name', 'Topic Seen');
+    expect(response.body).toHaveProperty('mode', 'seen');
+  });
+
+  test('retention switches to unseen when no eligible review candidate exists', async () => {
+    insertChallenge({
+      id: 'recent_seen',
+      name: 'Recent Seen',
+      folder: 'recent_seen',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertChallenge({
+      id: 'topic_unseen_2',
+      name: 'Topic Unseen 2',
+      folder: 'topic_unseen_2',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertSubmission({
+      id: 'sub-recent',
+      challenge_id: 'recent_seen',
+      avg_time: 120,
+      timer_time: 60000,
+      date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
+    });
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: []
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('name', 'Topic Unseen 2');
+    expect(response.body).toHaveProperty('mode', 'seen');
+  });
+
+  test('retention excludes recent challenge names when selecting unseen within topic', async () => {
+    insertChallenge({
+      id: 'arrays_seen',
+      name: 'Arrays Practice',
+      folder: 'arrays_seen',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertChallenge({
+      id: 'arrays_unseen_blocked',
+      name: 'Arrays Practice',
+      folder: 'arrays_unseen_blocked',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertChallenge({
+      id: 'arrays_unseen_ok',
+      name: 'Arrays Refresh',
+      folder: 'arrays_unseen_ok',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertSubmission({
+      id: 'sub-arrays',
+      challenge_id: 'arrays_seen',
+      avg_time: 120,
+      timer_time: 60000,
+      date: new Date().toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
+    });
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: []
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('name', 'Arrays Refresh');
+    expect(response.body).toHaveProperty('mode', 'seen');
+  });
+
+  test('retention falls back to seen when no unseen candidates remain', async () => {
+    insertChallenge({
+      id: 'fallback_seen',
+      name: 'Fallback Seen',
+      folder: 'fallback_seen',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertChallenge({
+      id: 'fallback_unseen',
+      name: 'Fallback Seen',
+      folder: 'fallback_unseen',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'easy',
+      topics: ['arrays']
+    });
+    insertSubmission({
+      id: 'sub-fallback',
+      challenge_id: 'fallback_seen',
+      avg_time: 120,
+      timer_time: 60000,
+      date: new Date().toISOString(),
+      submit_attempts: 1,
+      guidance_level: 'Independent',
+      language: 'java'
+    });
+
+    const response = await client.post('/api/recommend-next-challenge', {
+      submissions: [],
+      challenges: []
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('name', 'Fallback Seen');
     expect(response.body).toHaveProperty('mode', 'seen');
   });
 

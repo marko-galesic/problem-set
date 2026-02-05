@@ -2985,6 +2985,13 @@ const MIX_EMA_ALPHA = 0.2;
 const RECOMMENDATION_TOPIC_WINDOW = 5;
 const RECOMMENDATION_RECENT_DAYS = 14;
 const RECOMMENDATION_MODEL = 'gpt-5';
+const RETENTION_REVIEW_MIN_DAYS = 7;
+const RETENTION_MASTERY_MAX = 0.75;
+const RETENTION_UNSEEN_DIFFICULTY_RANK = {
+  easy: 0,
+  medium: 1,
+  hard: 2
+};
 function normalizeDifficulty(value) {
   if (typeof value !== 'string') {
     return null;
@@ -3909,73 +3916,158 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
       }
     }
 
-    const pickSeenChallenge = () => {
-      if (seenChallenges.length === 0) {
+    const pickRetentionChallenge = () => {
+      if (seenChallenges.length === 0 && challengeCatalog.length === 0) {
         return null;
       }
-      const topTopics = sortedTopicPriorities
-        .slice(0, RECOMMENDATION_TOPIC_WINDOW)
-        .map(([topic]) => topic);
-      const topicSet = new Set(topTopics);
-      let candidates = topTopics.length > 0
-        ? seenChallenges.filter((challenge) => challenge.topics.some((topic) => topicSet.has(topic)))
+
+      const targetTopic = sortedTopicPriorities.length > 0
+        ? sortedTopicPriorities[0][0]
+        : null;
+
+      const topicCandidates = targetTopic
+        ? challengeCatalog.filter((challenge) => challenge.topics.includes(targetTopic))
         : seenChallenges;
 
-      if (candidates.length === 0) {
-        candidates = seenChallenges;
-      }
+      const seenInTopic = topicCandidates.filter((challenge) => seenChallengeIds.has(challenge.id));
+      const unseenInTopic = topicCandidates.filter((challenge) => !seenChallengeIds.has(challenge.id));
 
-      const recencyValues = candidates.map(
-        (challenge) => retentionMetricsMap.get(challenge.id)?.recency_days ?? 0
-      );
-      const submissionValues = candidates.map(
-        (challenge) => retentionMetricsMap.get(challenge.id)?.submission_count ?? 0
-      );
-      const normalizedRecency = normalizeValues(recencyValues);
-      const normalizedSubmissions = normalizeValues(submissionValues);
-
-      let best = null;
-      candidates.forEach((challenge, index) => {
-        const metrics = retentionMetricsMap.get(challenge.id);
-        const mastery = Number.isFinite(metrics?.mastery_score) ? metrics.mastery_score : 0.5;
-        const score = 0.6 * normalizedRecency[index]
-          + 0.3 * (1 - mastery)
-          + 0.1 * (1 - normalizedSubmissions[index]);
-        const lastSubmissionAt = metrics?.last_submission_at
-          ? Date.parse(metrics.last_submission_at)
-          : null;
-        if (!best || score > best.score) {
-          best = { challenge, metrics, score, lastSubmissionAt };
-          return;
+      const buildBestSeen = (candidates) => {
+        if (!candidates || candidates.length === 0) {
+          return null;
         }
-        if (score === best.score) {
-          const bestTimestamp = Number.isFinite(best.lastSubmissionAt) ? best.lastSubmissionAt : Infinity;
-          const nextTimestamp = Number.isFinite(lastSubmissionAt) ? lastSubmissionAt : Infinity;
-          if (nextTimestamp < bestTimestamp) {
+        const recencyValues = candidates.map(
+          (challenge) => retentionMetricsMap.get(challenge.id)?.recency_days ?? 0
+        );
+        const submissionValues = candidates.map(
+          (challenge) => retentionMetricsMap.get(challenge.id)?.submission_count ?? 0
+        );
+        const normalizedRecency = normalizeValues(recencyValues);
+        const normalizedSubmissions = normalizeValues(submissionValues);
+
+        let best = null;
+        candidates.forEach((challenge, index) => {
+          const metrics = retentionMetricsMap.get(challenge.id);
+          const mastery = Number.isFinite(metrics?.mastery_score) ? metrics.mastery_score : 0.5;
+          const score = 0.6 * normalizedRecency[index]
+            + 0.3 * (1 - mastery)
+            + 0.1 * (1 - normalizedSubmissions[index]);
+          const lastSubmissionAt = metrics?.last_submission_at
+            ? Date.parse(metrics.last_submission_at)
+            : null;
+          if (!best || score > best.score) {
             best = { challenge, metrics, score, lastSubmissionAt };
+            return;
+          }
+          if (score === best.score) {
+            const bestTimestamp = Number.isFinite(best.lastSubmissionAt) ? best.lastSubmissionAt : Infinity;
+            const nextTimestamp = Number.isFinite(lastSubmissionAt) ? lastSubmissionAt : Infinity;
+            if (nextTimestamp < bestTimestamp) {
+              best = { challenge, metrics, score, lastSubmissionAt };
+            }
+          }
+        });
+
+        return best;
+      };
+
+      const buildTopicForChallenge = (challenge) => {
+        if (targetTopic && challenge.topics.includes(targetTopic)) {
+          return targetTopic;
+        }
+        let bestTopic = null;
+        let bestPriority = -Infinity;
+        for (const topic of challenge.topics) {
+          const priority = topicPriorityMap.get(topic);
+          if (Number.isFinite(priority) && priority > bestPriority) {
+            bestPriority = priority;
+            bestTopic = topic;
           }
         }
+        return bestTopic;
+      };
+
+      const eligibleSeen = seenInTopic.filter((challenge) => {
+        const metrics = retentionMetricsMap.get(challenge.id);
+        const recencyDays = Number.isFinite(metrics?.recency_days) ? metrics.recency_days : 0;
+        const mastery = Number.isFinite(metrics?.mastery_score) ? metrics.mastery_score : 1;
+        return recencyDays >= RETENTION_REVIEW_MIN_DAYS && mastery < RETENTION_MASTERY_MAX;
       });
 
-      if (!best) {
+      const bestEligibleSeen = buildBestSeen(eligibleSeen);
+      if (bestEligibleSeen) {
+        const bestTopic = buildTopicForChallenge(bestEligibleSeen.challenge);
+        const bestPriority = Number.isFinite(bestTopic ? topicPriorityMap.get(bestTopic) : null)
+          ? topicPriorityMap.get(bestTopic)
+          : null;
+        return {
+          challenge: bestEligibleSeen.challenge,
+          topic: bestTopic,
+          metrics: bestEligibleSeen.metrics,
+          priority: bestPriority,
+          kind: 'seen',
+          reason: 'eligible'
+        };
+      }
+
+      let unseenCandidates = unseenInTopic.filter((challenge) => {
+        const idKey = challenge.id ? challenge.id.toLowerCase() : '';
+        const nameKey = challenge.name ? challenge.name.toLowerCase() : '';
+        if (idKey && recentLookup.has(idKey)) {
+          return false;
+        }
+        if (nameKey && recentLookup.has(nameKey)) {
+          return false;
+        }
+        return true;
+      });
+
+      if (unseenCandidates.length === 0) {
+        unseenCandidates = unseenInTopic;
+      }
+
+      if (unseenCandidates.length > 0) {
+        const sortedUnseen = unseenCandidates
+          .map((challenge) => ({
+            challenge,
+            difficultyRank: RETENTION_UNSEEN_DIFFICULTY_RANK[challenge.difficulty] ?? 3
+          }))
+          .sort((a, b) => {
+            if (a.difficultyRank !== b.difficultyRank) {
+              return a.difficultyRank - b.difficultyRank;
+            }
+            return a.challenge.name.localeCompare(b.challenge.name);
+          });
+        const bestUnseen = sortedUnseen[0];
+        const bestTopic = buildTopicForChallenge(bestUnseen.challenge);
+        const bestPriority = Number.isFinite(bestTopic ? topicPriorityMap.get(bestTopic) : null)
+          ? topicPriorityMap.get(bestTopic)
+          : null;
+        return {
+          challenge: bestUnseen.challenge,
+          topic: bestTopic,
+          metrics: null,
+          priority: bestPriority,
+          kind: 'unseen',
+          reason: 'practice'
+        };
+      }
+
+      const fallbackSeen = buildBestSeen(seenInTopic);
+      if (!fallbackSeen) {
         return null;
       }
-
-      let bestTopic = null;
-      let bestPriority = -Infinity;
-      for (const topic of best.challenge.topics) {
-        const priority = topicPriorityMap.get(topic);
-        if (Number.isFinite(priority) && priority > bestPriority) {
-          bestPriority = priority;
-          bestTopic = topic;
-        }
-      }
-
+      const fallbackTopic = buildTopicForChallenge(fallbackSeen.challenge);
+      const fallbackPriority = Number.isFinite(fallbackTopic ? topicPriorityMap.get(fallbackTopic) : null)
+        ? topicPriorityMap.get(fallbackTopic)
+        : null;
       return {
-        challenge: best.challenge,
-        topic: bestTopic,
-        metrics: best.metrics,
-        priority: Number.isFinite(bestPriority) ? bestPriority : null
+        challenge: fallbackSeen.challenge,
+        topic: fallbackTopic,
+        metrics: fallbackSeen.metrics,
+        priority: fallbackPriority,
+        kind: 'seen',
+        reason: 'fallback'
       };
     };
 
@@ -4081,10 +4173,10 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
 
     let selection;
     try {
-      selection = mode === 'seen' ? pickSeenChallenge() : await pickNewChallengeWithAi();
+      selection = mode === 'seen' ? pickRetentionChallenge() : await pickNewChallengeWithAi();
       if (!selection) {
         mode = mode === 'seen' ? 'new' : 'seen';
-        selection = mode === 'seen' ? pickSeenChallenge() : await pickNewChallengeWithAi();
+        selection = mode === 'seen' ? pickRetentionChallenge() : await pickNewChallengeWithAi();
       }
     } catch (error) {
       if (error?.statusCode) {
@@ -4111,29 +4203,40 @@ app.post('/api/recommend-next-challenge', async (req, res) => {
 
     let explanation = '';
     if (mode === 'seen') {
-      const daysAgo = Number.isFinite(selection.metrics?.recency_days)
-        ? Math.round(selection.metrics.recency_days)
-        : null;
-      const mastery = Number.isFinite(selection.metrics?.mastery_score)
-        ? selection.metrics.mastery_score.toFixed(2)
-        : null;
-      const priority = Number.isFinite(selection.priority)
-        ? selection.priority.toFixed(2)
-        : null;
       const topicText = selection.topic ? `topic "${selection.topic}"` : 'a high-priority topic';
-      const parts = [
-        `Retention pick from ${topicText}.`
-      ];
-      if (priority) {
-        parts.push(`Priority score ${priority}.`);
+      if (selection.kind === 'unseen') {
+        const parts = [
+          `Topic practice pick from ${topicText}.`,
+          'No recent review candidate met the recency/mastery threshold.'
+        ];
+        explanation = parts.join(' ');
+      } else {
+        const daysAgo = Number.isFinite(selection.metrics?.recency_days)
+          ? Math.round(selection.metrics.recency_days)
+          : null;
+        const mastery = Number.isFinite(selection.metrics?.mastery_score)
+          ? selection.metrics.mastery_score.toFixed(2)
+          : null;
+        const priority = Number.isFinite(selection.priority)
+          ? selection.priority.toFixed(2)
+          : null;
+        const parts = [
+          `Retention pick from ${topicText}.`
+        ];
+        if (priority) {
+          parts.push(`Priority score ${priority}.`);
+        }
+        if (daysAgo !== null) {
+          parts.push(`Last attempt ${daysAgo} days ago.`);
+        }
+        if (mastery) {
+          parts.push(`Mastery score ${mastery}.`);
+        }
+        if (selection.reason === 'fallback') {
+          parts.push('Fallback review pick due to limited new options.');
+        }
+        explanation = parts.join(' ');
       }
-      if (daysAgo !== null) {
-        parts.push(`Last attempt ${daysAgo} days ago.`);
-      }
-      if (mastery) {
-        parts.push(`Mastery score ${mastery}.`);
-      }
-      explanation = parts.join(' ');
     } else {
       explanation = selection.explanation ?? '';
     }
