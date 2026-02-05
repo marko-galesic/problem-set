@@ -244,6 +244,23 @@ function createSchema(database) {
     )
   `);
 
+  // Challenge relation edges (derived view for graph queries)
+  database.exec(`
+    CREATE VIEW IF NOT EXISTS challenge_edges AS
+    SELECT
+      prerequisite_id AS from_id,
+      challenge_id AS to_id,
+      'prerequisite' AS relation_type
+    FROM challenge_prerequisites
+    UNION ALL
+    SELECT
+      parent_id AS from_id,
+      challenge_id AS to_id,
+      'parent' AS relation_type
+    FROM challenge_tree
+    WHERE parent_id IS NOT NULL
+  `);
+
   // Create indexes for better query performance
   database.exec(`
     CREATE INDEX IF NOT EXISTS idx_submissions_challenge_date 
