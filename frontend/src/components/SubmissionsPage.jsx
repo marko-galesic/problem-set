@@ -127,6 +127,149 @@ const FITNESS_GROUP_DEFINITIONS = [
   }
 ];
 
+const GRAPH_DIFFICULTY_COLUMNS = ['easy', 'medium', 'hard', 'unknown'];
+const GRAPH_COLUMN_LABELS = {
+  easy: 'Easy',
+  medium: 'Medium',
+  hard: 'Hard',
+  unknown: 'Unknown'
+};
+const GRAPH_COLUMN_WIDTH = 260;
+const GRAPH_ROW_HEIGHT = 90;
+const GRAPH_NODE_RADIUS = 18;
+const GRAPH_PADDING = { x: 40, y: 48 };
+const GRAPH_SCALE_LIMITS = { min: 0.4, max: 2.5 };
+
+function clampValue(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function normalizeGraphDifficulty(value) {
+  if (typeof value !== 'string') {
+    return 'unknown';
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'easy' || normalized === 'medium' || normalized === 'hard') {
+    return normalized;
+  }
+  return 'unknown';
+}
+
+function buildGraphLayout(nodes = [], edges = []) {
+  if (!Array.isArray(nodes) || nodes.length === 0) {
+    return {
+      nodes: [],
+      edges: [],
+      positions: new Map(),
+      width: 0,
+      height: 0,
+      columnLabels: []
+    };
+  }
+
+  const normalizedNodes = nodes.map((node) => ({
+    ...node,
+    difficulty: normalizeGraphDifficulty(node.difficulty)
+  }));
+  const nodesById = new Map(normalizedNodes.map((node) => [node.id, node]));
+  const prerequisiteMap = new Map();
+
+  for (const edge of edges || []) {
+    if (!edge || !edge.from || !edge.to) {
+      continue;
+    }
+    if (!nodesById.has(edge.from) || !nodesById.has(edge.to)) {
+      continue;
+    }
+    if (!prerequisiteMap.has(edge.to)) {
+      prerequisiteMap.set(edge.to, []);
+    }
+    prerequisiteMap.get(edge.to).push(edge.from);
+  }
+
+  const depthMemo = new Map();
+  const visiting = new Set();
+  const getDepth = (id) => {
+    if (depthMemo.has(id)) {
+      return depthMemo.get(id);
+    }
+    if (visiting.has(id)) {
+      return 0;
+    }
+    visiting.add(id);
+    const prereqs = prerequisiteMap.get(id) || [];
+    let depth = 0;
+    for (const prereqId of prereqs) {
+      depth = Math.max(depth, getDepth(prereqId) + 1);
+    }
+    visiting.delete(id);
+    depthMemo.set(id, depth);
+    return depth;
+  };
+
+  const columns = new Map();
+  for (const node of normalizedNodes) {
+    const columnKey = GRAPH_DIFFICULTY_COLUMNS.includes(node.difficulty)
+      ? node.difficulty
+      : 'unknown';
+    if (!columns.has(columnKey)) {
+      columns.set(columnKey, []);
+    }
+    columns.get(columnKey).push(node);
+  }
+
+  const positions = new Map();
+  let maxRows = 0;
+
+  GRAPH_DIFFICULTY_COLUMNS.forEach((columnKey, columnIndex) => {
+    const group = columns.get(columnKey) || [];
+    group.sort((a, b) => {
+      const depthA = getDepth(a.id);
+      const depthB = getDepth(b.id);
+      if (depthA !== depthB) {
+        return depthA - depthB;
+      }
+      if (Boolean(a.hasSubmission) !== Boolean(b.hasSubmission)) {
+        return a.hasSubmission ? -1 : 1;
+      }
+      return String(a.name || a.id).localeCompare(String(b.name || b.id));
+    });
+    maxRows = Math.max(maxRows, group.length);
+    group.forEach((node, rowIndex) => {
+      positions.set(node.id, {
+        x: GRAPH_PADDING.x + columnIndex * GRAPH_COLUMN_WIDTH,
+        y: GRAPH_PADDING.y + rowIndex * GRAPH_ROW_HEIGHT
+      });
+    });
+  });
+
+  const width = GRAPH_PADDING.x * 2 + GRAPH_COLUMN_WIDTH * (GRAPH_DIFFICULTY_COLUMNS.length - 1) + 260;
+  const height = GRAPH_PADDING.y * 2 + Math.max(1, maxRows) * GRAPH_ROW_HEIGHT;
+  const columnLabels = GRAPH_DIFFICULTY_COLUMNS.map((columnKey, columnIndex) => ({
+    key: columnKey,
+    label: GRAPH_COLUMN_LABELS[columnKey] || columnKey,
+    x: GRAPH_PADDING.x + columnIndex * GRAPH_COLUMN_WIDTH,
+    y: Math.max(24, GRAPH_PADDING.y - 18)
+  }));
+
+  return {
+    nodes: normalizedNodes,
+    edges: Array.isArray(edges) ? edges : [],
+    positions,
+    width,
+    height,
+    columnLabels
+  };
+}
+
+function buildGraphEdgePath(from, to) {
+  const dx = to.x - from.x;
+  const curve = Math.max(40, Math.abs(dx) * 0.35);
+  const controlX1 = from.x + (dx >= 0 ? curve : -curve);
+  const controlX2 = to.x - (dx >= 0 ? curve : -curve);
+  return `M ${from.x} ${from.y} C ${controlX1} ${from.y}, ${controlX2} ${to.y}, ${to.x} ${to.y}`;
+}
+
 function createLanguageMap(defaultValue) {
   return LANGUAGE_OPTIONS.reduce((acc, option) => {
     acc[option.id] = defaultValue;
@@ -479,6 +622,12 @@ export default function SubmissionsPage() {
     computedAt: null,
     fitnessSnapshotAt: null
   });
+  const [graphNodes, setGraphNodes] = useState([]);
+  const [graphEdges, setGraphEdges] = useState([]);
+  const [graphLoading, setGraphLoading] = useState(false);
+  const [graphError, setGraphError] = useState(null);
+  const [graphTransform, setGraphTransform] = useState({ scale: 1, x: 0, y: 0 });
+  const [isGraphPanning, setIsGraphPanning] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('java');
   const [recommendationLoading, setRecommendationLoading] = useState(createLanguageMap(false));
   const [recommendationError, setRecommendationError] = useState(createLanguageMap(null));
@@ -493,6 +642,13 @@ export default function SubmissionsPage() {
   const [gradePopoverAnchorEl, setGradePopoverAnchorEl] = useState(null);
   const [gradePopoverInfo, setGradePopoverInfo] = useState(null);
   const gradePopoverCloseTimeoutRef = useRef(null);
+  const graphContainerRef = useRef(null);
+  const graphPanRef = useRef({
+    startX: 0,
+    startY: 0,
+    originX: 0,
+    originY: 0
+  });
 
   function getFitnessGrade(fitness) {
     const normalized = Math.max(0, Math.min(1, fitness));
@@ -527,6 +683,65 @@ export default function SubmissionsPage() {
     clearGradePopoverCloseTimer();
     setGradePopoverAnchorEl(event.currentTarget);
     setGradePopoverInfo(payload);
+  }
+
+  function resetGraphTransform() {
+    setGraphTransform({ scale: 1, x: 0, y: 0 });
+  }
+
+  function applyGraphScale(scaleUpdater, anchorX, anchorY) {
+    setGraphTransform((prev) => {
+      const nextScale = typeof scaleUpdater === 'function'
+        ? scaleUpdater(prev.scale)
+        : scaleUpdater;
+      const clamped = clampValue(nextScale, GRAPH_SCALE_LIMITS.min, GRAPH_SCALE_LIMITS.max);
+      const scaleFactor = clamped / prev.scale;
+      const nextX = anchorX - scaleFactor * (anchorX - prev.x);
+      const nextY = anchorY - scaleFactor * (anchorY - prev.y);
+      return {
+        scale: clamped,
+        x: nextX,
+        y: nextY
+      };
+    });
+  }
+
+  function handleGraphMouseDown(event) {
+    if (event.button !== 0) {
+      return;
+    }
+    event.preventDefault();
+    graphPanRef.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: graphTransform.x,
+      originY: graphTransform.y
+    };
+    setIsGraphPanning(true);
+  }
+
+  function handleGraphWheel(event) {
+    const container = graphContainerRef.current;
+    if (!container) {
+      return;
+    }
+    event.preventDefault();
+    const rect = container.getBoundingClientRect();
+    const anchorX = event.clientX - rect.left;
+    const anchorY = event.clientY - rect.top;
+    const zoom = event.deltaY < 0 ? 1.1 : 0.9;
+    applyGraphScale((scale) => scale * zoom, anchorX, anchorY);
+  }
+
+  function handleGraphZoom(step) {
+    const container = graphContainerRef.current;
+    const anchorX = container ? container.clientWidth / 2 : 0;
+    const anchorY = container ? container.clientHeight / 2 : 0;
+    applyGraphScale((scale) => scale + step, anchorX, anchorY);
+  }
+
+  function handleGraphReset() {
+    resetGraphTransform();
   }
 
   function renderDifficultyCell(entry, level) {
@@ -854,6 +1069,19 @@ export default function SubmissionsPage() {
     }
   }
 
+  async function fetchChallengeGraph({ language } = {}) {
+    const params = new URLSearchParams({
+      language: normalizeLanguage(language || selectedLanguage),
+      scope: 'submitted',
+      edges: 'prerequisite'
+    });
+    const response = await fetch(`/api/challenges/graph?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error('Failed to load challenge graph');
+    }
+    return response.json();
+  }
+
   useEffect(() => {
     let isMounted = true;
 
@@ -954,6 +1182,40 @@ export default function SubmissionsPage() {
     }
 
     refreshRetentionMetrics();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedLanguage]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadGraph() {
+      setGraphLoading(true);
+      setGraphError(null);
+      try {
+        const data = await fetchChallengeGraph({ language: selectedLanguage });
+        if (!isMounted) {
+          return;
+        }
+        setGraphNodes(Array.isArray(data.nodes) ? data.nodes : []);
+        setGraphEdges(Array.isArray(data.edges) ? data.edges : []);
+        resetGraphTransform();
+      } catch (loadError) {
+        if (isMounted) {
+          setGraphNodes([]);
+          setGraphEdges([]);
+          setGraphError(loadError.message || 'Failed to load challenge graph.');
+        }
+      } finally {
+        if (isMounted) {
+          setGraphLoading(false);
+        }
+      }
+    }
+
+    loadGraph();
 
     return () => {
       isMounted = false;
@@ -1220,6 +1482,33 @@ export default function SubmissionsPage() {
     };
   }, [activeTopicTab, selectedLanguage, challengeMap]);
 
+  useEffect(() => {
+    if (!isGraphPanning) {
+      return undefined;
+    }
+
+    function handleMouseMove(event) {
+      const { startX, startY, originX, originY } = graphPanRef.current;
+      setGraphTransform((prev) => ({
+        ...prev,
+        x: originX + (event.clientX - startX),
+        y: originY + (event.clientY - startY)
+      }));
+    }
+
+    function handleMouseUp() {
+      setIsGraphPanning(false);
+    }
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isGraphPanning]);
+
   useEffect(() => () => clearGradePopoverCloseTimer(), []);
 
   const isRecommendationLoading = LANGUAGE_OPTIONS.some(
@@ -1345,6 +1634,11 @@ export default function SubmissionsPage() {
   const activeRetentionEmptyLabel = activeRetentionTab === 'topic'
     ? 'No topic retention metrics available yet.'
     : 'No retention metrics available yet.';
+  const graphLayout = buildGraphLayout(graphNodes, graphEdges);
+  const graphHasData = graphNodes.length > 0;
+  const graphMetaLabel = graphHasData
+    ? `${graphNodes.length} challenges · ${graphEdges.length} edges`
+    : 'No graph data yet.';
 
   return (
     <div className="submissions-page">
@@ -1876,6 +2170,131 @@ export default function SubmissionsPage() {
                   </TableBody>
                 </Table>
               </TableContainer>
+            )}
+          </div>
+        </section>
+        <section className="challenge-graph-panel">
+          <div className="challenge-graph-header">
+            <div>
+              <h2>Challenge Graph</h2>
+              <p>Prerequisite map for submitted challenges</p>
+            </div>
+            <div className="challenge-graph-controls">
+              <div className="challenge-graph-meta">{graphMetaLabel}</div>
+              <Button
+                className="btn btn--outline btn--xs"
+                type="button"
+                onClick={() => handleGraphZoom(-0.2)}
+                disabled={!graphHasData}
+              >
+                Zoom out
+              </Button>
+              <Button
+                className="btn btn--outline btn--xs"
+                type="button"
+                onClick={() => handleGraphZoom(0.2)}
+                disabled={!graphHasData}
+              >
+                Zoom in
+              </Button>
+              <Button
+                className="btn btn--outline btn--xs"
+                type="button"
+                onClick={handleGraphReset}
+                disabled={!graphHasData}
+              >
+                Reset
+              </Button>
+            </div>
+          </div>
+          <div className="challenge-graph-body">
+            {graphLoading && (
+              <div className="challenge-graph-status">Loading graph...</div>
+            )}
+            {!graphLoading && graphError && (
+              <div className="challenge-graph-error">{graphError}</div>
+            )}
+            {!graphLoading && !graphError && !graphHasData && (
+              <div className="challenge-graph-status">No graph data yet.</div>
+            )}
+            {!graphLoading && !graphError && graphHasData && (
+              <div
+                className={`challenge-graph-canvas${isGraphPanning ? ' is-panning' : ''}`}
+                ref={graphContainerRef}
+                onWheel={handleGraphWheel}
+                onMouseDown={handleGraphMouseDown}
+                role="img"
+                aria-label="Challenge prerequisite graph"
+              >
+                <svg
+                  className="challenge-graph-svg"
+                  width={graphLayout.width}
+                  height={graphLayout.height}
+                  aria-hidden="true"
+                >
+                  <g
+                    transform={`translate(${graphTransform.x} ${graphTransform.y}) scale(${graphTransform.scale})`}
+                  >
+                    <g className="challenge-graph-columns">
+                      {graphLayout.columnLabels.map((column) => (
+                        <text
+                          key={column.key}
+                          x={column.x}
+                          y={column.y}
+                          className="challenge-graph-column-label"
+                        >
+                          {column.label}
+                        </text>
+                      ))}
+                    </g>
+                    <g className="challenge-graph-edges">
+                      {graphLayout.edges.map((edge) => {
+                        const from = graphLayout.positions.get(edge.from);
+                        const to = graphLayout.positions.get(edge.to);
+                        if (!from || !to) {
+                          return null;
+                        }
+                        return (
+                          <path
+                            key={`${edge.from}-${edge.to}`}
+                            d={buildGraphEdgePath(from, to)}
+                            className="challenge-graph-edge"
+                          />
+                        );
+                      })}
+                    </g>
+                    <g className="challenge-graph-nodes">
+                      {graphLayout.nodes.map((node) => {
+                        const position = graphLayout.positions.get(node.id);
+                        if (!position) {
+                          return null;
+                        }
+                        const nodeClassName = [
+                          'challenge-graph-node',
+                          node.hasSubmission ? 'is-submitted' : 'is-ancestor',
+                          `difficulty-${node.difficulty}`
+                        ].join(' ');
+                        return (
+                          <g key={node.id} className={nodeClassName}>
+                            <circle
+                              cx={position.x}
+                              cy={position.y}
+                              r={GRAPH_NODE_RADIUS}
+                            />
+                            <text
+                              x={position.x + GRAPH_NODE_RADIUS + 10}
+                              y={position.y + 4}
+                              className="challenge-graph-label"
+                            >
+                              {node.name}
+                            </text>
+                          </g>
+                        );
+                      })}
+                    </g>
+                  </g>
+                </svg>
+              </div>
             )}
           </div>
         </section>

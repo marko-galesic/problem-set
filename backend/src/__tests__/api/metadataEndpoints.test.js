@@ -134,6 +134,36 @@ describe('API metadata and analytics endpoints', () => {
     expect(entry.parent_id).toBe(prereqId);
   });
 
+  test('returns challenge graph for submitted challenges', async () => {
+    const setResponse = await client.post(`/api/challenges/${challengeId}/prerequisites`, {
+      prerequisite_ids: [prereqId]
+    });
+    expect(setResponse.status).toBe(200);
+
+    const submissionResponse = await client.post('/api/submissions', {
+      challenge: challengeId,
+      avgTime: 950,
+      timerTime: 1200,
+      date: new Date().toISOString(),
+      guidanceLevel: 'Independent',
+      submitAttempts: 1,
+      language: 'java'
+    });
+
+    expect(submissionResponse.status).toBe(200);
+
+    const response = await client.get('/api/challenges/graph?language=java&scope=submitted&edges=prerequisite');
+    expect(response.status).toBe(200);
+    const nodes = response.body.nodes || [];
+    const edges = response.body.edges || [];
+    const nodeIds = nodes.map((node) => node.id);
+
+    expect(nodeIds).toEqual(expect.arrayContaining([challengeId, prereqId]));
+    expect(edges.some((edge) => edge.from === prereqId && edge.to === challengeId)).toBe(true);
+    const mainNode = nodes.find((node) => node.id === challengeId);
+    expect(mainNode?.hasSubmission).toBe(true);
+  });
+
   test('returns challenges metadata list', async () => {
     const response = await client.get('/api/challenges/metadata');
     expect(response.status).toBe(200);

@@ -254,6 +254,15 @@ export function setPrerequisites(challengeId, prerequisiteIds) {
   return transaction(challengeId, prerequisiteIds);
 }
 
+export function getPrerequisiteEdges() {
+  const db = getDatabase();
+  const stmt = db.prepare(`
+    SELECT challenge_id, prerequisite_id
+    FROM challenge_prerequisites
+  `);
+  return stmt.all();
+}
+
 /**
  * Skill tree queries
  */
@@ -429,6 +438,26 @@ export function getSubmissionsCount({ language = null, from = null, to = null } 
   `);
   const row = stmt.get(...params);
   return row?.count ?? 0;
+}
+
+export function getSubmissionCountsByChallenge(language = null) {
+  const db = getDatabase();
+  if (language) {
+    const stmt = db.prepare(`
+      SELECT challenge_id, COUNT(*) as count
+      FROM submissions
+      WHERE LOWER(language) = ?
+      GROUP BY challenge_id
+    `);
+    return stmt.all(language.toLowerCase());
+  }
+
+  const stmt = db.prepare(`
+    SELECT challenge_id, COUNT(*) as count
+    FROM submissions
+    GROUP BY challenge_id
+  `);
+  return stmt.all();
 }
 
 export function getSubmissionById(submissionId) {

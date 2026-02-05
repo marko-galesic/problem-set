@@ -44,6 +44,25 @@ function createFetchMock() {
       };
     }
 
+    if (url.startsWith('/api/challenges/graph')) {
+      return {
+        ok: true,
+        json: async () => ({
+          nodes: [
+            {
+              id: 'two_sum',
+              name: 'Two Sum',
+              difficulty: 'easy',
+              topics: [],
+              hasSubmission: true,
+              submissionCount: 1
+            }
+          ],
+          edges: []
+        })
+      };
+    }
+
     if (url.startsWith('/api/submissions?')) {
       return {
         ok: true,
@@ -98,6 +117,7 @@ describe('SubmissionsPage', () => {
 
     expect(await screen.findByText(/next challenge recommendation/i)).toBeInTheDocument();
     expect(screen.getByText(/all submissions/i)).toBeInTheDocument();
+    expect(await screen.findByText(/challenge graph/i)).toBeInTheDocument();
 
     fireEvent.click(await screen.findByRole('button', { name: /show details/i }));
     fireEvent.click(await screen.findByRole('button', { name: /keep going/i }));
@@ -126,6 +146,9 @@ describe('SubmissionsPage', () => {
       if (url.startsWith('/api/submissions?')) {
         return { ok: false };
       }
+      if (url.startsWith('/api/challenges/graph')) {
+        return { ok: true, json: async () => ({ nodes: [], edges: [] }) };
+      }
       return { ok: true, json: async () => ({}) };
     });
 
@@ -134,6 +157,7 @@ describe('SubmissionsPage', () => {
     render(<SubmissionsPage />);
     fireEvent.click(await screen.findByRole('tab', { name: /submissions/i }));
     expect(await screen.findByText(/failed to load submissions/i)).toBeInTheDocument();
+    expect(await screen.findByText(/no graph data yet/i)).toBeInTheDocument();
   });
 
   it('shows topic fitness grade popover with submissions and avg timer time', async () => {
@@ -209,6 +233,25 @@ describe('SubmissionsPage', () => {
             ],
             total: 2,
             hasMore: false
+          })
+        };
+      }
+
+      if (url.startsWith('/api/challenges/graph')) {
+        return {
+          ok: true,
+          json: async () => ({
+            nodes: [
+              {
+                id: 'two_sum',
+                name: 'Two Sum',
+                difficulty: 'easy',
+                topics: ['Arrays'],
+                hasSubmission: true,
+                submissionCount: 2
+              }
+            ],
+            edges: []
           })
         };
       }

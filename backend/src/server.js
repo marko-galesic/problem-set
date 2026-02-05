@@ -27,6 +27,7 @@ import {
   getChallengeAdapterDefinition,
   getChallengeTestCases,
   getPrerequisites,
+  getPrerequisiteEdges,
   setPrerequisites,
   getChallengeTree,
   setChallengeParent,
@@ -36,6 +37,7 @@ import {
   getAllSubmissions,
   getSubmissionsPage,
   getSubmissionsCount,
+  getSubmissionCountsByChallenge,
   getSubmissionById as getSubmissionByIdFromDb,
   insertSubmission as insertSubmissionToDb,
   deleteSubmission as deleteSubmissionFromDb,
@@ -5476,6 +5478,105 @@ app.get('/api/challenges/tree', (req, res) => {
     console.error('Get challenge tree error:', error);
     res.status(500).json({
       error: error.message || 'Failed to load challenge tree'
+    });
+  }
+});
+
+// Get challenge graph (prerequisites) for submissions page
+app.get('/api/challenges/graph', (req, res) => {
+  try {
+    const scope = typeof req.query.scope === 'string'
+      ? req.query.scope.trim().toLowerCase()
+      : 'submitted';
+    const edgeType = typeof req.query.edges === 'string'
+      ? req.query.edges.trim().toLowerCase()
+      : 'prerequisite';
+    const language = normalizeLanguage(req.query.language);
+
+    let challenges = [];
+    try {
+      challenges = getAllChallenges();
+    } catch (dbError) {
+      challenges = Object.entries(CHALLENGES).map(([id, config]) => ({
+        id,
+        name: config.name,
+        difficulty: null,
+        topics: []
+      }));
+    }
+
+    let prerequisiteEdges = [];
+    if (edgeType === 'prerequisite') {
+      try {
+        prerequisiteEdges = getPrerequisiteEdges().map(edge => ({
+          from: edge.prerequisite_id,
+          to: edge.challenge_id,
+          type: 'prerequisite'
+        }));
+      } catch {
+        prerequisiteEdges = [];
+      }
+    }
+
+    let submissionCounts = new Map();
+    try {
+      const rows = getSubmissionCountsByChallenge(language);
+      submissionCounts = new Map(rows.map(row => [row.challenge_id, row.count]));
+    } catch {
+      submissionCounts = new Map();
+    }
+
+    const submittedIds = new Set(
+      Array.from(submissionCounts.entries())
+        .filter(([, count]) => Number(count) > 0)
+        .map(([challengeId]) => challengeId)
+    );
+
+    let includedIds = new Set();
+    if (scope === 'all') {
+      includedIds = new Set(challenges.map((challenge) => challenge.id));
+    } else if (scope === 'submitted') {
+      includedIds = new Set(submittedIds);
+      const prereqMap = new Map();
+      for (const edge of prerequisiteEdges) {
+        if (!prereqMap.has(edge.to)) {
+          prereqMap.set(edge.to, []);
+        }
+        prereqMap.get(edge.to).push(edge.from);
+      }
+      const stack = Array.from(submittedIds);
+      while (stack.length > 0) {
+        const current = stack.pop();
+        const prereqs = prereqMap.get(current) || [];
+        for (const prereqId of prereqs) {
+          if (!includedIds.has(prereqId)) {
+            includedIds.add(prereqId);
+            stack.push(prereqId);
+          }
+        }
+      }
+    }
+
+    const nodes = challenges
+      .filter((challenge) => includedIds.has(challenge.id))
+      .map((challenge) => ({
+        id: challenge.id,
+        name: challenge.name,
+        difficulty: challenge.difficulty ?? 'unknown',
+        topics: parseTopicsValue(challenge.topics),
+        hasSubmission: submissionCounts.has(challenge.id),
+        submissionCount: submissionCounts.get(challenge.id) ?? 0
+      }));
+
+    const edges = prerequisiteEdges.filter(
+      (edge) => includedIds.has(edge.from) && includedIds.has(edge.to)
+    );
+
+    res.json({ nodes, edges });
+  } catch (error) {
+    console.error('Get challenge graph error:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to load challenge graph'
     });
   }
 });
