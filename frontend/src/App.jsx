@@ -168,6 +168,7 @@ function App() {
   const [nextChallengeId, setNextChallengeId] = useState(null);
   const [nextChallengeCountdown, setNextChallengeCountdown] = useState(5);
   const nextChallengeCountdownRef = useRef(null);
+  const nextChallengeBootstrapRef = useRef(false);
   const [isProgressPopoverOpen, setIsProgressPopoverOpen] = useState(false);
   const [isProgressReportLoading, setIsProgressReportLoading] = useState(false);
   const [progressReportError, setProgressReportError] = useState('');
@@ -446,6 +447,61 @@ function App() {
       isActive = false;
     };
   }, [currentChallenge]);
+
+  useEffect(() => {
+    if (nextChallengeBootstrapRef.current || !languageReady || challenges.length === 0) {
+      return;
+    }
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('challenge')) {
+        nextChallengeBootstrapRef.current = true;
+        return;
+      }
+    }
+
+    nextChallengeBootstrapRef.current = true;
+    let isActive = true;
+
+    async function bootstrapRecommendedChallenge() {
+      try {
+        const metadata = await fetchChallengesMetadata();
+        const { from } = getRecentDateRange(14);
+        const recentSubmissions = await loadAllSubmissions({
+          from,
+          language: currentLanguage
+        });
+        const response = await fetch('/api/recommend-next-challenge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            submissions: recentSubmissions,
+            challenges: metadata
+          })
+        });
+        if (!response.ok) {
+          return;
+        }
+        const data = await response.json();
+        if (!isActive) {
+          return;
+        }
+        const matched = findChallengeByName(data.name, metadata)
+          || findChallengeByName(data.name, challenges);
+        if (matched?.id && matched.id !== currentChallenge) {
+          setCurrentChallenge(matched.id);
+        }
+      } catch (error) {
+        console.warn('Failed to load recommended challenge:', error);
+      }
+    }
+
+    bootstrapRecommendedChallenge();
+
+    return () => {
+      isActive = false;
+    };
+  }, [languageReady, challenges, currentLanguage, currentChallenge]);
 
   // Load challenge-specific data when challenge or language changes
   useEffect(() => {
