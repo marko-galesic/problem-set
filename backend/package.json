@@ -14,13 +14,15 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
-    "test:gold": "NODE_OPTIONS=--experimental-vm-modules jest goldSource.test.js"
+    "test:gold": "NODE_OPTIONS=--experimental-vm-modules jest goldSource.test.js",
+    "graph:snapshot": "GRAPH_SNAPSHOT=1 NODE_OPTIONS=--experimental-vm-modules jest src/__tests__/graphSnapshot.test.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.0.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "openai": "^4.80.0",
+    "sharp": "^0.33.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "uuid": "^9.0.1"

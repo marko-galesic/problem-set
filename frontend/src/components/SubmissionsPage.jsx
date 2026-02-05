@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Button,
   Popover,
@@ -15,6 +15,12 @@ import RecommendationPromptPopover from './RecommendationPromptPopover';
 import LanguageSwitchPopover from './LanguageSwitchPopover';
 import TopicFitnessCriteriaPopover from './TopicFitnessCriteriaPopover';
 import { getLanguagePreference, saveLanguagePreference, saveNextChallengeRecommendation } from '../utils/storage';
+import {
+  buildGraphLayout,
+  buildGraphEdgePath,
+  computeFitTransform,
+  DEFAULT_OPTIONS as GRAPH_DEFAULTS
+} from '../utils/challengeGraphLayout';
 
 const UNKNOWN_DIFFICULTY = 'Not set';
 const TECH_BAR_LEGEND = [
@@ -54,6 +60,15 @@ const FITNESS_GRADE_BANDS = [
 const ACTIVITY_WINDOW_DAYS = 7;
 const FITNESS_GROUP_CHART_VIEWBOX = { width: 100, height: 100 };
 const FITNESS_GROUP_CHART_PADDING = { top: 8, right: 6, bottom: 10, left: 6 };
+const GRAPH_SCALE_LIMITS = { min: 0.4, max: 2.5 };
+const GRAPH_LAYOUT_OPTIONS = {
+  layoutMode: 'depth',
+  columnWidth: 280,
+  rowHeight: 90,
+  paddingX: 60,
+  paddingY: 60,
+  nodeRadius: GRAPH_DEFAULTS.nodeRadius
+};
 const FITNESS_GROUP_DEFINITIONS = [
   {
     id: 'data-structures',
@@ -127,148 +142,6 @@ const FITNESS_GROUP_DEFINITIONS = [
   }
 ];
 
-const GRAPH_DIFFICULTY_COLUMNS = ['easy', 'medium', 'hard', 'unknown'];
-const GRAPH_COLUMN_LABELS = {
-  easy: 'Easy',
-  medium: 'Medium',
-  hard: 'Hard',
-  unknown: 'Unknown'
-};
-const GRAPH_COLUMN_WIDTH = 260;
-const GRAPH_ROW_HEIGHT = 90;
-const GRAPH_NODE_RADIUS = 18;
-const GRAPH_PADDING = { x: 40, y: 48 };
-const GRAPH_SCALE_LIMITS = { min: 0.4, max: 2.5 };
-
-function clampValue(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function normalizeGraphDifficulty(value) {
-  if (typeof value !== 'string') {
-    return 'unknown';
-  }
-  const normalized = value.trim().toLowerCase();
-  if (normalized === 'easy' || normalized === 'medium' || normalized === 'hard') {
-    return normalized;
-  }
-  return 'unknown';
-}
-
-function buildGraphLayout(nodes = [], edges = []) {
-  if (!Array.isArray(nodes) || nodes.length === 0) {
-    return {
-      nodes: [],
-      edges: [],
-      positions: new Map(),
-      width: 0,
-      height: 0,
-      columnLabels: []
-    };
-  }
-
-  const normalizedNodes = nodes.map((node) => ({
-    ...node,
-    difficulty: normalizeGraphDifficulty(node.difficulty)
-  }));
-  const nodesById = new Map(normalizedNodes.map((node) => [node.id, node]));
-  const prerequisiteMap = new Map();
-
-  for (const edge of edges || []) {
-    if (!edge || !edge.from || !edge.to) {
-      continue;
-    }
-    if (!nodesById.has(edge.from) || !nodesById.has(edge.to)) {
-      continue;
-    }
-    if (!prerequisiteMap.has(edge.to)) {
-      prerequisiteMap.set(edge.to, []);
-    }
-    prerequisiteMap.get(edge.to).push(edge.from);
-  }
-
-  const depthMemo = new Map();
-  const visiting = new Set();
-  const getDepth = (id) => {
-    if (depthMemo.has(id)) {
-      return depthMemo.get(id);
-    }
-    if (visiting.has(id)) {
-      return 0;
-    }
-    visiting.add(id);
-    const prereqs = prerequisiteMap.get(id) || [];
-    let depth = 0;
-    for (const prereqId of prereqs) {
-      depth = Math.max(depth, getDepth(prereqId) + 1);
-    }
-    visiting.delete(id);
-    depthMemo.set(id, depth);
-    return depth;
-  };
-
-  const columns = new Map();
-  for (const node of normalizedNodes) {
-    const columnKey = GRAPH_DIFFICULTY_COLUMNS.includes(node.difficulty)
-      ? node.difficulty
-      : 'unknown';
-    if (!columns.has(columnKey)) {
-      columns.set(columnKey, []);
-    }
-    columns.get(columnKey).push(node);
-  }
-
-  const positions = new Map();
-  let maxRows = 0;
-
-  GRAPH_DIFFICULTY_COLUMNS.forEach((columnKey, columnIndex) => {
-    const group = columns.get(columnKey) || [];
-    group.sort((a, b) => {
-      const depthA = getDepth(a.id);
-      const depthB = getDepth(b.id);
-      if (depthA !== depthB) {
-        return depthA - depthB;
-      }
-      if (Boolean(a.hasSubmission) !== Boolean(b.hasSubmission)) {
-        return a.hasSubmission ? -1 : 1;
-      }
-      return String(a.name || a.id).localeCompare(String(b.name || b.id));
-    });
-    maxRows = Math.max(maxRows, group.length);
-    group.forEach((node, rowIndex) => {
-      positions.set(node.id, {
-        x: GRAPH_PADDING.x + columnIndex * GRAPH_COLUMN_WIDTH,
-        y: GRAPH_PADDING.y + rowIndex * GRAPH_ROW_HEIGHT
-      });
-    });
-  });
-
-  const width = GRAPH_PADDING.x * 2 + GRAPH_COLUMN_WIDTH * (GRAPH_DIFFICULTY_COLUMNS.length - 1) + 260;
-  const height = GRAPH_PADDING.y * 2 + Math.max(1, maxRows) * GRAPH_ROW_HEIGHT;
-  const columnLabels = GRAPH_DIFFICULTY_COLUMNS.map((columnKey, columnIndex) => ({
-    key: columnKey,
-    label: GRAPH_COLUMN_LABELS[columnKey] || columnKey,
-    x: GRAPH_PADDING.x + columnIndex * GRAPH_COLUMN_WIDTH,
-    y: Math.max(24, GRAPH_PADDING.y - 18)
-  }));
-
-  return {
-    nodes: normalizedNodes,
-    edges: Array.isArray(edges) ? edges : [],
-    positions,
-    width,
-    height,
-    columnLabels
-  };
-}
-
-function buildGraphEdgePath(from, to) {
-  const dx = to.x - from.x;
-  const curve = Math.max(40, Math.abs(dx) * 0.35);
-  const controlX1 = from.x + (dx >= 0 ? curve : -curve);
-  const controlX2 = to.x - (dx >= 0 ? curve : -curve);
-  return `M ${from.x} ${from.y} C ${controlX1} ${from.y}, ${controlX2} ${to.y}, ${to.x} ${to.y}`;
-}
 
 function createLanguageMap(defaultValue) {
   return LANGUAGE_OPTIONS.reduce((acc, option) => {
@@ -643,6 +516,7 @@ export default function SubmissionsPage() {
   const [gradePopoverInfo, setGradePopoverInfo] = useState(null);
   const gradePopoverCloseTimeoutRef = useRef(null);
   const graphContainerRef = useRef(null);
+  const graphLayoutRef = useRef(null);
   const graphPanRef = useRef({
     startX: 0,
     startY: 0,
@@ -685,8 +559,29 @@ export default function SubmissionsPage() {
     setGradePopoverInfo(payload);
   }
 
+  function clampGraphScale(value) {
+    return Math.min(GRAPH_SCALE_LIMITS.max, Math.max(GRAPH_SCALE_LIMITS.min, value));
+  }
+
+  function fitGraphToContainer(layoutOverride) {
+    const container = graphContainerRef.current;
+    const layout = layoutOverride || graphLayoutRef.current;
+    if (!container || !layout || !layout.width || !layout.height) {
+      setGraphTransform({ scale: 1, x: 0, y: 0 });
+      return;
+    }
+    const nextTransform = computeFitTransform({
+      width: layout.width,
+      height: layout.height,
+      containerWidth: container.clientWidth,
+      containerHeight: container.clientHeight,
+      padding: 24
+    });
+    setGraphTransform(nextTransform);
+  }
+
   function resetGraphTransform() {
-    setGraphTransform({ scale: 1, x: 0, y: 0 });
+    fitGraphToContainer();
   }
 
   function applyGraphScale(scaleUpdater, anchorX, anchorY) {
@@ -694,7 +589,7 @@ export default function SubmissionsPage() {
       const nextScale = typeof scaleUpdater === 'function'
         ? scaleUpdater(prev.scale)
         : scaleUpdater;
-      const clamped = clampValue(nextScale, GRAPH_SCALE_LIMITS.min, GRAPH_SCALE_LIMITS.max);
+      const clamped = clampGraphScale(nextScale);
       const scaleFactor = clamped / prev.scale;
       const nextX = anchorX - scaleFactor * (anchorX - prev.x);
       const nextY = anchorY - scaleFactor * (anchorY - prev.y);
@@ -1201,7 +1096,6 @@ export default function SubmissionsPage() {
         }
         setGraphNodes(Array.isArray(data.nodes) ? data.nodes : []);
         setGraphEdges(Array.isArray(data.edges) ? data.edges : []);
-        resetGraphTransform();
       } catch (loadError) {
         if (isMounted) {
           setGraphNodes([]);
@@ -1634,11 +1528,37 @@ export default function SubmissionsPage() {
   const activeRetentionEmptyLabel = activeRetentionTab === 'topic'
     ? 'No topic retention metrics available yet.'
     : 'No retention metrics available yet.';
-  const graphLayout = buildGraphLayout(graphNodes, graphEdges);
+  const graphLayout = useMemo(
+    () => buildGraphLayout(graphNodes, graphEdges, GRAPH_LAYOUT_OPTIONS),
+    [graphNodes, graphEdges]
+  );
   const graphHasData = graphNodes.length > 0;
   const graphMetaLabel = graphHasData
-    ? `${graphNodes.length} challenges · ${graphEdges.length} edges`
+    ? `${graphNodes.length} challenges · ${graphEdges.length} edges · ${graphLayout.columns.length} depth levels`
     : 'No graph data yet.';
+  const graphColumnLabels = graphLayout.columns.map((depthValue, index) => ({
+    key: depthValue,
+    label: `Depth ${depthValue}`,
+    x: GRAPH_LAYOUT_OPTIONS.paddingX + index * GRAPH_LAYOUT_OPTIONS.columnWidth,
+    y: Math.max(24, GRAPH_LAYOUT_OPTIONS.paddingY - 18)
+  }));
+
+  useEffect(() => {
+    graphLayoutRef.current = graphLayout;
+  }, [graphLayout]);
+
+  useEffect(() => {
+    if (!graphHasData) {
+      return undefined;
+    }
+    const handleResize = () => fitGraphToContainer(graphLayout);
+    const frame = requestAnimationFrame(handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [graphHasData, graphLayout.width, graphLayout.height]);
 
   return (
     <div className="submissions-page">
@@ -2236,7 +2156,7 @@ export default function SubmissionsPage() {
                     transform={`translate(${graphTransform.x} ${graphTransform.y}) scale(${graphTransform.scale})`}
                   >
                     <g className="challenge-graph-columns">
-                      {graphLayout.columnLabels.map((column) => (
+                      {graphColumnLabels.map((column) => (
                         <text
                           key={column.key}
                           x={column.x}
@@ -2279,10 +2199,10 @@ export default function SubmissionsPage() {
                             <circle
                               cx={position.x}
                               cy={position.y}
-                              r={GRAPH_NODE_RADIUS}
+                              r={graphLayout.nodeRadius}
                             />
                             <text
-                              x={position.x + GRAPH_NODE_RADIUS + 10}
+                              x={position.x + graphLayout.nodeRadius + 10}
                               y={position.y + 4}
                               className="challenge-graph-label"
                             >

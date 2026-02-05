@@ -9,7 +9,8 @@
     "postinstall": "npm install --prefix backend && npm install --prefix frontend",
     "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "test": "cd backend && npm test",
-    "test:coverage": "cd backend && npm run test:coverage"
+    "test:coverage": "cd backend && npm run test:coverage",
+    "graph:snapshot": "cd backend && npm run graph:snapshot"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
