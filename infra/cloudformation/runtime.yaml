@@ -3,6 +3,10 @@ Description: Isolated A-minus runtime.
 Parameters:
   AmiId:
     Type: AWS::EC2::Image::Id
+  ImageTag:
+    Type: String
+    AllowedPattern: ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$
+    Description: Immutable ECR tag shared by api, runner, and frontend.
   OriginVerifyToken:
     Type: String
     NoEcho: true
@@ -95,14 +99,14 @@ Resources:
           Ebs: {Encrypted: true, DeleteOnTermination: true, VolumeType: gp3, VolumeSize: 20}
       Tags: [{Key: Name, Value: problem-set-a-minus-runtime}, {Key: Project, Value: problem-set-a-minus}, {Key: Owner, Value: Codex}]
       UserData:
-        Fn::Base64: |
+        Fn::Base64: !Sub |
           #!/bin/bash
           set -euo pipefail
           dnf -y install docker sqlite
           systemctl enable --now docker
           mkdir -p /var/lib/problem-set
           REGISTRY=461701713970.dkr.ecr.us-east-1.amazonaws.com
-          TAG=fe48d8954f87
+          TAG=${ImageTag}
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$REGISTRY"
           SITE_AUTH_TOKEN=$(aws ssm get-parameter --region us-east-1 --name /problem-set-a-minus/runtime/site-auth-token --with-decryption --query Parameter.Value --output text)
           ORIGIN_VERIFY_TOKEN=$(aws ssm get-parameter --region us-east-1 --name /problem-set-a-minus/runtime/origin-verify-token --with-decryption --query Parameter.Value --output text)
