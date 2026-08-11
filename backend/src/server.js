@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import { createApiSecurity, createCorsOptions } from './security/apiSecurity.js';
 import { existsSync } from 'fs';
 import { readFile, readdir, unlink, stat, writeFile, mkdir } from 'fs/promises';
 import { fileURLToPath } from 'url';
@@ -2958,8 +2959,9 @@ if (process.env.NODE_ENV === 'test') {
   };
 }
 
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(cors(createCorsOptions()));
+app.use(express.json({ limit: process.env.REQUEST_BODY_LIMIT || '512kb' }));
+app.use(createApiSecurity());
 
 function buildMockExecutionResult(testCases) {
   return {
