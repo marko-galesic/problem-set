@@ -1,0 +1,88 @@
+services:
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy:0.3.0
+    environment:
+      CONTAINERS: "1"
+      IMAGES: "1"
+      POST: "1"
+      PING: "1"
+      VERSION: "1"
+      INFO: "0"
+      NETWORKS: "0"
+      VOLUMES: "0"
+      EXEC: "0"
+      SECRETS: "0"
+      SERVICES: "0"
+      SWARM: "0"
+      TASKS: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    read_only: true
+    tmpfs:
+      - /run
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: problem-set-api:local
+    environment:
+      NODE_ENV: production
+      PORT: "3001"
+      CHALLENGES_DB_PATH: /var/lib/problem-set/challenges.db
+      EXECUTION_BACKEND: docker
+      EXECUTION_SANDBOX_IMAGE: problem-set-runner:local
+      DOCKER_HOST: tcp://docker-proxy:2375
+      SITE_AUTH_USER: \${SITE_AUTH_USER:-personal}
+      SITE_AUTH_TOKEN: \${SITE_AUTH_TOKEN:?SITE_AUTH_TOKEN is required}
+      CORS_ORIGIN: \${CORS_ORIGIN:-}
+    volumes:
+      - problem-set-data:/var/lib/problem-set
+    depends_on:
+      docker-proxy:
+        condition: service_started
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=64m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: problem-set-frontend:local
+    ports:
+      - "8080:8080"
+    depends_on:
+      api:
+        condition: service_started
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=16m
+      - /var/cache/nginx:rw,nosuid,nodev,noexec,size=16m
+      - /var/run:rw,nosuid,nodev,noexec,size=4m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
+
+  runner:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile.runner
+    image: problem-set-runner:local
+    profiles: ["build-only"]
+
+volumes:
+  problem-set-data:
+    name: problem-set-data
