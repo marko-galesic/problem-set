@@ -4,7 +4,7 @@ import { writeFile, unlink, mkdir, appendFile, readdir, readFile } from 'fs/prom
 import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { DEFAULT_CHALLENGE } from '../server.js';
+import { DEFAULT_CHALLENGE } from '../config/challenges.js';
 import { getChallengeAssetContent, getHelperAssetType } from '../db/challengeContent.js';
 
 const execAsync = promisify(exec);

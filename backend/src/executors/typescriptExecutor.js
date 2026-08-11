@@ -4,7 +4,7 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { dirname } from 'path';
-import { DEFAULT_CHALLENGE } from '../server.js';
+import { DEFAULT_CHALLENGE } from '../config/challenges.js';
 import { getChallengeAssetContent, getHelperAssetType } from '../db/challengeContent.js';
 
 const __filename = fileURLToPath(import.meta.url);

@@ -6,10 +6,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { randomUUID } from 'crypto';
 import OpenAI from 'openai';
-import { executeJavaCode } from './executors/javaExecutor.js';
-import { executePythonCode } from './executors/pythonExecutor.js';
-import { executeJavaScriptCode } from './executors/javascriptExecutor.js';
-import { executeTypeScriptCode } from './executors/typescriptExecutor.js';
+import { executeSubmission } from './execution/executionService.js';
+import { DEFAULT_CHALLENGE } from './config/challenges.js';
 import { loadAdapter } from './adapters/index.js';
 import { standardAdapterDefinitions } from './adapters/standardAdapterDefinitions.js';
 import { initDatabase } from './db/database.js';
@@ -65,7 +63,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Default challenge ID (configurable)
-export const DEFAULT_CHALLENGE = 'two_sum';
+export { DEFAULT_CHALLENGE };
 const GLOBAL_LANGUAGE_PREFERENCE_KEY = '__global__';
 const TECH_BAR_LABELS = new Set(['not_met', 'met', 'exceeds']);
 const TECH_BAR_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
@@ -3387,16 +3385,7 @@ app.post('/api/run', async (req, res) => {
     const adapterPath = getLanguageAdapterPath(challengeRecord, language, challenge);
     const adapter = await loadAdapter(adapterPath);
 
-    let result;
-    if (language === 'python') {
-      result = await executePythonCode(code, testsToRun, adapter, challenge);
-    } else if (language === 'javascript') {
-      result = await executeJavaScriptCode(code, testsToRun, adapter, challenge);
-    } else if (language === 'typescript') {
-      result = await executeTypeScriptCode(code, testsToRun, adapter, challenge);
-    } else {
-      result = await executeJavaCode(code, testsToRun, adapter, challenge);
-    }
+    const result = await executeSubmission({ code, testCases: testsToRun, adapter, adapterPath, challengeId: challenge, language });
 
     res.json(result);
   } catch (error) {
@@ -3454,16 +3443,7 @@ app.post('/api/submit', async (req, res) => {
     const adapterPath = getLanguageAdapterPath(challengeRecord, language, challenge);
     const adapter = await loadAdapter(adapterPath);
 
-    let result;
-    if (language === 'python') {
-      result = await executePythonCode(code, submitTests, adapter, challenge);
-    } else if (language === 'javascript') {
-      result = await executeJavaScriptCode(code, submitTests, adapter, challenge);
-    } else if (language === 'typescript') {
-      result = await executeTypeScriptCode(code, submitTests, adapter, challenge);
-    } else {
-      result = await executeJavaCode(code, submitTests, adapter, challenge);
-    }
+    const result = await executeSubmission({ code, testCases: submitTests, adapter, adapterPath, challengeId: challenge, language });
 
     // Calculate average time
     if (result.success && result.results.length > 0) {
