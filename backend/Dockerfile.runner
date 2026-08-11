@@ -1,11 +1,10 @@
 FROM public.ecr.aws/docker/library/node:22-bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends openjdk-17-jdk-headless python3 && rm -rf /var/lib/apt/lists/*
-WORKDIR /opt/problem-set/backend
-COPY backend/package.json backend/package-lock.json ./
-RUN npm ci
-COPY backend /opt/problem-set/backend
-COPY data /opt/problem-set/data
-RUN chown -R 65532:65532 /opt/problem-set
+RUN groupadd --gid 65532 problemset && useradd --uid 65532 --gid 65532 --create-home --shell /usr/sbin/nologin problemset && mkdir -p /opt/problem-set/backend /opt/problem-set/data && chown -R problemset:problemset /opt/problem-set
 USER 65532:65532
 WORKDIR /opt/problem-set/backend
+COPY --chown=65532:65532 backend/package.json backend/package-lock.json ./
+RUN npm ci && npm cache clean --force
+COPY --chown=65532:65532 backend /opt/problem-set/backend
+COPY --chown=65532:65532 data /opt/problem-set/data
 ENTRYPOINT ["node", "src/execution/sandboxWorker.js"]
