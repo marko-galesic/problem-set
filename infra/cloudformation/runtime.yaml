@@ -105,6 +105,7 @@ Resources:
           dnf -y install docker sqlite
           systemctl enable --now docker
           mkdir -p /var/lib/problem-set
+          chown 65532:65532 /var/lib/problem-set
           REGISTRY=461701713970.dkr.ecr.us-east-1.amazonaws.com
           TAG=${ImageTag}
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$REGISTRY"
@@ -114,8 +115,8 @@ Resources:
           for image in api runner frontend; do docker pull "$REGISTRY/problem-set-a-minus/$image:$TAG"; done
           docker pull "$REGISTRY/problem-set-a-minus/socket-proxy:0.3.0"
           docker tag "$REGISTRY/problem-set-a-minus/runner:$TAG" problem-set-runner:local
-          docker run -d --name docker-proxy --restart unless-stopped --network problem-set --read-only --tmpfs /run --tmpfs /tmp --cap-drop ALL -v /var/run/docker.sock:/var/run/docker.sock:ro -e CONTAINERS=1 -e POST=1 "$REGISTRY/problem-set-a-minus/socket-proxy:0.3.0"
-          docker run -d --name problem-set-api --restart unless-stopped --network problem-set --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges -v /var/lib/problem-set:/var/lib/problem-set -e NODE_ENV=production -e PORT=3001 -e CHALLENGES_DB_PATH=/var/lib/problem-set/problem-set.db -e DOCKER_HOST=tcp://docker-proxy:2375 -e EXECUTION_SANDBOX_IMAGE=problem-set-runner:local -e SITE_AUTH_TOKEN="$SITE_AUTH_TOKEN" "$REGISTRY/problem-set-a-minus/api:$TAG"
+          docker run -d --name docker-proxy --restart unless-stopped --network problem-set --read-only --tmpfs /run --tmpfs /tmp --tmpfs /usr/local/etc/haproxy --cap-drop ALL -v /var/run/docker.sock:/var/run/docker.sock:ro -e CONTAINERS=1 -e POST=1 "$REGISTRY/problem-set-a-minus/socket-proxy:0.3.0"
+          docker run -d --name problem-set-api --restart unless-stopped --network problem-set --network-alias api --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges -v /var/lib/problem-set:/var/lib/problem-set -e NODE_ENV=production -e PORT=3001 -e CHALLENGES_DB_PATH=/var/lib/problem-set/problem-set.db -e DOCKER_HOST=tcp://docker-proxy:2375 -e EXECUTION_SANDBOX_IMAGE=problem-set-runner:local -e SITE_AUTH_TOKEN="$SITE_AUTH_TOKEN" "$REGISTRY/problem-set-a-minus/api:$TAG"
           docker run -d --name problem-set-frontend --restart unless-stopped --network problem-set -p 80:8080 --cap-drop ALL --security-opt no-new-privileges -e SITE_AUTH_TOKEN="$SITE_AUTH_TOKEN" -e ORIGIN_VERIFY_TOKEN="$ORIGIN_VERIFY_TOKEN" "$REGISTRY/problem-set-a-minus/frontend:$TAG"
   Recovery:
     Type: AWS::CloudWatch::Alarm
