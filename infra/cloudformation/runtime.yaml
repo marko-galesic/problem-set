@@ -11,6 +11,12 @@ Parameters:
     Type: String
     NoEcho: true
     Description: CloudFront-only origin verification header, supplied transiently from SSM.
+  AlarmTopicArn:
+    Type: String
+    Default: ''
+    Description: Optional project SNS topic for non-recovery runtime alarms.
+Conditions:
+  HasAlarmTopic: !Not [!Equals [!Ref AlarmTopicArn, '']]
 Resources:
   Vpc:
     Type: AWS::EC2::VPC
@@ -162,6 +168,34 @@ Resources:
       ComparisonOperator: GreaterThanOrEqualToThreshold
       Dimensions: [{Name: InstanceId, Value: !Ref Instance}]
       AlarmActions: [arn:aws:automate:us-east-1:ec2:recover]
+      TreatMissingData: notBreaching
+  InstanceStatusAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: problem-set-a-minus-instance-status
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_Instance
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions: [{Name: InstanceId, Value: !Ref Instance}]
+      AlarmActions: !If [HasAlarmTopic, [!Ref AlarmTopicArn], !Ref AWS::NoValue]
+      TreatMissingData: notBreaching
+  CpuPressureAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: problem-set-a-minus-cpu-pressure
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold: 85
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions: [{Name: InstanceId, Value: !Ref Instance}]
+      AlarmActions: !If [HasAlarmTopic, [!Ref AlarmTopicArn], !Ref AWS::NoValue]
       TreatMissingData: notBreaching
   Distribution:
     Type: AWS::CloudFront::Distribution
