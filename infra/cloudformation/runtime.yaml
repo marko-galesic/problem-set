@@ -3,6 +3,10 @@ Description: Isolated A-minus runtime.
 Parameters:
   AmiId:
     Type: AWS::EC2::Image::Id
+  OriginVerifyToken:
+    Type: String
+    NoEcho: true
+    Description: CloudFront-only origin verification header, supplied transiently from SSM.
 Resources:
   Vpc:
     Type: AWS::EC2::VPC
@@ -133,7 +137,7 @@ Resources:
           - Id: runtime
             DomainName: !GetAtt Instance.PublicDnsName
             CustomOriginConfig: {HTTPPort: 80, HTTPSPort: 443, OriginProtocolPolicy: http-only, OriginSSLProtocols: [TLSv1.2]}
-            OriginCustomHeaders: [{HeaderName: X-Problem-Set-Origin, HeaderValue: '{{resolve:ssm-secure:/problem-set-a-minus/runtime/origin-verify-token:1}}'}]
+            OriginCustomHeaders: [{HeaderName: X-Problem-Set-Origin, HeaderValue: !Ref OriginVerifyToken}]
         DefaultCacheBehavior:
           TargetOriginId: runtime
           ViewerProtocolPolicy: redirect-to-https
