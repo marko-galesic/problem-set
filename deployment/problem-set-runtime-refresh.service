@@ -1,0 +1,13 @@
+[Unit]
+Description=Refresh problem-set runtime containers to the pinned image tag
+Wants=network-online.target
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+Environment=DOCKER_CONFIG=/run/problem-set-docker
+ExecStart=/bin/sh -c '/usr/local/bin/problem-set-refresh "$(cat /etc/problem-set-a-minus/image-tag)"'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
