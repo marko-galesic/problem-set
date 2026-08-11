@@ -1,0 +1,148 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Isolated A-minus runtime.
+Parameters:
+  AmiId:
+    Type: AWS::EC2::Image::Id
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.83.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags: [{Key: Project, Value: problem-set-a-minus}, {Key: Owner, Value: Codex}]
+  Igw:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags: [{Key: Project, Value: problem-set-a-minus}, {Key: Owner, Value: Codex}]
+  Attach:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: {InternetGatewayId: !Ref Igw, VpcId: !Ref Vpc}
+  Rt:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref Vpc}
+  Route:
+    Type: AWS::EC2::Route
+    DependsOn: Attach
+    Properties: {RouteTableId: !Ref Rt, DestinationCidrBlock: 0.0.0.0/0, GatewayId: !Ref Igw}
+  Subnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.83.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags: [{Key: Project, Value: problem-set-a-minus}, {Key: Owner, Value: Codex}]
+  Assoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {RouteTableId: !Ref Rt, SubnetId: !Ref Subnet}
+  Sg:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: HTTP origin only; Nginx requires a secret CloudFront header.
+      VpcId: !Ref Vpc
+      SecurityGroupIngress: [{IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0}]
+      SecurityGroupEgress: [{IpProtocol: '-1', CidrIp: 0.0.0.0/0}]
+      Tags: [{Key: Project, Value: problem-set-a-minus}, {Key: Owner, Value: Codex}]
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: problem-set-a-minus-runtime
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement: [{Effect: Allow, Principal: {Service: ec2.amazonaws.com}, Action: sts:AssumeRole}]
+      ManagedPolicyArns: [arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore]
+      Policies:
+        - PolicyName: runtime
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - {Effect: Allow, Action: [ecr:GetAuthorizationToken], Resource: '*'}
+              - Effect: Allow
+                Action: [ecr:BatchGetImage, ecr:GetDownloadUrlForLayer, ecr:BatchCheckLayerAvailability]
+                Resource:
+                  - arn:aws:ecr:us-east-1:461701713970:repository/problem-set-a-minus/api
+                  - arn:aws:ecr:us-east-1:461701713970:repository/problem-set-a-minus/runner
+                  - arn:aws:ecr:us-east-1:461701713970:repository/problem-set-a-minus/frontend
+                  - arn:aws:ecr:us-east-1:461701713970:repository/problem-set-a-minus/socket-proxy
+              - Effect: Allow
+                Action: ssm:GetParameter
+                Resource:
+                  - arn:aws:ssm:us-east-1:461701713970:parameter/problem-set-a-minus/runtime/site-auth-token
+                  - arn:aws:ssm:us-east-1:461701713970:parameter/problem-set-a-minus/runtime/origin-verify-token
+              - {Effect: Allow, Action: s3:ListBucket, Resource: arn:aws:s3:::problem-set-a-minus-backups-461701713970-us-east-1}
+              - {Effect: Allow, Action: [s3:PutObject, s3:GetObject], Resource: arn:aws:s3:::problem-set-a-minus-backups-461701713970-us-east-1/db/*}
+      Tags: [{Key: Project, Value: problem-set-a-minus}, {Key: Owner, Value: Codex}]
+  Profile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: {InstanceProfileName: problem-set-a-minus-runtime, Roles: [!Ref Role]}
+  Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: t3.small
+      IamInstanceProfile: !Ref Profile
+      SubnetId: !Ref Subnet
+      SecurityGroupIds: [!Ref Sg]
+      Monitoring: true
+      MetadataOptions: {HttpTokens: required, HttpEndpoint: enabled, HttpPutResponseHopLimit: 1}
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs: {Encrypted: true, DeleteOnTermination: true, VolumeType: gp3, VolumeSize: 20}
+      Tags: [{Key: Name, Value: problem-set-a-minus-runtime}, {Key: Project, Value: problem-set-a-minus}, {Key: Owner, Value: Codex}]
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          set -euo pipefail
+          dnf -y install docker sqlite
+          systemctl enable --now docker
+          mkdir -p /var/lib/problem-set
+          REGISTRY=461701713970.dkr.ecr.us-east-1.amazonaws.com
+          TAG=fe48d8954f87
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$REGISTRY"
+          SITE_AUTH_TOKEN=$(aws ssm get-parameter --region us-east-1 --name /problem-set-a-minus/runtime/site-auth-token --with-decryption --query Parameter.Value --output text)
+          ORIGIN_VERIFY_TOKEN=$(aws ssm get-parameter --region us-east-1 --name /problem-set-a-minus/runtime/origin-verify-token --with-decryption --query Parameter.Value --output text)
+          docker network create problem-set || true
+          for image in api runner frontend; do docker pull "$REGISTRY/problem-set-a-minus/$image:$TAG"; done
+          docker pull "$REGISTRY/problem-set-a-minus/socket-proxy:0.3.0"
+          docker tag "$REGISTRY/problem-set-a-minus/runner:$TAG" problem-set-runner:local
+          docker run -d --name docker-proxy --restart unless-stopped --network problem-set --read-only --tmpfs /run --tmpfs /tmp --cap-drop ALL -v /var/run/docker.sock:/var/run/docker.sock:ro -e CONTAINERS=1 -e POST=1 "$REGISTRY/problem-set-a-minus/socket-proxy:0.3.0"
+          docker run -d --name problem-set-api --restart unless-stopped --network problem-set --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges -v /var/lib/problem-set:/var/lib/problem-set -e NODE_ENV=production -e PORT=3001 -e CHALLENGES_DB_PATH=/var/lib/problem-set/problem-set.db -e DOCKER_HOST=tcp://docker-proxy:2375 -e EXECUTION_SANDBOX_IMAGE=problem-set-runner:local -e SITE_AUTH_TOKEN="$SITE_AUTH_TOKEN" "$REGISTRY/problem-set-a-minus/api:$TAG"
+          docker run -d --name problem-set-frontend --restart unless-stopped --network problem-set -p 80:8080 --cap-drop ALL --security-opt no-new-privileges -e SITE_AUTH_TOKEN="$SITE_AUTH_TOKEN" -e ORIGIN_VERIFY_TOKEN="$ORIGIN_VERIFY_TOKEN" "$REGISTRY/problem-set-a-minus/frontend:$TAG"
+  Recovery:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: problem-set-a-minus-system-recovery
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_System
+      Statistic: Minimum
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions: [{Name: InstanceId, Value: !Ref Instance}]
+      AlarmActions: [arn:aws:automate:us-east-1:ec2:recover]
+      TreatMissingData: notBreaching
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: runtime
+            DomainName: !GetAtt Instance.PublicDnsName
+            CustomOriginConfig: {HTTPPort: 80, HTTPSPort: 443, OriginProtocolPolicy: http-only, OriginSSLProtocols: [TLSv1.2]}
+            OriginCustomHeaders: [{HeaderName: X-Problem-Set-Origin, HeaderValue: '{{resolve:ssm-secure:/problem-set-a-minus/runtime/origin-verify-token:1}}'}]
+        DefaultCacheBehavior:
+          TargetOriginId: runtime
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+          CachedMethods: [GET, HEAD]
+          ForwardedValues: {QueryString: true, Headers: [Authorization], Cookies: {Forward: all}}
+          MinTTL: 0
+          DefaultTTL: 0
+          MaxTTL: 0
+Outputs:
+  Url: {Value: !GetAtt Distribution.DomainName}
+  InstanceId: {Value: !Ref Instance}
