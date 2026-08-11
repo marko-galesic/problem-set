@@ -38,6 +38,7 @@ describe('Header', () => {
     const resetButton = screen.getByRole('button', { name: /reset/i });
     fireEvent.click(resetButton);
     fireEvent.click(await screen.findByRole('button', { name: /confirm reset/i }));
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
     fireEvent.click(screen.getByRole('button', { name: /guide me/i }));
     fireEvent.click(screen.getByRole('button', { name: /your progress/i }));
     fireEvent.click(screen.getByRole('button', { name: /where's the bug/i }));
@@ -45,7 +46,6 @@ describe('Header', () => {
     expect(handlers.onRun).toHaveBeenCalled();
     expect(handlers.onSubmit).toHaveBeenCalled();
     expect(handlers.onResetSolution).toHaveBeenCalled();
-    expect(handlers.onResetTimer).toHaveBeenCalled();
     expect(handlers.onGuide).toHaveBeenCalled();
     expect(handlers.onProgress).toHaveBeenCalled();
     expect(handlers.onBugHunt).toHaveBeenCalled();

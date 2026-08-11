@@ -156,7 +156,7 @@ describe('SubmissionsPage', () => {
     render(<SubmissionsPage />);
     fireEvent.click(await screen.findByRole('tab', { name: /submissions/i }));
     expect(await screen.findByText(/failed to load submissions/i)).toBeInTheDocument();
-    expect(await screen.findByText(/no graph data yet/i)).toBeInTheDocument();
+    expect(await screen.findByText(/no graph data yet/i, { selector: ".challenge-graph-status" })).toBeInTheDocument();
   });
 
   it('shows topic fitness grade popover with submissions and avg timer time', async () => {

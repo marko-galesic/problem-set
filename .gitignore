@@ -13,3 +13,5 @@ logs/
 .cursor
 backend/data/challenges.db
 data/*/submissions.json
+
+.cursor/mcp.json
