@@ -27,7 +27,7 @@ describe('main', () => {
     await loadMain();
 
     expect(await screen.findByText('app-view')).toBeInTheDocument();
-    await waitFor(() => expect(fetch).toHaveBeenCalled());
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('renders submissions for hash route', async () => {
