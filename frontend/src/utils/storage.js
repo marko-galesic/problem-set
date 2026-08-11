@@ -1,3 +1,4 @@
+import { apiFetch } from '../api/client';
 function getStorageKey(challenge, key, language) {
   const langPrefix = language ? `${language}_` : '';
   return `${challenge}_${langPrefix}${key}`;
@@ -167,7 +168,7 @@ export function getCurrentCode(challenge = 'two_sum', language = 'java') {
 
 export async function saveLanguagePreference(language) {
   try {
-    const response = await fetch('/api/language-preference', {
+    const response = await apiFetch('/api/language-preference', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -189,7 +190,7 @@ export async function saveLanguagePreference(language) {
 
 export async function getLanguagePreference() {
   try {
-    const response = await fetch('/api/language-preference');
+    const response = await apiFetch('/api/language-preference');
 
     if (!response.ok) {
       throw new Error('Failed to load language preference');
@@ -253,7 +254,7 @@ export function getTimerState(challenge = 'two_sum', language) {
 // Submission API functions
 export async function saveSubmission(challenge, avgTime, timerTime, solution, guidanceLevel, submitAttempts, language) {
   try {
-    const response = await fetch('/api/submissions', {
+    const response = await apiFetch('/api/submissions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -284,7 +285,7 @@ export async function saveSubmission(challenge, avgTime, timerTime, solution, gu
 
 export async function getSubmissions(challenge = 'two_sum') {
   try {
-    const response = await fetch(`/api/submissions?challenge=${challenge}`);
+    const response = await apiFetch(`/api/submissions?challenge=${challenge}`);
     
     if (!response.ok) {
       throw new Error('Failed to load submissions');
@@ -300,7 +301,7 @@ export async function getSubmissions(challenge = 'two_sum') {
 
 export async function deleteSubmission(submissionId, challenge = 'two_sum') {
   try {
-    const response = await fetch(`/api/submissions?id=${submissionId}&challenge=${challenge}`, {
+    const response = await apiFetch(`/api/submissions?id=${submissionId}&challenge=${challenge}`, {
       method: 'DELETE'
     });
     
@@ -319,7 +320,7 @@ export async function deleteSubmission(submissionId, challenge = 'two_sum') {
 
 export async function updateSubmission(submissionId, timerTime, challenge = 'two_sum') {
   try {
-    const response = await fetch('/api/submissions', {
+    const response = await apiFetch('/api/submissions', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
