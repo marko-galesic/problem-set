@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { apiFetch } from './api/client';
 import { IconButton } from '@mui/material';
 import Header from './components/Header';
 import CodeEditor from './components/CodeEditor';
@@ -261,7 +262,7 @@ function App() {
           params.set('to', to);
         }
 
-        const response = await fetch(`/api/submissions?${params.toString()}`);
+        const response = await apiFetch(`/api/submissions?${params.toString()}`);
         if (!response.ok) {
           throw new Error('Failed to load submissions');
         }
@@ -291,7 +292,7 @@ function App() {
     setIsProgressReportLoading(true);
     setProgressReportError('');
     try {
-      const response = await fetch('/api/progress-report', {
+      const response = await apiFetch('/api/progress-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -380,7 +381,7 @@ function App() {
   useEffect(() => {
     async function fetchChallenges() {
       try {
-        const response = await fetch('/api/challenges');
+        const response = await apiFetch('/api/challenges');
         const data = await response.json();
         setChallenges(data.challenges || []);
       } catch (error) {
@@ -402,7 +403,7 @@ function App() {
 
   async function fetchChallengesMetadata() {
     try {
-      const response = await fetch('/api/challenges/metadata');
+      const response = await apiFetch('/api/challenges/metadata');
       if (!response.ok) {
         throw new Error('Failed to load challenge metadata');
       }
@@ -414,7 +415,7 @@ function App() {
         difficulty: challenge.difficulty
       }));
     } catch (metadataError) {
-      const fallbackResponse = await fetch('/api/challenges');
+      const fallbackResponse = await apiFetch('/api/challenges');
       if (!fallbackResponse.ok) {
         throw new Error('Failed to load challenges');
       }
@@ -471,7 +472,7 @@ function App() {
           from,
           language: currentLanguage
         });
-        const response = await fetch('/api/recommend-next-challenge', {
+        const response = await apiFetch('/api/recommend-next-challenge', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -507,7 +508,6 @@ function App() {
   useEffect(() => {
     async function loadChallengeData() {
       // #region agent log
-      fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.jsx:loadChallengeData:start',message:'loadChallengeData start',data:{challenge:currentChallenge,language:currentLanguage},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
       try {
         const savedDividerPos = getDividerPosition(currentChallenge);
@@ -520,10 +520,9 @@ function App() {
         }
         setIsEditorMaximized(getEditorMaximized(currentChallenge));
 
-        const templateResponse = await fetch(`/api/template?challenge=${currentChallenge}&language=${currentLanguage}`);
+        const templateResponse = await apiFetch(`/api/template?challenge=${currentChallenge}&language=${currentLanguage}`);
         const templateData = await templateResponse.json();
         // #region agent log
-        fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.jsx:loadChallengeData:template',message:'template response',data:{challenge:currentChallenge,language:currentLanguage,ok:templateResponse.ok,status:templateResponse.status,hasCode:Boolean(templateData && templateData.code)},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'B'})}).catch(()=>{});
         // #endregion
         const savedCode = getCurrentCode(currentChallenge, currentLanguage);
         if (savedCode) {
@@ -533,16 +532,15 @@ function App() {
           saveCurrentCode(templateData.code, currentChallenge, currentLanguage);
         }
 
-        const descResponse = await fetch(`/api/description?challenge=${currentChallenge}`);
+        const descResponse = await apiFetch(`/api/description?challenge=${currentChallenge}`);
         const descData = await descResponse.json();
         if (descData.description) {
           setDescription(descData.description);
         }
 
-        const testResponse = await fetch(`/api/test-cases?challenge=${currentChallenge}&language=${currentLanguage}`);
+        const testResponse = await apiFetch(`/api/test-cases?challenge=${currentChallenge}&language=${currentLanguage}`);
         const testData = await testResponse.json();
         // #region agent log
-        fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.jsx:loadChallengeData:testCases',message:'test cases response',data:{challenge:currentChallenge,language:currentLanguage,ok:testResponse.ok,status:testResponse.status,runCount:(testData.runTests||[]).length,submitCount:(testData.submitTests||[]).length},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'C'})}).catch(()=>{});
         // #endregion
         setTestCases({
           runTests: testData.runTests || [],
@@ -560,7 +558,6 @@ function App() {
         }
       } catch (error) {
         // #region agent log
-        fetch('http://127.0.0.1:7245/ingest/21741705-9df2-4de5-9b0a-2a68c5e131e1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.jsx:loadChallengeData:error',message:'loadChallengeData error',data:{challenge:currentChallenge,language:currentLanguage,error:error ? String(error) : 'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'initial',hypothesisId:'D'})}).catch(()=>{});
         // #endregion
         console.error('Failed to load challenge data:', error);
       }
@@ -752,7 +749,7 @@ function App() {
 
       // First, cleanup the challenge-specific temp directory
       try {
-        await fetch(`/api/cleanup?challenge=${currentChallenge}`, {
+        await apiFetch(`/api/cleanup?challenge=${currentChallenge}`, {
           method: 'DELETE'
         });
       } catch (cleanupError) {
@@ -761,7 +758,7 @@ function App() {
       }
       
       // Then fetch and set the template code
-      const response = await fetch(`/api/template?challenge=${currentChallenge}&language=${currentLanguage}`);
+      const response = await apiFetch(`/api/template?challenge=${currentChallenge}&language=${currentLanguage}`);
       const data = await response.json();
       if (data.code) {
         setCode(data.code);
@@ -801,7 +798,7 @@ function App() {
         }
       });
       
-      const response = await fetch('/api/run', {
+      const response = await apiFetch('/api/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -886,7 +883,7 @@ function App() {
         from,
         language: currentLanguage
       });
-      const response = await fetch('/api/recommend-next-challenge', {
+      const response = await apiFetch('/api/recommend-next-challenge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -964,7 +961,7 @@ function App() {
 
     try {
       const challengeMatch = challenges.find((challenge) => challenge.id === currentChallenge);
-      const evalResponse = await fetch('/api/bug-hunt-evaluate', {
+      const evalResponse = await apiFetch('/api/bug-hunt-evaluate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1032,7 +1029,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('/api/guide-chat', {
+      const response = await apiFetch('/api/guide-chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -1071,7 +1068,7 @@ function App() {
     const submitAttempts = incrementSubmitAttempts(currentChallenge, currentLanguage);
 
     try {
-      const response = await fetch('/api/submit', {
+      const response = await apiFetch('/api/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1223,7 +1220,7 @@ function App() {
         descriptionHtml: description,
         testCasesPreview
       };
-      const response = await fetch('/api/bug-hunt', {
+      const response = await apiFetch('/api/bug-hunt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bugHuntPayload)

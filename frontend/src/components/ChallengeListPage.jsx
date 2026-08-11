@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '../api/client';
 
 const PAGE_SIZE = 25;
 const FALLBACK_DIFFICULTY = 'Not set';
@@ -159,7 +160,7 @@ function matchesSearch(challenge, query) {
 
 async function fetchChallengesMetadata() {
   try {
-    const response = await fetch('/api/challenges/metadata');
+    const response = await apiFetch('/api/challenges/metadata');
     if (!response.ok) {
       throw new Error('Failed to load challenges metadata');
     }
@@ -172,7 +173,7 @@ async function fetchChallengesMetadata() {
       topics: challenge.topics ?? []
     }));
   } catch (error) {
-    const fallbackResponse = await fetch('/api/challenges');
+    const fallbackResponse = await apiFetch('/api/challenges');
     if (!fallbackResponse.ok) {
       throw error;
     }
@@ -193,7 +194,7 @@ async function fetchAllSubmissions() {
   let hasMore = true;
 
   while (hasMore && page <= MAX_SUBMISSIONS_PAGES) {
-    const response = await fetch(`/api/submissions?scope=all&limit=${SUBMISSIONS_PAGE_SIZE}&page=${page}`);
+    const response = await apiFetch(`/api/submissions?scope=all&limit=${SUBMISSIONS_PAGE_SIZE}&page=${page}`);
     if (!response.ok) {
       throw new Error('Failed to load submissions');
     }

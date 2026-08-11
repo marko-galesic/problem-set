@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { apiFetch } from '../api/client';
 import {
   Button,
   Popover,
@@ -769,7 +770,7 @@ export default function SubmissionsPage() {
       params.set('to', to);
     }
 
-    const response = await fetch(`/api/submissions?${params.toString()}`);
+    const response = await apiFetch(`/api/submissions?${params.toString()}`);
     if (!response.ok) {
       throw new Error('Failed to load submissions');
     }
@@ -813,7 +814,7 @@ export default function SubmissionsPage() {
     if (language) {
       params.set('language', normalizeLanguage(language));
     }
-    const response = await fetch(`/api/topic-fitness-history?${params.toString()}`);
+    const response = await apiFetch(`/api/topic-fitness-history?${params.toString()}`);
     if (!response.ok) {
       throw new Error('Failed to load topic fitness history');
     }
@@ -830,7 +831,7 @@ export default function SubmissionsPage() {
         language: normalizedLanguage,
         refresh: refresh ? '1' : '0'
       });
-      const response = await fetch(`/api/retention-metrics?${params.toString()}`);
+      const response = await apiFetch(`/api/retention-metrics?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to load retention metrics.');
       }
@@ -857,7 +858,7 @@ export default function SubmissionsPage() {
       const params = new URLSearchParams({
         language: normalizedLanguage
       });
-      const response = await fetch(`/api/retention-metrics/topics?${params.toString()}`);
+      const response = await apiFetch(`/api/retention-metrics/topics?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to load topic retention metrics.');
       }
@@ -936,7 +937,7 @@ export default function SubmissionsPage() {
 
   async function fetchChallengesMetadata() {
     try {
-      const response = await fetch('/api/challenges/metadata');
+      const response = await apiFetch('/api/challenges/metadata');
       if (!response.ok) {
         throw new Error('Failed to load challenge metadata');
       }
@@ -949,7 +950,7 @@ export default function SubmissionsPage() {
         topics: challenge.topics ?? []
       }));
     } catch (metadataError) {
-      const fallbackResponse = await fetch('/api/challenges');
+      const fallbackResponse = await apiFetch('/api/challenges');
       if (!fallbackResponse.ok) {
         throw new Error('Failed to load challenges');
       }
@@ -970,7 +971,7 @@ export default function SubmissionsPage() {
       scope: 'submitted',
       edges: 'prerequisite'
     });
-    const response = await fetch(`/api/challenges/graph?${params.toString()}`);
+    const response = await apiFetch(`/api/challenges/graph?${params.toString()}`);
     if (!response.ok) {
       throw new Error('Failed to load challenge graph');
     }
@@ -1225,7 +1226,7 @@ export default function SubmissionsPage() {
 
             const recentSubmissions = await fetchAllSubmissions({ language, from });
             const submissionCount = recentSubmissions.length;
-            const response = await fetch('/api/recommend-next-challenge', {
+            const response = await apiFetch('/api/recommend-next-challenge', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -1301,7 +1302,7 @@ export default function SubmissionsPage() {
       setTopicFitnessLoading(true);
       setTopicFitnessError(null);
       try {
-        const response = await fetch(`/api/topic-fitness?language=${selectedLanguage}`);
+        const response = await apiFetch(`/api/topic-fitness?language=${selectedLanguage}`);
         if (!response.ok) {
           throw new Error('Failed to load topic fitness');
         }
