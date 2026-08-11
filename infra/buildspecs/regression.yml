@@ -1,0 +1,43 @@
+version: 0.2
+
+# The dedicated CodeBuild project has NO_SOURCE deliberately: it receives this
+# buildspec as an override and clones only through the repo-scoped deploy key.
+# Run it on aws/codebuild/standard:7.0 or later; Node 22 is mandatory.
+env:
+  variables:
+    REGRESSION_EVIDENCE_PREFIX: evidence/regression/node22
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - node --version
+      - mkdir -p /tmp/problem-set-regression-key
+      - umask 077
+      - aws ssm get-parameter --region us-east-1 --name /problem-set-a-minus/github/deploy-private-key --with-decryption --query Parameter.Value --output text > /tmp/problem-set-regression-key/id
+      - chmod 600 /tmp/problem-set-regression-key/id
+      - export GIT_SSH_COMMAND="ssh -i /tmp/problem-set-regression-key/id -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+      - git clone --depth 1 --branch codex/a-minus-architecture git@github.com:marko-galesic/problem-set.git /tmp/problem-set-regression
+  build:
+    commands:
+      - cd /tmp/problem-set-regression
+      - git rev-parse HEAD | tee /tmp/problem-set-revision.txt
+      - cd backend
+      - npm ci
+      - bash -o pipefail -c 'npm test 2>&1 | tee /tmp/problem-set-backend-tests.log'
+      - cd ../frontend
+      - npm ci
+      - bash -o pipefail -c 'npm test -- --run 2>&1 | tee /tmp/problem-set-frontend-tests.log'
+      - bash -o pipefail -c 'npm run build 2>&1 | tee /tmp/problem-set-frontend-build.log'
+  post_build:
+    commands:
+      - sha256sum /tmp/problem-set-revision.txt /tmp/problem-set-backend-tests.log /tmp/problem-set-frontend-tests.log /tmp/problem-set-frontend-build.log | tee /tmp/problem-set-regression-checksums.txt
+      - aws s3 cp /tmp/problem-set-revision.txt s3://problem-set-a-minus-backups-461701713970-us-east-1/$REGRESSION_EVIDENCE_PREFIX/revision.txt
+      - aws s3 cp /tmp/problem-set-backend-tests.log s3://problem-set-a-minus-backups-461701713970-us-east-1/$REGRESSION_EVIDENCE_PREFIX/backend-tests.log
+      - aws s3 cp /tmp/problem-set-frontend-tests.log s3://problem-set-a-minus-backups-461701713970-us-east-1/$REGRESSION_EVIDENCE_PREFIX/frontend-tests.log
+      - aws s3 cp /tmp/problem-set-frontend-build.log s3://problem-set-a-minus-backups-461701713970-us-east-1/$REGRESSION_EVIDENCE_PREFIX/frontend-build.log
+      - aws s3 cp /tmp/problem-set-regression-checksums.txt s3://problem-set-a-minus-backups-461701713970-us-east-1/$REGRESSION_EVIDENCE_PREFIX/SHA256SUMS
+diff --git a/docs/operations/evidence.md b/docs/operations/evidence.md
+--- a/docs/operations/evidence.md
++++ b/docs/operations/evidence.md
