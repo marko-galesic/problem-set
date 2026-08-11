@@ -8,6 +8,20 @@ function tokenMatches(actual, expected) {
   return supplied.length === configured.length && timingSafeEqual(supplied, configured);
 }
 
+function suppliedToken(authorization, username) {
+  if (!authorization) return undefined;
+  if (/^Bearer\s+/i.test(authorization)) return authorization.replace(/^Bearer\s+/i, '');
+  if (!/^Basic\s+/i.test(authorization)) return undefined;
+  try {
+    const decoded = Buffer.from(authorization.replace(/^Basic\s+/i, ''), 'base64').toString('utf8');
+    const separator = decoded.indexOf(':');
+    if (separator < 0 || decoded.slice(0, separator) !== username) return undefined;
+    return decoded.slice(separator + 1);
+  } catch {
+    return undefined;
+  }
+}
+
 export function createCorsOptions({ origin = process.env.CORS_ORIGIN } = {}) {
   const allowedOrigins = (origin || '').split(',').map((value) => value.trim()).filter(Boolean);
   return {
@@ -21,12 +35,19 @@ export function createCorsOptions({ origin = process.env.CORS_ORIGIN } = {}) {
   };
 }
 
-export function createApiSecurity({ token = process.env.SITE_AUTH_TOKEN, limit = Number(process.env.MUTATION_RATE_LIMIT || 60), now = () => Date.now() } = {}) {
+export function createApiSecurity({
+  token = process.env.SITE_AUTH_TOKEN,
+  username = process.env.SITE_AUTH_USER || 'personal',
+  limit = Number(process.env.MUTATION_RATE_LIMIT || 60),
+  now = () => Date.now(),
+} = {}) {
   if (process.env.NODE_ENV === 'production' && !token) throw new Error('SITE_AUTH_TOKEN must be configured in production');
   return (req, res, next) => {
     if (req.path === '/api/health' || process.env.NODE_ENV === 'test') return next();
-    const supplied = req.get('authorization')?.replace(/^Bearer\s+/i, '');
-    if (!token || !tokenMatches(supplied, token)) return res.status(401).json({ error: 'Authentication required' });
+    if (!token || !tokenMatches(suppliedToken(req.get('authorization'), username), token)) {
+      res.set('WWW-Authenticate', 'Basic realm="problem-set", charset="UTF-8"');
+      return res.status(401).json({ error: 'Authentication required' });
+    }
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
       const cutoff = now() - 60_000;
       const attempts = (attemptsByIp.get(req.ip) || []).filter((timestamp) => timestamp > cutoff);
