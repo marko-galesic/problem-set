@@ -2,6 +2,7 @@ server {
   listen 8080;
   server_name _;
   server_tokens off;
+  if ($http_x_problem_set_origin != "${ORIGIN_VERIFY_TOKEN}") { return 403; }
   root /usr/share/nginx/html;
   index index.html;
   auth_basic "problem-set";

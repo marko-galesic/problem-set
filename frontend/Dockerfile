@@ -6,7 +6,7 @@ COPY frontend ./
 RUN npm run build
 FROM public.ecr.aws/nginx/nginx:1.27-alpine
 RUN apk add --no-cache apache2-utils
-COPY deployment/nginx.conf /etc/nginx/conf.d/default.conf
+COPY deployment/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY deployment/frontend-entrypoint.sh /usr/local/bin/problem-set-frontend
 COPY --from=build /app/dist /usr/share/nginx/html
 RUN chmod 0555 /usr/local/bin/problem-set-frontend
