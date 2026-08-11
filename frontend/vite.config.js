@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   test: {
-    exclude: ['e2e/**'],
+    exclude: ['**/node_modules/**', 'e2e/**'],
     environment: 'jsdom',
     setupFiles: './src/setupTests.js',
     css: true,
