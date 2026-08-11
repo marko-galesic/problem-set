@@ -7,7 +7,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -19,6 +20,7 @@
     "react-markdown": "^9.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@vitejs/plugin-react": "^4.2.1",
