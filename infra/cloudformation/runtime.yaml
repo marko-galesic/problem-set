@@ -80,6 +80,7 @@ Resources:
                   - arn:aws:ssm:us-east-1:461701713970:parameter/problem-set-a-minus/runtime/origin-verify-token
               - {Effect: Allow, Action: s3:ListBucket, Resource: arn:aws:s3:::problem-set-a-minus-backups-461701713970-us-east-1}
               - {Effect: Allow, Action: [s3:PutObject, s3:GetObject], Resource: arn:aws:s3:::problem-set-a-minus-backups-461701713970-us-east-1/db/*}
+              - {Effect: Allow, Action: s3:PutObject, Resource: arn:aws:s3:::problem-set-a-minus-backups-461701713970-us-east-1/evidence/deployment/*}
       Tags: [{Key: Project, Value: problem-set-a-minus}, {Key: Owner, Value: Codex}]
   Profile:
     Type: AWS::IAM::InstanceProfile
