@@ -11,6 +11,10 @@ const DEFAULT_DB_DIR = join(__dirname, '../../data');
 const DEFAULT_DB_PATH = join(DEFAULT_DB_DIR, 'challenges.db');
 const DB_PATH = process.env.CHALLENGES_DB_PATH || DEFAULT_DB_PATH;
 const DB_DIR = DB_PATH === ':memory:' ? null : dirname(DB_PATH);
+const configuredBusyTimeout = Number(process.env.SQLITE_BUSY_TIMEOUT_MS || 5000);
+const SQLITE_BUSY_TIMEOUT_MS = Number.isFinite(configuredBusyTimeout)
+  ? Math.min(Math.max(Math.floor(configuredBusyTimeout), 100), 30000)
+  : 5000;
 
 let db = null;
 
@@ -32,8 +36,13 @@ export function initDatabase() {
   // Open database connection
   db = new Database(DB_PATH);
   
-  // Enable foreign keys
+  // Operational settings for the single-writer SQLite deployment.
   db.pragma('foreign_keys = ON');
+  db.pragma(`busy_timeout = ${SQLITE_BUSY_TIMEOUT_MS}`);
+  if (DB_PATH !== ':memory:') {
+    db.pragma('journal_mode = WAL');
+    db.pragma('synchronous = NORMAL');
+  }
 
   // Create schema
   createSchema(db);
