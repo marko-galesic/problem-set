@@ -15,7 +15,7 @@ const __dirname = dirname(__filename);
 const TIMEOUT_MS = 10000;
 
 function getTempDir(challengeId = DEFAULT_CHALLENGE) {
-  return join(__dirname, '../../temp', challengeId, 'python');
+  return join(process.env.EXECUTION_WORKSPACE_ROOT || join(__dirname, '../../temp'), challengeId, 'python');
 }
 
 async function ensureTempDir(challengeId = DEFAULT_CHALLENGE) {

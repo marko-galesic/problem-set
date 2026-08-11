@@ -10,6 +10,7 @@ describe('DockerSandboxRunner', () => {
   test('builds a non-root, networkless, read-only invocation with bounded resources', () => {
     const args = buildDockerArguments({ image: 'runner:test', containerName: 'isolated-run', payload: { code: 'x' }, limits: { cpus: 0.5, memory: '256m', pids: 64, tmpfs: '64m' } });
     expect(args).toEqual(expect.arrayContaining(['--network', 'none', '--read-only', '--user', '65532:65532', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--pids-limit', '64', '--memory', '256m', '--memory-swap', '256m', '--cpus', '0.5', '--tmpfs', '/tmp:rw,nosuid,nodev,noexec,size=64m']));
+    expect(args).toEqual(expect.arrayContaining(['--env', 'EXECUTION_WORKSPACE_ROOT=/tmp/problem-set-runs']));
     expect(args.join(' ')).not.toContain('OPENAI_API_KEY');
   });
   test('returns a worker result and caps hostile output', async () => {

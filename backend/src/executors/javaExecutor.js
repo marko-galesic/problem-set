@@ -77,7 +77,7 @@ const __dirname = dirname(__filename);
 
 // Get challenge-specific temp directory
 function getTempDir(challengeId = DEFAULT_CHALLENGE) {
-  return join(__dirname, '../../temp', challengeId, 'java');
+  return join(process.env.EXECUTION_WORKSPACE_ROOT || join(__dirname, '../../temp'), challengeId, 'java');
 }
 
 const TIMEOUT_MS = 10000; // 10 seconds

@@ -72,7 +72,7 @@ async function transpileTypeScript(source, filePath) {
 }
 
 function getTempDir(challengeId = DEFAULT_CHALLENGE) {
-  return join(__dirname, '../../temp', challengeId, 'typescript');
+  return join(process.env.EXECUTION_WORKSPACE_ROOT || join(__dirname, '../../temp'), challengeId, 'typescript');
 }
 
 async function ensureTempDir(challengeId = DEFAULT_CHALLENGE) {

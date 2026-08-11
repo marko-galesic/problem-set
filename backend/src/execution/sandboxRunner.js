@@ -8,7 +8,7 @@ export function buildDockerArguments({ image, containerName, payload, limits }) 
     '--cpus', String(limits.cpus), '--tmpfs', `/tmp:rw,nosuid,nodev,noexec,size=${limits.tmpfs}`,
     '--workdir', '/opt/problem-set/backend', '--env', 'HOME=/tmp', '--env', 'TMPDIR=/tmp',
     '--env', 'NODE_ENV=production', '--env', 'DISABLE_CHALLENGE_SOURCE_LOG=1',
-    '--env', 'CHALLENGES_DB_PATH=/tmp/challenges.db', '--interactive', image, JSON.stringify(payload)];
+    '--env', 'CHALLENGES_DB_PATH=/tmp/challenges.db', '--env', 'EXECUTION_WORKSPACE_ROOT=/tmp/problem-set-runs', '--interactive', image, JSON.stringify(payload)];
 }
 function parseResult(stdout) {
   const line = stdout.split(/\r?\n/).reverse().find((value) => value.startsWith(PREFIX));
