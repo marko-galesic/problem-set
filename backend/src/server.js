@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { createApiSecurity, createCorsOptions } from './security/apiSecurity.js';
+import { registerContentRoutes } from './routes/contentRoutes.js';
 import { existsSync } from 'fs';
 import { readFile, readdir, unlink, stat, writeFile, mkdir } from 'fs/promises';
 import { fileURLToPath } from 'url';
@@ -3209,111 +3210,15 @@ function buildTopicPriorityMap(topicRetentionMetrics) {
   return map;
 }
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-// Template endpoint - returns the template.java file content
-app.get('/api/template', async (req, res) => {
-  try {
-    const challengeId = req.query.challenge || DEFAULT_CHALLENGE;
-    const challenge = getChallenge(challengeId);
-    const language = normalizeLanguage(req.query.language);
-    const templateContent = await getChallengeAssetContent({
-      challengeId,
-      folder: challenge.folder,
-      type: 'template',
-      language,
-      preferFile: process.env.NODE_ENV === 'test'
-    });
-    if (!templateContent) {
-      throw new Error('Failed to load template');
-    }
-    res.json({ code: templateContent });
-  } catch (error) {
-    console.error('Template error:', error);
-    res.status(500).json({
-      error: error.message || 'Failed to load template'
-    });
-  }
-});
-
-// Description endpoint - returns the description.html file content
-app.get('/api/description', async (req, res) => {
-  try {
-    const challengeId = req.query.challenge || DEFAULT_CHALLENGE;
-    const challenge = getChallenge(challengeId);
-    const descriptionContent = await getChallengeAssetContent({
-      challengeId,
-      folder: challenge.folder,
-      type: 'description_html',
-      preferFile: process.env.NODE_ENV === 'test'
-    });
-    if (!descriptionContent) {
-      throw new Error('Failed to load description');
-    }
-    res.json({ description: descriptionContent });
-  } catch (error) {
-    console.error('Description error:', error);
-    res.status(500).json({
-      error: error.message || 'Failed to load description'
-    });
-  }
-});
-
-// Test cases endpoint - returns test cases for Run and Submit
-app.get('/api/test-cases', async (req, res) => {
-  try {
-    const challengeId = req.query.challenge || DEFAULT_CHALLENGE;
-    const language = normalizeLanguage(req.query.language);
-    const { runTests, submitTests } = await loadTestCases(challengeId, language);
-    
-    // Load adapter to use extractInput() method
-    const challenge = getChallenge(challengeId);
-    const adapterPath = getLanguageAdapterPath(challenge, language, challengeId);
-    const adapter = await loadAdapter(adapterPath);
-    
-    // Return test cases with only the information needed for preview (no expected output)
-    // Use adapter's extractInput() to get input data, then normalize to a single 'input' field
-    const runTestCases = runTests.map(test => {
-      const extractedInput = adapter.extractInput(test);
-      const fallbackValue = Object.values(extractedInput)[0] || null;
-      const inputValue = test.input !== undefined ? test.input : fallbackValue;
-      const normalizedInput = typeof inputValue === 'object' && inputValue !== null
-        ? JSON.stringify(inputValue)
-        : inputValue;
-      return {
-        id: test.id,
-        name: test.name,
-        input: normalizedInput
-      };
-    });
-    
-    const submitTestCases = submitTests.map(test => {
-      const extractedInput = adapter.extractInput(test);
-      const fallbackValue = Object.values(extractedInput)[0] || null;
-      const inputValue = test.input !== undefined ? test.input : fallbackValue;
-      const normalizedInput = typeof inputValue === 'object' && inputValue !== null
-        ? JSON.stringify(inputValue)
-        : inputValue;
-      return {
-        id: test.id,
-        name: test.name,
-        input: normalizedInput
-      };
-    });
-
-    res.json({
-      runTests: runTestCases,
-      submitTests: submitTestCases
-    });
-  } catch (error) {
-    console.error('Test cases error:', error);
-    res.status(500).json({
-      error: error.message || 'Internal server error'
-    });
-  }
+// Read-only health and challenge-content routes.
+registerContentRoutes(app, {
+  defaultChallenge: DEFAULT_CHALLENGE,
+  getChallenge,
+  normalizeLanguage,
+  getChallengeAssetContent,
+  loadTestCases,
+  getLanguageAdapterPath,
+  loadAdapter
 });
 
 // Run endpoint - basic test cases (can run specific tests by ID)
