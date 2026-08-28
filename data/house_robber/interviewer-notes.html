@@ -1,0 +1,35 @@
+<h2>House Robber — Interviewer Notes</h2>
+
+<p><strong>Progression:</strong> Use this as the junior-level problem and as a discrete primer for YouTube Ads. Senior candidates can usually begin with YouTube Ads. If a junior candidate finishes House Robber with time remaining, progress to YouTube Ads.</p>
+
+<h3>Target insight</h3>
+<p>Process houses from left to right. At every house, choose between skipping it and keeping the best previous total, or robbing it and adding its value to the best total from two houses back:</p>
+<pre><code>V0 = s0
+V1 = max(s0, s1)
+Vn = max(Vn-1, Vn-2 + sn)</code></pre>
+<p>An implementation may use a DP array or two rolling values.</p>
+
+<h3>Photographed example</h3>
+<pre><code>[3, 8, 7, 1, 2, 4]</code></pre>
+<p>The optimal choice is <code>3 + 7 + 4 = 14</code>. Taking the largest immediate value, <code>8</code>, is a greedy trap. A valid optimum may skip either one or two houses between selections.</p>
+
+<h3>Expected signals and scoring</h3>
+<ul>
+  <li>Recognizes a left-to-right formulation: <strong>+2</strong>.</li>
+  <li>Solves the concrete example with clear reasoning: <strong>+2</strong>.</li>
+  <li>States the base cases <code>V0</code> and <code>V1</code>: <strong>+1</strong>.</li>
+  <li>Recognizes that <code>Vn</code> depends on earlier optimal values: <strong>+1</strong>.</li>
+  <li>Derives the correct recurrence without being given it: <strong>+3</strong>.</li>
+</ul>
+
+<h3>Attempts</h3>
+<p>A correct solution on the first attempt earns <strong>+4</strong>. Subtract <strong>1</strong> for each additional attempt (the photographed rubric begins with three allowed attempts). Track conceptual attempts, not harmless syntax corrections.</p>
+
+<h3>Pitfalls and prompts</h3>
+<ul>
+  <li><strong>Always take the larger neighboring house:</strong> return to <code>[3,8,7,1,2,4]</code> and compare the complete totals.</li>
+  <li><strong>Forces alternating parity:</strong> ask whether an optimum can skip two consecutive houses.</li>
+  <li><strong>Incorrect base cases:</strong> test an empty list, one house, and two houses.</li>
+  <li><strong>Exponential recursion:</strong> credit the recurrence, then ask which subproblems repeat.</li>
+</ul>
+

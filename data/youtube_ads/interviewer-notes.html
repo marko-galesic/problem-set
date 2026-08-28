@@ -1,0 +1,36 @@
+<h2>YouTube Ads — Interviewer Notes</h2>
+
+<p><strong>Progression:</strong> This is the harder, continuous-interval version of House Robber. Give it directly to senior candidates. For junior candidates, start with House Robber; offer this only if they finish with time remaining. If a candidate is stuck on the interval structure, step down to House Robber and return here if time permits.</p>
+
+<h3>Target insight</h3>
+<p>Sort ads by finish time. For each ad <code>i</code>, find the latest earlier ad <code>p(i)</code> whose finish time is at most <code>start[i]</code>. Exact endpoint contact is allowed. Use binary search for <code>p(i)</code>, then compute:</p>
+<pre><code>dp[i] = max(dp[i - 1], payout[i] + dp[p(i)])</code></pre>
+<p>With a one-based DP array, <code>dp[0] = 0</code> and the compatible-prefix count can be used directly as the second DP index. Expected complexity is <code>O(n log n)</code> time and <code>O(n)</code> space.</p>
+
+<h3>Photographed example</h3>
+<pre><code>[[1,4,3], [3,7,7], [6,10,8], [9,10,5]]</code></pre>
+<p>The best schedule takes <code>[3,7,7]</code> and <code>[9,10,5]</code> for a total of <strong>12</strong>. Choosing the individually highest-paying ad, <code>[6,10,8]</code>, is a greedy trap. Ordering the intervals before applying the recurrence is essential.</p>
+
+<h3>Expected signals and scoring</h3>
+<ul>
+  <li>Recognizes a left-to-right cumulative value function: <strong>+2</strong>.</li>
+  <li>Solves the concrete example step by step and explains the choices: <strong>+2</strong>.</li>
+  <li>Defines an appropriate cumulative DP value: <strong>+1</strong>.</li>
+  <li>In the inductive step, identifies the latest non-overlapping predecessor: <strong>+2</strong>.</li>
+  <li>Uses binary search to find that predecessor: <strong>+1</strong>.</li>
+  <li>States the correct include-or-skip recurrence: <strong>+2</strong>.</li>
+  <li>Sorts by end time: <strong>+1</strong>.</li>
+</ul>
+
+<h3>Attempts</h3>
+<p>A correct solution on the first attempt earns <strong>+4</strong>. Subtract <strong>1</strong> for each additional attempt (the photographed rubric begins with three allowed attempts). Track conceptual attempts, not harmless syntax corrections.</p>
+
+<h3>Pitfalls and prompts</h3>
+<ul>
+  <li><strong>Highest payout first:</strong> ask whether one expensive interval can block two compatible intervals worth more together.</li>
+  <li><strong>Earliest start or shortest duration first:</strong> ask what local property proves global optimality.</li>
+  <li><strong>Quadratic predecessor scan:</strong> accept the DP insight, then ask how sorted finish times change the predecessor lookup.</li>
+  <li><strong>Endpoint bug:</strong> reinforce that <code>end == start</code> is compatible, so the search comparison is <code>&lt;=</code>.</li>
+  <li><strong>Unsorted assumption:</strong> use the chain <code>[[5,7,5],[0,2,4],[2,5,6]]</code>, whose answer is <strong>15</strong>.</li>
+</ul>
+

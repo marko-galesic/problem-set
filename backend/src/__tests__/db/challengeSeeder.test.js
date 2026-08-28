@@ -31,6 +31,7 @@ describe('challenge seeder', () => {
 
     await mkdir(join(DATA_DIR, folder), { recursive: true });
     await writeFile(join(DATA_DIR, folder, 'description.html'), '<p>Seeded</p>', 'utf8');
+    await writeFile(join(DATA_DIR, folder, 'interviewer-notes.html'), '<p>Private rubric</p>', 'utf8');
     await writeFile(join(DATA_DIR, folder, 'template.java'), 'class Seeded { }', 'utf8');
 
     insertChallenge({
@@ -87,6 +88,8 @@ describe('challenge seeder', () => {
     expect(result.seeded).toBeGreaterThan(0);
     const asset = getChallengeAsset(challengeId, 'description_html', '');
     expect(asset?.content).toContain('Seeded');
+    const notes = getChallengeAsset(challengeId, 'interviewer_notes_html', '');
+    expect(notes?.content).toContain('Private rubric');
   });
 
   test('seedChallengeTestCasesFromFiles stores test cases', async () => {
@@ -103,3 +106,4 @@ describe('challenge seeder', () => {
     expect(submitTests.length).toBeGreaterThan(0);
   });
 });
+

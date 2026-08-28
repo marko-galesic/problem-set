@@ -3,7 +3,9 @@ import { initDatabase } from '../../db/database.js';
 import {
   getChallengeAdapterDefinition,
   getChallengeAsset,
-  getChallengeTestCases
+  getChallengeTestCases,
+  getChallengeById,
+  insertChallenge
 } from '../../db/queries.js';
 import { seedChallengeContent } from '../../db/seedChallengeContent.js';
 import { __testables as dbOnlyTestables } from '../../db/seedDbOnlyChallenges.js';
@@ -33,6 +35,53 @@ describe('seedChallengeContent', () => {
 
     const description = getChallengeAsset('two_sum', 'description_html', '');
     expect(description?.content).toBeTruthy();
+  });
+
+  test('preserves configured metadata on first registration', async () => {
+    initDatabase();
+
+    await seedChallengeContent({
+      youtube_ads: {
+        name: 'YouTube Ads',
+        folder: 'youtube_ads',
+        testFile: './testCases/youtubeAdsTests.js',
+        adapter: 'standard:youtubeAds:java',
+        difficulty: 'hard',
+        topics: ['Dynamic Programming', 'Intervals', 'Binary Search']
+      }
+    });
+
+    const challenge = getChallengeById('youtube_ads');
+    expect(challenge.difficulty).toBe('hard');
+    expect(JSON.parse(challenge.topics)).toEqual(['Dynamic Programming', 'Intervals', 'Binary Search']);
+    expect(getChallengeAsset('youtube_ads', 'interviewer_notes_html', '')?.content)
+      .toContain('YouTube Ads — Interviewer Notes');
+  });
+
+  test('does not overwrite metadata for an existing challenge', async () => {
+    initDatabase();
+    insertChallenge({
+      id: 'existing_metadata_seed',
+      name: 'Existing Metadata',
+      folder: 'two_sum',
+      test_file: './testCases/twoSumTests.js',
+      adapter: 'standard:twoSum:java',
+      difficulty: 'medium',
+      topics: ['Arrays']
+    });
+
+    await seedChallengeContent({
+      existing_metadata_seed: {
+        name: 'Existing Metadata',
+        folder: 'two_sum',
+        testFile: './testCases/twoSumTests.js',
+        adapter: 'standard:twoSum:java'
+      }
+    });
+
+    const challenge = getChallengeById('existing_metadata_seed');
+    expect(challenge.difficulty).toBe('medium');
+    expect(JSON.parse(challenge.topics)).toEqual(['Arrays']);
   });
 });
 
@@ -105,3 +154,4 @@ describe('seedDbOnlyChallenges helpers', () => {
     expect(DB_ONLY_CHALLENGES).toHaveLength(25);
   });
 });
+

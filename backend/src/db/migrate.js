@@ -1,5 +1,5 @@
 import { initDatabase, closeDatabase } from './database.js';
-import { insertChallenge, insertSubmission } from './queries.js';
+import { insertChallengeIfMissing, insertSubmission } from './queries.js';
 import { readFile, readdir, stat } from 'fs/promises';
 import { join } from 'path';
 import { fileURLToPath } from 'url';
@@ -28,14 +28,14 @@ async function migrateChallenges() {
   let migrated = 0;
   for (const [id, config] of Object.entries(CHALLENGES)) {
     try {
-      insertChallenge({
+      insertChallengeIfMissing({
         id,
         name: config.name,
         folder: config.folder,
         test_file: config.testFile,
         adapter: config.adapter,
-        difficulty: null, // Default difficulty
-        topics: [] // Empty topics array, can be updated later
+        difficulty: config.difficulty ?? null,
+        topics: config.topics || []
       });
       migrated++;
     } catch (error) {
@@ -312,3 +312,4 @@ if (process.argv[1] && process.argv[1].includes('migrate.js')) {
       process.exit(1);
     });
 }
+

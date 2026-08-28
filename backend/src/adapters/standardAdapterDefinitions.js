@@ -1180,6 +1180,18 @@ export const standardAdapterDefinitions = {
       },
     ]
   },
+  youtubeAds: {
+    method: 'maxPayout',
+    className: 'YouTubeAds',
+    returnType: 'int',
+    inputs: [
+      {
+        name: 'ads',
+        type: 'intGrid',
+        helperBase: 'Ads',
+      },
+    ]
+  },
   jumpGame: {
     method: 'canJump',
     className: 'JumpGame',
@@ -3390,3 +3402,4 @@ export const standardAdapterDefinitions = {
   }
 
 };
+

@@ -1,0 +1,21 @@
+<p>You are scheduling banner ads during a YouTube video. Each ad is represented by <code>[start, end, payout]</code>, where <code>start &lt; end</code> and <code>payout</code> is positive.</p>
+
+<p>Choose a set of non-overlapping ads that maximizes the total payout. The input may be unsorted. Ads that only touch at an endpoint are compatible: an ad ending at time <code>t</code> may be followed by one starting at time <code>t</code>.</p>
+
+<h3>Method Signature</h3>
+<pre><code>public int maxPayout(int[][] ads)</code></pre>
+
+<h3>Example</h3>
+<p><strong>Input:</strong></p>
+<pre><code>ads = [[1, 4, 3], [3, 7, 7], [6, 10, 8], [9, 10, 5]]</code></pre>
+
+<p><strong>Output:</strong></p>
+<pre><code>12</code></pre>
+
+<h3>Constraints</h3>
+<ul>
+  <li>Each row contains exactly three integers: <code>[start, end, payout]</code>.</li>
+  <li><code>start &lt; end</code>.</li>
+  <li><code>payout &gt; 0</code>.</li>
+</ul>
+

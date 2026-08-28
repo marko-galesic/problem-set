@@ -124,6 +124,30 @@ describe('API Endpoints', () => {
     });
   });
 
+  describe('GET /api/interviewer-notes', () => {
+    test('returns trusted notes HTML for a challenge that has notes', async () => {
+      const response = await client.get('/api/interviewer-notes?challenge=house_robber');
+
+      expect(response.status).toBe(200);
+      expect(response.body.notes).toContain('House Robber — Interviewer Notes');
+      expect(response.body.notes).toContain('Vn = max');
+    });
+
+    test('returns 404 when notes are absent', async () => {
+      const response = await client.get('/api/interviewer-notes?challenge=two_sum');
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({ error: 'Interviewer notes not found' });
+    });
+
+    test('requires a challenge id', async () => {
+      const response = await client.get('/api/interviewer-notes');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({ error: 'Challenge is required' });
+    });
+  });
+
   describe('GET /api/test-cases', () => {
     test('should return runTests and submitTests for valid challenge', async () => {
       const response = await client.get('/api/test-cases?challenge=two_sum');
@@ -454,3 +478,4 @@ describe('API Endpoints', () => {
     });
   });
 });
+

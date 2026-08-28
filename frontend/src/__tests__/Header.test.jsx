@@ -17,6 +17,7 @@ describe('Header', () => {
       onToggleMaximize: vi.fn(),
       onBugHunt: vi.fn(),
       onGuide: vi.fn(),
+      onInterviewerNotes: vi.fn(),
       onProgress: vi.fn()
     };
 
@@ -35,21 +36,23 @@ describe('Header', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /run/i }));
     fireEvent.click(screen.getByRole('button', { name: /submit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /guide me/i }));
+    fireEvent.click(screen.getByRole('button', { name: /interviewer notes/i }));
+    fireEvent.click(screen.getByRole('button', { name: /your progress/i }));
+    fireEvent.click(screen.getByRole('button', { name: /where's the bug/i }));
+    expect(screen.getByRole('link', { name: /challenges/i })).toHaveAttribute('href', '/#/challenges');
     const resetButton = screen.getByRole('button', { name: /reset/i });
     fireEvent.click(resetButton);
     fireEvent.click(await screen.findByRole('button', { name: /confirm reset/i }));
-    fireEvent.click(screen.getByRole('button', { name: /guide me/i }));
-    fireEvent.click(screen.getByRole('button', { name: /your progress/i }));
-    fireEvent.click(screen.getByRole('button', { name: /where's the bug/i }));
 
     expect(handlers.onRun).toHaveBeenCalled();
     expect(handlers.onSubmit).toHaveBeenCalled();
     expect(handlers.onResetSolution).toHaveBeenCalled();
     expect(handlers.onResetTimer).toHaveBeenCalled();
     expect(handlers.onGuide).toHaveBeenCalled();
+    expect(handlers.onInterviewerNotes).toHaveBeenCalled();
     expect(handlers.onProgress).toHaveBeenCalled();
     expect(handlers.onBugHunt).toHaveBeenCalled();
-    expect(screen.getByRole('link', { name: /challenges/i })).toHaveAttribute('href', '/#/challenges');
   });
 
   it('disables actions while running', () => {
@@ -68,5 +71,7 @@ describe('Header', () => {
     expect(screen.getByRole('button', { name: /run/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /reset/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /interviewer notes/i })).toBeDisabled();
   });
 });
+

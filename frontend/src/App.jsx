@@ -14,6 +14,7 @@ import GuideConfirmPopover from './components/GuideConfirmPopover';
 import GuideChatPopover from './components/GuideChatPopover';
 import NextChallengePopover from './components/NextChallengePopover';
 import ProgressReportPopover from './components/ProgressReportPopover';
+import InterviewerNotesPopover from './components/InterviewerNotesPopover';
 
 const DEFAULT_CODE = {
   java: `class TwoSum {
@@ -176,6 +177,13 @@ function App() {
   const [progressEligible, setProgressEligible] = useState(false);
   const [progressSubmissionCount, setProgressSubmissionCount] = useState(0);
   const progressCheckTimeoutRef = useRef(null);
+  const [interviewerModeEnabled, setInterviewerModeEnabled] = useState(false);
+  const [isInterviewerConfirmOpen, setIsInterviewerConfirmOpen] = useState(false);
+  const [isInterviewerNotesOpen, setIsInterviewerNotesOpen] = useState(false);
+  const [interviewerNotes, setInterviewerNotes] = useState('');
+  const [interviewerNotesError, setInterviewerNotesError] = useState('');
+  const [isInterviewerNotesLoading, setIsInterviewerNotesLoading] = useState(false);
+  const interviewerNotesRequestRef = useRef(0);
 
   function normalizeLanguage(value) {
     if (typeof value !== 'string') {
@@ -375,6 +383,58 @@ function App() {
     setIsProgressPopoverOpen(true);
     void refreshProgressEligibility({ autoPrepare: true });
   }
+
+  function handleInterviewerNotesRequest() {
+    if (interviewerModeEnabled) {
+      setIsInterviewerNotesOpen(true);
+      return;
+    }
+    setIsInterviewerConfirmOpen(true);
+  }
+
+  async function handleInterviewerNotesConfirm() {
+    const requestId = ++interviewerNotesRequestRef.current;
+    const requestedChallenge = currentChallenge;
+    setInterviewerModeEnabled(true);
+    setIsInterviewerConfirmOpen(false);
+    setIsInterviewerNotesOpen(true);
+    setIsInterviewerNotesLoading(true);
+    setInterviewerNotes('');
+    setInterviewerNotesError('');
+
+    try {
+      const response = await fetch(`/api/interviewer-notes?challenge=${requestedChallenge}`);
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(response.status === 404
+          ? 'Interviewer notes are not available for this challenge.'
+          : 'Failed to load interviewer notes.');
+      }
+      if (requestId !== interviewerNotesRequestRef.current) {
+        return;
+      }
+      setInterviewerNotes(data.notes || '');
+    } catch (error) {
+      if (requestId !== interviewerNotesRequestRef.current) {
+        return;
+      }
+      setInterviewerNotesError(error.message || 'Failed to load interviewer notes.');
+    } finally {
+      if (requestId === interviewerNotesRequestRef.current) {
+        setIsInterviewerNotesLoading(false);
+      }
+    }
+  }
+
+  useEffect(() => {
+    interviewerNotesRequestRef.current += 1;
+    setInterviewerModeEnabled(false);
+    setIsInterviewerConfirmOpen(false);
+    setIsInterviewerNotesOpen(false);
+    setInterviewerNotes('');
+    setInterviewerNotesError('');
+    setIsInterviewerNotesLoading(false);
+  }, [currentChallenge]);
 
   // Fetch challenges on mount
   useEffect(() => {
@@ -1291,6 +1351,7 @@ function App() {
         timerInitialState={timerInitialState}
         onTimerStateChange={handleTimerStateChange}
         onGuide={handleGuideRequest}
+        onInterviewerNotes={handleInterviewerNotesRequest}
         onProgress={handleProgressOpen}
         isProgressDisabled={!progressEligible}
         progressTitle={progressButtonTitle}
@@ -1319,6 +1380,16 @@ function App() {
         isOpen={isGuideConfirmOpen}
         onClose={() => setIsGuideConfirmOpen(false)}
         onConfirm={handleGuideConfirm}
+      />
+      <InterviewerNotesPopover
+        isConfirmOpen={isInterviewerConfirmOpen}
+        isNotesOpen={isInterviewerNotesOpen}
+        onCancel={() => setIsInterviewerConfirmOpen(false)}
+        onConfirm={handleInterviewerNotesConfirm}
+        onClose={() => setIsInterviewerNotesOpen(false)}
+        isLoading={isInterviewerNotesLoading}
+        error={interviewerNotesError}
+        notes={interviewerNotes}
       />
       <GuideChatPopover
         isOpen={isGuideChatOpen}
@@ -1469,3 +1540,4 @@ function App() {
 }
 
 export default App;
+

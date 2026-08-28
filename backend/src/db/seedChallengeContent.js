@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url';
 import { resolve } from 'path';
 import { initDatabase } from './database.js';
-import { insertChallenge } from './queries.js';
+import { insertChallengeIfMissing } from './queries.js';
 import { seedChallengeContentFromFiles } from './challengeSeeder.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,14 +15,14 @@ export async function seedChallengeContent(challenges) {
   let adapterSeeds = 0;
 
   for (const [challengeId, challenge] of Object.entries(challenges)) {
-    insertChallenge({
+    insertChallengeIfMissing({
       id: challengeId,
       name: challenge.name,
       folder: challenge.folder,
       test_file: challenge.testFile,
       adapter: challenge.adapter,
-      difficulty: null,
-      topics: []
+      difficulty: challenge.difficulty ?? null,
+      topics: challenge.topics || []
     });
 
     const result = await seedChallengeContentFromFiles({
@@ -65,3 +65,4 @@ if (process.argv[1] && resolve(process.argv[1]) === __filename) {
     process.exitCode = 1;
   });
 }
+

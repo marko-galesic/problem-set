@@ -64,8 +64,8 @@ async function run() {
       folder: challenge.folder,
       test_file: challenge.testFile,
       adapter: challenge.adapter,
-      difficulty: null,
-      topics: []
+      difficulty: challenge.difficulty ?? null,
+      topics: challenge.topics || []
     });
 
     if (!result?.changes) {
@@ -109,3 +109,4 @@ if (process.argv[1] && resolve(process.argv[1]) === __filename) {
     process.exitCode = 1;
   });
 }
+

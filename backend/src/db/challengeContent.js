@@ -91,6 +91,10 @@ function buildAssetFilename(type, language) {
     return 'description.html';
   }
 
+  if (type === 'interviewer_notes_html') {
+    return 'interviewer-notes.html';
+  }
+
   const extension = LANGUAGE_EXTENSIONS[normalizeLanguage(language)] || 'java';
 
   if (type === 'template') {
@@ -291,3 +295,4 @@ export async function getChallengeTestCasesWithFallback({
     submitTests: hasSubmitTests ? dbSubmitTests : submitTests
   };
 }
+

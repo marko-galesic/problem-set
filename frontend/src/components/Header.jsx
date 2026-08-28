@@ -21,6 +21,7 @@ export default function Header({
   onBugHunt,
   isBugHuntLoading,
   onGuide,
+  onInterviewerNotes,
   onProgress,
   isProgressDisabled,
   progressTitle
@@ -57,6 +58,15 @@ export default function Header({
         />
       </div>
       <div className="header-actions">
+        <Button
+          onClick={onInterviewerNotes}
+          disabled={isRunning}
+          className="btn btn-interviewer-notes"
+          type="button"
+          title="Open session-only interviewer notes"
+        >
+          Interviewer notes
+        </Button>
         <Button
           onClick={onProgress}
           disabled={isRunning || isProgressDisabled}
@@ -137,3 +147,4 @@ export default function Header({
     </div>
   );
 }
+

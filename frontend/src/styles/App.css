@@ -2321,6 +2321,67 @@ body {
   color: #666666;
 }
 
+/* Interviewer Notes */
+.interviewer-confirm-popover {
+  width: min(520px, calc(100vw - 24px));
+}
+
+.interviewer-notes-popover {
+  width: min(820px, calc(100vw - 24px));
+  max-height: min(82vh, 760px);
+}
+
+.interviewer-popover-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+}
+
+.interviewer-confirm-popover-content,
+.interviewer-notes-popover-content {
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333333;
+}
+
+.interviewer-confirm-popover-content p {
+  margin: 0 0 12px;
+}
+
+.interviewer-popover-actions {
+  padding: 12px 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.interviewer-notes-popover-content {
+  overflow: auto;
+}
+
+.interviewer-notes-html h2,
+.interviewer-notes-html h3 {
+  margin-top: 0;
+}
+
+.interviewer-notes-html h3 {
+  margin-top: 20px;
+}
+
+.interviewer-notes-html pre {
+  overflow: auto;
+  padding: 12px;
+  border-radius: 4px;
+  background: #f5f5f5;
+}
+
+.interviewer-notes-error {
+  color: #b3261e;
+}
+
 /* Guide Confirm Popover */
 .guide-confirm-popover-overlay {
   position: fixed;
@@ -4244,3 +4305,4 @@ body {
   --btn-color: #ffffff;
   font-weight: 600;
 }
+

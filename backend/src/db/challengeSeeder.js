@@ -119,19 +119,27 @@ export async function seedChallengeAssetsFromFiles({ challengeId, folder }) {
 
   let seeded = 0;
 
-  const descriptionPath = join(DATA_DIR, folder, 'description.html');
-  const descriptionContent = await readFileSafe(descriptionPath);
-  if (descriptionContent) {
-    const existing = getChallengeAsset(challengeId, 'description_html', '');
-    if (!existing) {
-      upsertChallengeAsset({
-        challenge_id: challengeId,
-        type: 'description_html',
-        language: '',
-        content: descriptionContent
-      });
-      seeded += 1;
+  const trustedHtmlAssets = [
+    { type: 'description_html', filename: 'description.html' },
+    { type: 'interviewer_notes_html', filename: 'interviewer-notes.html' }
+  ];
+
+  for (const asset of trustedHtmlAssets) {
+    const content = await readFileSafe(join(DATA_DIR, folder, asset.filename));
+    if (!content) {
+      continue;
     }
+    const existing = getChallengeAsset(challengeId, asset.type, '');
+    if (existing) {
+      continue;
+    }
+    upsertChallengeAsset({
+      challenge_id: challengeId,
+      type: asset.type,
+      language: '',
+      content
+    });
+    seeded += 1;
   }
 
   for (const language of LANGUAGES) {
@@ -239,3 +247,4 @@ export async function seedChallengeContentFromFiles({ challengeId, challenge }) 
     adapter: adapterResult
   };
 }
+

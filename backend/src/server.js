@@ -1572,6 +1572,14 @@ export const CHALLENGES = {
     testFile: './testCases/houseRobberTests.js',
     adapter: 'standard:houseRobber:java'
   },
+  youtube_ads: {
+    name: 'YouTube Ads',
+    folder: 'youtube_ads',
+    testFile: './testCases/youtubeAdsTests.js',
+    adapter: 'standard:youtubeAds:java',
+    difficulty: 'hard',
+    topics: ['Dynamic Programming', 'Intervals', 'Binary Search']
+  },
   jump_game: {
     name: 'Jump Game',
     folder: 'jump_game',
@@ -3259,6 +3267,29 @@ app.get('/api/description', async (req, res) => {
     res.status(500).json({
       error: error.message || 'Failed to load description'
     });
+  }
+});
+
+// Interviewer notes endpoint - returns trusted HTML only after an explicit client request.
+app.get('/api/interviewer-notes', async (req, res) => {
+  try {
+    const challengeId = req.query.challenge;
+    if (!challengeId) {
+      return res.status(400).json({ error: 'Challenge is required' });
+    }
+    const challenge = getChallenge(challengeId);
+    const notesContent = await getChallengeAssetContent({
+      challengeId,
+      folder: challenge.folder,
+      type: 'interviewer_notes_html',
+      preferFile: process.env.NODE_ENV === 'test'
+    });
+    if (!notesContent) {
+      return res.status(404).json({ error: 'Interviewer notes not found' });
+    }
+    return res.json({ notes: notesContent });
+  } catch (error) {
+    return res.status(404).json({ error: 'Interviewer notes not found' });
   }
 });
 
@@ -5714,8 +5745,8 @@ async function discoverChallenges() {
               folder: challengeConfig.folder,
               test_file: challengeConfig.testFile,
               adapter: challengeConfig.adapter,
-              difficulty: null,
-              topics: []
+              difficulty: challengeConfig.difficulty ?? null,
+              topics: challengeConfig.topics || []
             });
             console.log(`Auto-registered challenge: ${challengeId}`);
           }
@@ -5782,3 +5813,4 @@ export const __testables = {
   getLanguageSimilarity,
   getOnboardingRamp
 };
+

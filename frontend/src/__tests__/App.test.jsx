@@ -13,6 +13,7 @@ vi.mock('../components/Header', () => ({
     onToggleMaximize,
     onBugHunt,
     onGuide,
+    onInterviewerNotes,
     onProgress
   }) => (
     <div>
@@ -23,6 +24,7 @@ vi.mock('../components/Header', () => ({
       <button type="button" onClick={onToggleMaximize}>maximize</button>
       <button type="button" onClick={onBugHunt}>bug</button>
       <button type="button" onClick={onGuide}>guide</button>
+      <button type="button" onClick={onInterviewerNotes}>interviewer</button>
       <button type="button" onClick={onProgress}>progress</button>
       <a href="/#/challenges">Challenges</a>
     </div>
@@ -127,6 +129,15 @@ vi.mock('../components/ProgressReportPopover', () => ({
   default: ({ isOpen }) => (isOpen ? <div>progress-popover</div> : null)
 }));
 
+vi.mock('../components/InterviewerNotesPopover', () => ({
+  default: ({ isConfirmOpen, isNotesOpen, onConfirm, error, notes }) => (
+    <div>
+      {isConfirmOpen && <button type="button" onClick={onConfirm}>confirm-interviewer</button>}
+      {isNotesOpen && <div>interviewer-dialog:{error || notes || 'loading'}</div>}
+    </div>
+  )
+}));
+
 vi.mock('../utils/storage', () => ({
   saveImplementation: vi.fn(),
   getDividerPosition: vi.fn(() => 25),
@@ -175,6 +186,11 @@ function createFetchMock(overrides = {}) {
   const descriptionHandler = resolveOverride(overrides.description, async () => ({
     ok: true,
     json: async () => ({ description: '<p>desc</p>' })
+  }));
+  const interviewerNotesHandler = resolveOverride(overrides.interviewerNotes, async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ notes: '<h2>Private rubric</h2>' })
   }));
   const testCasesHandler = resolveOverride(overrides.testCases, async () => ({
     ok: true,
@@ -247,6 +263,10 @@ function createFetchMock(overrides = {}) {
 
     if (url.startsWith('/api/description')) {
       return descriptionHandler(url);
+    }
+
+    if (url.startsWith('/api/interviewer-notes')) {
+      return interviewerNotesHandler(url);
     }
 
     if (url.startsWith('/api/test-cases')) {
@@ -373,6 +393,37 @@ describe('App', () => {
     fireEvent.click(screen.getByText('maximize'));
   });
 
+  it('does not fetch interviewer notes until disclosure is confirmed', async () => {
+    render(<App />);
+    await screen.findByText('editor');
+
+    expect(fetch.mock.calls.some(([url]) => url.startsWith('/api/interviewer-notes'))).toBe(false);
+    fireEvent.click(screen.getByText('interviewer'));
+    expect(await screen.findByText('confirm-interviewer')).toBeInTheDocument();
+    expect(fetch.mock.calls.some(([url]) => url.startsWith('/api/interviewer-notes'))).toBe(false);
+
+    fireEvent.click(screen.getByText('confirm-interviewer'));
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/interviewer-notes?challenge=two_sum'));
+    expect(await screen.findByText(/Private rubric/)).toBeInTheDocument();
+  });
+
+  it('shows a contained error when interviewer notes are missing', async () => {
+    vi.stubGlobal('fetch', createFetchMock({
+      interviewerNotes: {
+        ok: false,
+        status: 404,
+        json: async () => ({ error: 'Interviewer notes not found' })
+      }
+    }));
+
+    render(<App />);
+    await screen.findByText('editor');
+    fireEvent.click(screen.getByText('interviewer'));
+    fireEvent.click(await screen.findByText('confirm-interviewer'));
+
+    expect(await screen.findByText(/not available for this challenge/i)).toBeInTheDocument();
+  });
+
   it('generates a progress report after 4pm', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2024, 0, 1, 17, 0, 0));
@@ -430,3 +481,4 @@ describe('App', () => {
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/cleanup?challenge=two_sum', expect.any(Object)));
   });
 });
+
