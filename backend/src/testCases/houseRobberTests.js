@@ -5,6 +5,20 @@
 export const runTests = [
   {
     "id": 1,
+    "name": "First interview example",
+    "input": "nums = [3, 8, 7, 1, 2, 4]",
+    "nums": [
+      3,
+      8,
+      7,
+      1,
+      2,
+      4
+    ],
+    "expected": 14
+  },
+  {
+    "id": 2,
     "name": "Basic example",
     "input": "nums = [1, 2, 3, 1]",
     "nums": [
@@ -16,7 +30,7 @@ export const runTests = [
     "expected": 4
   },
   {
-    "id": 2,
+    "id": 3,
     "name": "Larger example",
     "input": "nums = [2, 7, 9, 3, 1]",
     "nums": [
@@ -29,7 +43,7 @@ export const runTests = [
     "expected": 12
   },
   {
-    "id": 3,
+    "id": 4,
     "name": "Non-adjacent picks",
     "input": "nums = [2, 1, 1, 2]",
     "nums": [
@@ -44,14 +58,14 @@ export const runTests = [
 
 export const submitTests = [
   {
-    "id": 4,
+    "id": 5,
     "name": "Empty array",
     "input": "nums = []",
     "nums": [],
     "expected": 0
   },
   {
-    "id": 5,
+    "id": 6,
     "name": "Single house",
     "input": "nums = [5]",
     "nums": [
@@ -60,7 +74,7 @@ export const submitTests = [
     "expected": 5
   },
   {
-    "id": 6,
+    "id": 7,
     "name": "Two houses",
     "input": "nums = [1, 2]",
     "nums": [
@@ -70,7 +84,7 @@ export const submitTests = [
     "expected": 2
   },
   {
-    "id": 7,
+    "id": 8,
     "name": "Multiple choices",
     "input": "nums = [2, 1, 4, 5, 3, 1, 1, 3]",
     "nums": [
