@@ -26,6 +26,7 @@ function normalizeLanguage(value) {
   if (normalized === 'python') return 'python';
   if (normalized === 'javascript' || normalized === 'js') return 'javascript';
   if (normalized === 'typescript' || normalized === 'ts') return 'typescript';
+  if (normalized === 'cpp' || normalized === 'c++') return 'cpp';
   return 'java';
 }
 

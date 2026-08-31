@@ -95,6 +95,16 @@ describe('API Endpoints', () => {
       expect(tsResponse.status).toBe(200);
       expect(tsResponse.body.code).toContain('class TwoSum');
     });
+
+    test('returns C++ templates only for enabled challenges', async () => {
+      const houseResponse = await client.get('/api/template?challenge=house_robber&language=cpp');
+      expect(houseResponse.status).toBe(200);
+      expect(houseResponse.body.code).toContain('class HouseRobber');
+
+      const unsupportedResponse = await client.get('/api/template?challenge=two_sum&language=cpp');
+      expect(unsupportedResponse.status).toBe(400);
+      expect(unsupportedResponse.body.error).toMatch(/not supported/i);
+    });
   });
 
   describe('GET /api/description', () => {
@@ -181,6 +191,16 @@ describe('API Endpoints', () => {
   });
 
   describe('POST /api/run', () => {
+    test('accepts C++ for House Robber in the execution flow', async () => {
+      const response = await client.post('/api/run', {
+        code: 'class HouseRobber { public: int rob(std::vector<int>& nums) { return 0; } };',
+        challenge: 'house_robber',
+        language: 'cpp'
+      });
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
     test('should execute code with basic test cases', async () => {
       const code = 'public int[] twoSum(int[] nums, int target) { return null; }';
       
@@ -478,4 +498,3 @@ describe('API Endpoints', () => {
     });
   });
 });
-

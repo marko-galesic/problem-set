@@ -18,7 +18,8 @@ describe('Header', () => {
       onBugHunt: vi.fn(),
       onGuide: vi.fn(),
       onInterviewerNotes: vi.fn(),
-      onProgress: vi.fn()
+      onProgress: vi.fn(),
+      onLanguageChange: vi.fn()
     };
 
     render(
@@ -31,6 +32,7 @@ describe('Header', () => {
         currentChallenge="two_sum"
         challenges={[{ id: 'two_sum', name: 'Two Sum' }]}
         currentLanguage="java"
+        availableLanguages={['java', 'python', 'javascript', 'typescript', 'cpp']}
       />
     );
 
@@ -40,6 +42,7 @@ describe('Header', () => {
     fireEvent.click(screen.getByRole('button', { name: /interviewer notes/i }));
     fireEvent.click(screen.getByRole('button', { name: /your progress/i }));
     fireEvent.click(screen.getByRole('button', { name: /where's the bug/i }));
+    fireEvent.change(screen.getByRole('combobox', { name: /language/i }), { target: { value: 'cpp' } });
     expect(screen.getByRole('link', { name: /challenges/i })).toHaveAttribute('href', '/#/challenges');
     const resetButton = screen.getByRole('button', { name: /reset/i });
     fireEvent.click(resetButton);
@@ -53,6 +56,7 @@ describe('Header', () => {
     expect(handlers.onInterviewerNotes).toHaveBeenCalled();
     expect(handlers.onProgress).toHaveBeenCalled();
     expect(handlers.onBugHunt).toHaveBeenCalled();
+    expect(handlers.onLanguageChange).toHaveBeenCalledWith('cpp');
   });
 
   it('disables actions while running', () => {
@@ -65,6 +69,8 @@ describe('Header', () => {
         currentChallenge="two_sum"
         challenges={[{ id: 'two_sum', name: 'Two Sum' }]}
         currentLanguage="java"
+        availableLanguages={['java', 'python', 'javascript', 'typescript']}
+        onLanguageChange={vi.fn()}
       />
     );
 
@@ -72,6 +78,6 @@ describe('Header', () => {
     expect(screen.getByRole('button', { name: /submit/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /reset/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /interviewer notes/i })).toBeDisabled();
+    expect(screen.getByRole('combobox', { name: /language/i })).toBeDisabled();
   });
 });
-

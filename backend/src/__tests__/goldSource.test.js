@@ -7,6 +7,7 @@ import { executeJavaCode } from '../executors/javaExecutor.js';
 import { executeJavaScriptCode } from '../executors/javascriptExecutor.js';
 import { executeTypeScriptCode } from '../executors/typescriptExecutor.js';
 import { executePythonCode } from '../executors/pythonExecutor.js';
+import { executeCppCode } from '../executors/cppExecutor.js';
 import { loadAdapter } from '../adapters/index.js';
 import { CHALLENGES } from '../server.js';
 
@@ -100,7 +101,8 @@ async function readGoldSource(challengeId, language = 'java') {
     java: 'Golden.java',
     javascript: 'Golden.js',
     typescript: 'Golden.ts',
-    python: 'Golden.py'
+    python: 'Golden.py',
+    cpp: 'Golden.cpp'
   };
   const filename = filenameMap[language] || 'Golden.java';
   const goldenPath = join(__dirname, '../../../data', challenge.folder, filename);
@@ -162,6 +164,9 @@ async function executeGoldSource(language, code, tests, adapter, challengeId) {
   if (language === 'python') {
     return await executePythonCode(code, tests, adapter, challengeId);
   }
+  if (language === 'cpp') {
+    return await executeCppCode(code, tests, adapter, challengeId);
+  }
   return await executeJavaCode(code, tests, adapter, challengeId);
 }
 
@@ -177,7 +182,7 @@ describe('Gold Source Validation', () => {
     
     describe(challenge.name, () => {
       test('gold source should pass all submit tests', async () => {
-        const languages = ['java', 'javascript', 'typescript', 'python'];
+        const languages = challenge.languages || ['java', 'javascript', 'typescript', 'python'];
         const languageRuns = await Promise.all(languages.map(async (language) => {
           // Read the gold source
           const goldSource = await readGoldSource(challengeId, language);
@@ -230,14 +235,16 @@ describe('Gold Source Validation', () => {
 
           expect(failedTests.length).toBe(0);
         }
-      }, 240000); // 240 second timeout per challenge (4 languages; coverage is slower)
+      }, 240000); // Coverage across every configured language can be slow.
     });
   }
   
   // Optional: Test that all challenges have a Golden file per language
-  test('all challenges should have Golden sources for JS/TS/Python', async () => {
-    const languages = ['javascript', 'typescript', 'python'];
+  test('all challenges should have configured Golden sources', async () => {
     for (const challengeId of challengeIds) {
+      const languages = (CHALLENGES[challengeId].languages
+        || ['java', 'javascript', 'typescript', 'python'])
+        .filter((language) => language !== 'java');
       for (const language of languages) {
         const goldSource = await readGoldSource(challengeId, language);
         expect(goldSource).toBeTruthy();

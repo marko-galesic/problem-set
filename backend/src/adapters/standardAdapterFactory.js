@@ -1,6 +1,7 @@
 import * as javaHelpers from './helpers/java.js';
 import * as jsHelpers from './helpers/javascript.js';
 import * as pyHelpers from './helpers/python.js';
+import * as cppHelpers from './helpers/cpp.js';
 
 function createAdapter(config) {
   const defaults = {
@@ -46,6 +47,12 @@ const JAVA_TYPE_MAP = {
   stringArray: 'String[]',
   intGrid: 'int[][]',
   charGrid: 'char[][]'
+};
+
+const CPP_TYPE_MAP = {
+  int: 'int',
+  intArray: 'std::vector<int>',
+  intGrid: 'std::vector<std::vector<int>>'
 };
 
 const JAVASCRIPT_RETURN_TYPES = {
@@ -244,6 +251,25 @@ const LANGUAGE_CONFIG = {
     invocationIndent: '',
     inputJoiner: '\n',
     helperName: (base) => `get_test_${toSnakeCase(base)}`
+  },
+  cpp: {
+    expectedBuilders: {
+      int: cppHelpers.buildExpectedIntCode
+    },
+    serializers: {
+      int: cppHelpers.serializeInt
+    },
+    inputBuilders: {
+      int: cppHelpers.buildIntScalarInputHelper,
+      intArray: cppHelpers.buildIntArrayInputHelper,
+      intGrid: cppHelpers.buildIntGridInputHelper
+    },
+    returnTypes: { int: 'int' },
+    serializerMethods: { int: 'serializeInt' },
+    invocationIndent: '      ',
+    inputJoiner: '\n\n',
+    helperName: (base) => `getTest${base}`,
+    inputTypeNames: CPP_TYPE_MAP
   }
 };
 
@@ -270,7 +296,7 @@ function buildInvocation(definition, language, parserVar) {
   const config = LANGUAGE_CONFIG[language];
   const args = definition.inputs.map((input) => input.name).join(', ');
 
-  if (language === 'java') {
+  if (language === 'java' || language === 'cpp') {
     const lines = definition.inputs.map((input) => {
       const typeName = config.inputTypeNames[input.type];
       const helperName = config.helperName(resolveHelperBase(input));

@@ -10,6 +10,7 @@ import { executeJavaCode } from './executors/javaExecutor.js';
 import { executePythonCode } from './executors/pythonExecutor.js';
 import { executeJavaScriptCode } from './executors/javascriptExecutor.js';
 import { executeTypeScriptCode } from './executors/typescriptExecutor.js';
+import { executeCppCode } from './executors/cppExecutor.js';
 import { loadAdapter } from './adapters/index.js';
 import { standardAdapterDefinitions } from './adapters/standardAdapterDefinitions.js';
 import { initDatabase } from './db/database.js';
@@ -1570,7 +1571,8 @@ export const CHALLENGES = {
     name: 'House Robber',
     folder: 'house_robber',
     testFile: './testCases/houseRobberTests.js',
-    adapter: 'standard:houseRobber:java'
+    adapter: 'standard:houseRobber:java',
+    languages: ['java', 'python', 'javascript', 'typescript', 'cpp']
   },
   youtube_ads: {
     name: 'YouTube Ads',
@@ -1578,7 +1580,8 @@ export const CHALLENGES = {
     testFile: './testCases/youtubeAdsTests.js',
     adapter: 'standard:youtubeAds:java',
     difficulty: 'hard',
-    topics: ['Dynamic Programming', 'Intervals', 'Binary Search']
+    topics: ['Dynamic Programming', 'Intervals', 'Binary Search'],
+    languages: ['java', 'python', 'javascript', 'typescript', 'cpp']
   },
   jump_game: {
     name: 'Jump Game',
@@ -2496,7 +2499,8 @@ function getChallenge(challengeId) {
         name: dbChallenge.name,
         folder: dbChallenge.folder,
         testFile: dbChallenge.test_file,
-        adapter: dbChallenge.adapter
+        adapter: dbChallenge.adapter,
+        languages: CHALLENGES[challengeId]?.languages
       };
       const testFilePath = candidate.testFile ? join(__dirname, candidate.testFile) : null;
       const adapterPath = candidate.adapter ? join(__dirname, candidate.adapter) : null;
@@ -2557,7 +2561,24 @@ function normalizeLanguage(value) {
   if (normalized === 'typescript' || normalized === 'ts') {
     return 'typescript';
   }
+  if (normalized === 'cpp' || normalized === 'c++') {
+    return 'cpp';
+  }
   return 'java';
+}
+
+const DEFAULT_CHALLENGE_LANGUAGES = ['java', 'python', 'javascript', 'typescript'];
+
+function getSupportedLanguages(challengeId) {
+  return CHALLENGES[challengeId]?.languages || DEFAULT_CHALLENGE_LANGUAGES;
+}
+
+function assertChallengeLanguageSupported(challengeId, language) {
+  if (!getSupportedLanguages(challengeId).includes(language)) {
+    const error = new Error(`${language} is not supported for ${challengeId}`);
+    error.statusCode = 400;
+    throw error;
+  }
 }
 
 function parsePositiveInt(value, fallback) {
@@ -2871,6 +2892,9 @@ function getTemplateFilename(language) {
   }
   if (language === 'typescript') {
     return 'template.ts';
+  }
+  if (language === 'cpp') {
+    return 'template.cpp';
   }
   return 'template.java';
 }
@@ -3228,6 +3252,7 @@ app.get('/api/template', async (req, res) => {
     const challengeId = req.query.challenge || DEFAULT_CHALLENGE;
     const challenge = getChallenge(challengeId);
     const language = normalizeLanguage(req.query.language);
+    assertChallengeLanguageSupported(challengeId, language);
     const templateContent = await getChallengeAssetContent({
       challengeId,
       folder: challenge.folder,
@@ -3241,7 +3266,7 @@ app.get('/api/template', async (req, res) => {
     res.json({ code: templateContent });
   } catch (error) {
     console.error('Template error:', error);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       error: error.message || 'Failed to load template'
     });
   }
@@ -3298,6 +3323,7 @@ app.get('/api/test-cases', async (req, res) => {
   try {
     const challengeId = req.query.challenge || DEFAULT_CHALLENGE;
     const language = normalizeLanguage(req.query.language);
+    assertChallengeLanguageSupported(challengeId, language);
     const { runTests, submitTests } = await loadTestCases(challengeId, language);
     
     // Load adapter to use extractInput() method
@@ -3341,7 +3367,7 @@ app.get('/api/test-cases', async (req, res) => {
     });
   } catch (error) {
     console.error('Test cases error:', error);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       error: error.message || 'Internal server error'
     });
   }
@@ -3353,6 +3379,7 @@ app.post('/api/run', async (req, res) => {
     const { code, testIds, challenge: challengeId, language: rawLanguage } = req.body;
     const challenge = challengeId || DEFAULT_CHALLENGE;
     const language = normalizeLanguage(rawLanguage);
+    assertChallengeLanguageSupported(challenge, language);
 
     if (!code || typeof code !== 'string') {
       return res.status(400).json({ error: 'Code is required' });
@@ -3425,6 +3452,8 @@ app.post('/api/run', async (req, res) => {
       result = await executeJavaScriptCode(code, testsToRun, adapter, challenge);
     } else if (language === 'typescript') {
       result = await executeTypeScriptCode(code, testsToRun, adapter, challenge);
+    } else if (language === 'cpp') {
+      result = await executeCppCode(code, testsToRun, adapter, challenge);
     } else {
       result = await executeJavaCode(code, testsToRun, adapter, challenge);
     }
@@ -3432,7 +3461,7 @@ app.post('/api/run', async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('Run error:', error);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       error: error.message || 'Internal server error',
       results: []
@@ -3446,6 +3475,7 @@ app.post('/api/submit', async (req, res) => {
     const { code, challenge: challengeId, language: rawLanguage } = req.body;
     const challenge = challengeId || DEFAULT_CHALLENGE;
     const language = normalizeLanguage(rawLanguage);
+    assertChallengeLanguageSupported(challenge, language);
 
     if (!code || typeof code !== 'string') {
       return res.status(400).json({ error: 'Code is required' });
@@ -3492,6 +3522,8 @@ app.post('/api/submit', async (req, res) => {
       result = await executeJavaScriptCode(code, submitTests, adapter, challenge);
     } else if (language === 'typescript') {
       result = await executeTypeScriptCode(code, submitTests, adapter, challenge);
+    } else if (language === 'cpp') {
+      result = await executeCppCode(code, submitTests, adapter, challenge);
     } else {
       result = await executeJavaCode(code, submitTests, adapter, challenge);
     }
@@ -3506,7 +3538,7 @@ app.post('/api/submit', async (req, res) => {
     res.json(result);
   } catch (error) {
     console.error('Submit error:', error);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       error: error.message || 'Internal server error',
       results: []
@@ -3636,14 +3668,16 @@ app.get('/api/challenges', (req, res) => {
       const dbChallenges = getAllChallenges();
       const challenges = dbChallenges.map(ch => ({
         id: ch.id,
-        name: ch.name
+        name: ch.name,
+        languages: getSupportedLanguages(ch.id)
       }));
       return res.json({ challenges });
     } catch (dbError) {
       // Fallback to CHALLENGES object
       const challenges = Object.entries(CHALLENGES).map(([id, config]) => ({
         id,
-        name: config.name
+        name: config.name,
+        languages: getSupportedLanguages(id)
       }));
       return res.json({ challenges });
     }
@@ -4889,7 +4923,8 @@ app.get('/api/challenges/metadata', (req, res) => {
       difficulty: ch.difficulty,
       topics: JSON.parse(ch.topics || '[]'),
       created_at: ch.created_at,
-      updated_at: ch.updated_at
+      updated_at: ch.updated_at,
+      languages: getSupportedLanguages(ch.id)
     }));
     res.json({ challenges });
   } catch (error) {
@@ -5147,10 +5182,11 @@ const SIMILARITY_TIER_WEIGHTS = {
 };
 
 const LANGUAGE_SIMILARITY_TIERS = {
-  javascript: { typescript: 'close', python: 'medium', java: 'medium' },
-  typescript: { javascript: 'close', python: 'medium', java: 'medium' },
-  python: { javascript: 'medium', typescript: 'medium', java: 'far' },
-  java: { javascript: 'medium', typescript: 'medium', python: 'far' }
+  javascript: { typescript: 'close', python: 'medium', java: 'medium', cpp: 'far' },
+  typescript: { javascript: 'close', python: 'medium', java: 'medium', cpp: 'far' },
+  python: { javascript: 'medium', typescript: 'medium', java: 'far', cpp: 'far' },
+  java: { javascript: 'medium', typescript: 'medium', python: 'far', cpp: 'close' },
+  cpp: { java: 'close', javascript: 'far', typescript: 'far', python: 'far' }
 };
 
 function getLanguageSimilarity(sourceLanguage, targetLanguage) {
@@ -5813,4 +5849,3 @@ export const __testables = {
   getLanguageSimilarity,
   getOnboardingRamp
 };
-

@@ -15,6 +15,8 @@ export default function Header({
   isMaximized,
   currentChallenge,
   currentLanguage,
+  availableLanguages,
+  onLanguageChange,
   timerRef,
   timerInitialState,
   onTimerStateChange,
@@ -58,6 +60,22 @@ export default function Header({
         />
       </div>
       <div className="header-actions">
+        <label className="header-language-control">
+          <span className="sr-only">Language</span>
+          <select
+            className="language-select"
+            value={currentLanguage}
+            onChange={(event) => onLanguageChange(event.target.value)}
+            disabled={isRunning}
+            aria-label="Language"
+          >
+            {(availableLanguages || ['java', 'python', 'javascript', 'typescript']).map((language) => (
+              <option key={language} value={language}>
+                {{ java: 'Java', python: 'Python', javascript: 'JavaScript', typescript: 'TypeScript', cpp: 'C++' }[language] || language}
+              </option>
+            ))}
+          </select>
+        </label>
         <Button
           onClick={onInterviewerNotes}
           disabled={isRunning}
@@ -147,4 +165,3 @@ export default function Header({
     </div>
   );
 }
-

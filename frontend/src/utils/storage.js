@@ -19,6 +19,9 @@ function normalizeLanguageKey(value) {
   if (normalized === 'typescript' || normalized === 'ts') {
     return 'typescript';
   }
+  if (normalized === 'cpp' || normalized === 'c++') {
+    return 'cpp';
+  }
   return 'java';
 }
 

@@ -20,6 +20,7 @@ describe('Server helper utilities', () => {
     expect(testables.normalizeLanguage(' PYTHON ')).toBe('python');
     expect(testables.normalizeLanguage('js')).toBe('javascript');
     expect(testables.normalizeLanguage('TypeScript')).toBe('typescript');
+    expect(testables.normalizeLanguage('C++')).toBe('cpp');
     expect(testables.normalizeLanguage('kotlin')).toBe('java');
   });
 

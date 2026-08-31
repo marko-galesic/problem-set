@@ -46,7 +46,8 @@ const LANGUAGE_OPTIONS = [
   { id: 'java', label: 'Java' },
   { id: 'python', label: 'Python' },
   { id: 'javascript', label: 'JavaScript' },
-  { id: 'typescript', label: 'TypeScript' }
+  { id: 'typescript', label: 'TypeScript' },
+  { id: 'cpp', label: 'C++' }
 ];
 
 const FITNESS_GRADE_BANDS = [
@@ -745,6 +746,9 @@ export default function SubmissionsPage() {
     }
     if (normalized === 'typescript' || normalized === 'ts') {
       return 'typescript';
+    }
+    if (normalized === 'cpp' || normalized === 'c++') {
+      return 'cpp';
     }
     return 'java';
   }

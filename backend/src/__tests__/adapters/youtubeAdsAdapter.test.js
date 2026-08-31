@@ -3,7 +3,7 @@ import { loadAdapter } from '../../adapters/index.js';
 import { runTests, submitTests } from '../../testCases/youtubeAdsTests.js';
 
 describe('YouTube Ads standard adapter', () => {
-  for (const language of ['java', 'python', 'javascript', 'typescript']) {
+  for (const language of ['java', 'python', 'javascript', 'typescript', 'cpp']) {
     test(`supports ${language}`, async () => {
       const adapter = await loadAdapter(`standard:youtubeAds:${language}`);
       expect(adapter.extractInput(runTests[0])).toEqual({ ads: runTests[0].ads });
@@ -13,4 +13,3 @@ describe('YouTube Ads standard adapter', () => {
     });
   }
 });
-

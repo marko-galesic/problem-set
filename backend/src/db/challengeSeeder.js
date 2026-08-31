@@ -20,7 +20,7 @@ const SRC_DIR = resolve(__dirname, '..');
 const ROOT_DIR = resolve(__dirname, '../../..');
 const DATA_DIR = join(ROOT_DIR, 'data');
 
-const LANGUAGES = ['java', 'python', 'javascript', 'typescript'];
+const LANGUAGES = ['java', 'python', 'javascript', 'typescript', 'cpp'];
 const HELPERS = ['TreeNode', 'ListNode', 'Node', 'AttrResult'];
 const STANDARD_ADAPTER_OVERRIDES = new Set([
   'groupAnagrams',
@@ -149,7 +149,9 @@ export async function seedChallengeAssetsFromFiles({ challengeId, folder }) {
         ? 'ts'
         : language === 'javascript'
           ? 'js'
-          : 'java';
+          : language === 'cpp'
+            ? 'cpp'
+            : 'java';
     const templatePath = join(DATA_DIR, folder, `template.${extension}`);
     const goldenPath = join(DATA_DIR, folder, `Golden.${extension}`);
 
@@ -247,4 +249,3 @@ export async function seedChallengeContentFromFiles({ challengeId, challenge }) 
     adapter: adapterResult
   };
 }
-

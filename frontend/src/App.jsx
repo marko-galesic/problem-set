@@ -35,7 +35,15 @@ const DEFAULT_CODE = {
   twoSum(nums, target) {
     return null;
   }
-}`
+}`,
+  cpp: `#include <vector>
+
+class TwoSum {
+public:
+  std::vector<int> twoSum(std::vector<int>& nums, int target) {
+    return {};
+  }
+};`
 };
 
 const UNTRACKED_TIMER_VALUE = -1;
@@ -198,6 +206,9 @@ function App() {
     }
     if (normalized === 'typescript' || normalized === 'ts') {
       return 'typescript';
+    }
+    if (normalized === 'cpp' || normalized === 'c++') {
+      return 'cpp';
     }
     return 'java';
   }
@@ -460,6 +471,14 @@ function App() {
     }
   }, [challenges, currentChallenge]);
 
+  useEffect(() => {
+    const challenge = challenges.find((entry) => entry.id === currentChallenge);
+    const supportedLanguages = challenge?.languages || ['java', 'python', 'javascript', 'typescript'];
+    if (!supportedLanguages.includes(currentLanguage)) {
+      handleLanguageChange('java');
+    }
+  }, [challenges, currentChallenge, currentLanguage]);
+
   async function fetchChallengesMetadata() {
     try {
       const response = await fetch('/api/challenges/metadata');
@@ -471,7 +490,8 @@ function App() {
       return metadata.map((challenge) => ({
         id: challenge.id,
         name: challenge.name,
-        difficulty: challenge.difficulty
+        difficulty: challenge.difficulty,
+        languages: challenge.languages
       }));
     } catch (metadataError) {
       const fallbackResponse = await fetch('/api/challenges');
@@ -483,7 +503,8 @@ function App() {
       return fallback.map((challenge) => ({
         id: challenge.id,
         name: challenge.name,
-        difficulty: null
+        difficulty: null,
+        languages: challenge.languages
       }));
     }
   }
@@ -526,6 +547,9 @@ function App() {
     async function bootstrapRecommendedChallenge() {
       try {
         const metadata = await fetchChallengesMetadata();
+        const eligibleMetadata = metadata.filter((challenge) => (
+          !Array.isArray(challenge.languages) || challenge.languages.includes(currentLanguage)
+        ));
         const { from } = getRecentDateRange(14);
         const recentSubmissions = await loadAllSubmissions({
           from,
@@ -536,7 +560,7 @@ function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             submissions: recentSubmissions,
-            challenges: metadata
+            challenges: eligibleMetadata
           })
         });
         if (!response.ok) {
@@ -546,7 +570,7 @@ function App() {
         if (!isActive) {
           return;
         }
-        const matched = findChallengeByName(data.name, metadata)
+        const matched = findChallengeByName(data.name, eligibleMetadata)
           || findChallengeByName(data.name, challenges);
         if (matched?.id && matched.id !== currentChallenge) {
           setCurrentChallenge(matched.id);
@@ -941,6 +965,9 @@ function App() {
 
     try {
       const metadata = await fetchChallengesMetadata();
+      const eligibleMetadata = metadata.filter((challenge) => (
+        !Array.isArray(challenge.languages) || challenge.languages.includes(currentLanguage)
+      ));
       const { from } = getRecentDateRange(14);
       const recentSubmissions = await loadAllSubmissions({
         from,
@@ -951,7 +978,7 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           submissions: recentSubmissions,
-          challenges: metadata
+          challenges: eligibleMetadata
         })
       });
 
@@ -965,7 +992,7 @@ function App() {
         difficulty: data.difficulty,
         explanation: data.explanation
       };
-      const matched = findChallengeByName(data.name, metadata);
+      const matched = findChallengeByName(data.name, eligibleMetadata);
       setNextChallengeRecommendation(recommendation);
       setNextChallengeId(matched ? matched.id : null);
     } catch (error) {
@@ -1332,6 +1359,8 @@ function App() {
     ? `View your daily progress report (${progressSubmissionCount} submission${progressSubmissionCount === 1 ? '' : 's'})`
     : 'Available after 4pm on days you submit';
   const baseRunTestIds = (testCases.runTests || []).slice(0, 3).map((test) => test.id);
+  const availableLanguages = challenges.find((challenge) => challenge.id === currentChallenge)?.languages
+    || ['java', 'python', 'javascript', 'typescript'];
 
   return (
     <div className="app">
@@ -1347,6 +1376,8 @@ function App() {
         isMaximized={isEditorMaximized}
         currentChallenge={currentChallenge}
         currentLanguage={currentLanguage}
+        availableLanguages={availableLanguages}
+        onLanguageChange={handleLanguageChange}
         timerRef={timerRef}
         timerInitialState={timerInitialState}
         onTimerStateChange={handleTimerStateChange}
@@ -1540,4 +1571,3 @@ function App() {
 }
 
 export default App;
-
